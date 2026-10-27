@@ -1,0 +1,54 @@
+{
+  "resource": {
+    "aidial_model": {
+      "bedrock_stability_stable_image_ultra_v1_1": {
+        "bucket": "platform",
+        "path": "bedrock.stability.stable-image-ultra-v1:1",
+        "name": "bedrock.stability.stable-image-ultra-v1:1",
+        "type": "CHAT",
+        "display_name": "StabilityAI Stable Image Ultra",
+        "display_version": "V1:1",
+        "override_name": "stability.stable-image-ultra-v1:1",
+        "description": "Stable Image Ultra produces large, photorealistic images for professional creative and production work.",
+        "description_keywords": [
+          "Image Generation",
+          "AWS"
+        ],
+        "features": {
+          "tools_supported": false
+        },
+        "limits": {
+          "max_prompt_tokens": 350
+        },
+        "pricing": {
+          "unit": "token",
+          "prompt": "0",
+          "completion": "0.14"
+        },
+        "endpoint": "http://bedrock-adapter.example/openai/deployments/stability.stable-image-ultra-v1:1/chat/completions",
+        "responses_endpoint": "",
+        "interfaces": {},
+        "upstreams": [
+          {
+            "extraData": {
+              "region": "us-west-2"
+            }
+          },
+          {
+            "extraData": {
+              "region": "us-west-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000001:role/example-bedrock-adapter-2"
+            }
+          }
+        ],
+        "user_roles": [
+          "full",
+          "statgpt-service",
+          "user"
+        ],
+        "default_headers": {},
+        "interceptors": []
+      }
+    }
+  }
+}

@@ -1,0 +1,462 @@
+{
+  "resource": {
+    "aidial_model": {
+      "bedrock_anthropic_claude_haiku_4_5_20251001_v1_0": {
+        "bucket": "platform",
+        "path": "bedrock.anthropic.claude-haiku-4-5-20251001-v1:0",
+        "name": "bedrock.anthropic.claude-haiku-4-5-20251001-v1:0",
+        "type": "CHAT",
+        "display_name": "Anthropic Claude Haiku 4.5",
+        "display_version": "20251001-v1:0 (AWS Bedrock)",
+        "override_name": "anthropic.claude-haiku-4-5-20251001-v1:0",
+        "icon_url": "anthropic.svg",
+        "description": "Claude Haiku 4.5 delivers near-frontier performance with the speed and cost to power real-time products and high-volume agentic workloads.",
+        "description_keywords": [
+          "Text Generation",
+          "Image Recognition",
+          "AWS",
+          "Functions",
+          "Development",
+          "PDF Supported",
+          "TXT Supported",
+          "MD Supported",
+          "Reasoning"
+        ],
+        "input_attachment_types": [
+          "image/*",
+          "text/plain",
+          "text/markdown",
+          "application/pdf"
+        ],
+        "features": {
+          "cache_supported": true,
+          "tools_supported": true
+        },
+        "defaults": {
+          "max_tokens": 64000
+        },
+        "limits": {
+          "max_total_tokens": 200000
+        },
+        "pricing": {
+          "unit": "token",
+          "prompt": "0.0000008",
+          "completion": "0.000004",
+          "cacheRead": "0.0000001",
+          "cacheWrite": "0.00000125"
+        },
+        "endpoint": "http://bedrock-adapter.example/openai/deployments/us.anthropic.claude-haiku-4-5-20251001-v1:0/chat/completions",
+        "responses_endpoint": "",
+        "interfaces": {
+          "anthropicMessages": {
+            "base_url": "http://bedrock-adapter.example"
+          }
+        },
+        "upstreams": [
+          {
+            "endpoint": "us-east-1",
+            "id": "us-east-1",
+            "extraData": {
+              "region": "us-east-1"
+            }
+          },
+          {
+            "endpoint": "us-east-2",
+            "id": "us-east-2",
+            "extraData": {
+              "region": "us-east-2"
+            }
+          },
+          {
+            "endpoint": "us-west-1",
+            "id": "us-west-1",
+            "extraData": {
+              "region": "us-west-1"
+            }
+          },
+          {
+            "endpoint": "us-west-2",
+            "id": "us-west-2",
+            "extraData": {
+              "region": "us-west-2"
+            }
+          },
+          {
+            "endpoint": "ca-central-1",
+            "id": "ca-central-1",
+            "extraData": {
+              "region": "ca-central-1"
+            }
+          },
+          {
+            "endpoint": "us-east-1:arn:aws:iam::100000000001:role/example-bedrock-adapter-2",
+            "id": "us-east-1:arn:aws:iam::100000000001:role/example-bedrock-adapter-2",
+            "extraData": {
+              "region": "us-east-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000001:role/example-bedrock-adapter-2"
+            }
+          },
+          {
+            "endpoint": "us-east-2:arn:aws:iam::100000000001:role/example-bedrock-adapter-2",
+            "id": "us-east-2:arn:aws:iam::100000000001:role/example-bedrock-adapter-2",
+            "extraData": {
+              "region": "us-east-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000001:role/example-bedrock-adapter-2"
+            }
+          },
+          {
+            "endpoint": "us-west-1:arn:aws:iam::100000000001:role/example-bedrock-adapter-2",
+            "id": "us-west-1:arn:aws:iam::100000000001:role/example-bedrock-adapter-2",
+            "extraData": {
+              "region": "us-west-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000001:role/example-bedrock-adapter-2"
+            }
+          },
+          {
+            "endpoint": "us-west-2:arn:aws:iam::100000000001:role/example-bedrock-adapter-2",
+            "id": "us-west-2:arn:aws:iam::100000000001:role/example-bedrock-adapter-2",
+            "extraData": {
+              "region": "us-west-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000001:role/example-bedrock-adapter-2"
+            }
+          },
+          {
+            "endpoint": "ca-central-1:arn:aws:iam::100000000001:role/example-bedrock-adapter-2",
+            "id": "ca-central-1:arn:aws:iam::100000000001:role/example-bedrock-adapter-2",
+            "extraData": {
+              "region": "ca-central-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000001:role/example-bedrock-adapter-2"
+            }
+          },
+          {
+            "endpoint": "us-east-1:arn:aws:iam::100000000007:role/example-bedrock-adapter-3",
+            "id": "us-east-1:arn:aws:iam::100000000007:role/example-bedrock-adapter-3",
+            "extraData": {
+              "region": "us-east-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000007:role/example-bedrock-adapter-3"
+            }
+          },
+          {
+            "endpoint": "us-east-2:arn:aws:iam::100000000007:role/example-bedrock-adapter-3",
+            "id": "us-east-2:arn:aws:iam::100000000007:role/example-bedrock-adapter-3",
+            "extraData": {
+              "region": "us-east-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000007:role/example-bedrock-adapter-3"
+            }
+          },
+          {
+            "endpoint": "us-west-1:arn:aws:iam::100000000007:role/example-bedrock-adapter-3",
+            "id": "us-west-1:arn:aws:iam::100000000007:role/example-bedrock-adapter-3",
+            "extraData": {
+              "region": "us-west-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000007:role/example-bedrock-adapter-3"
+            }
+          },
+          {
+            "endpoint": "us-west-2:arn:aws:iam::100000000007:role/example-bedrock-adapter-3",
+            "id": "us-west-2:arn:aws:iam::100000000007:role/example-bedrock-adapter-3",
+            "extraData": {
+              "region": "us-west-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000007:role/example-bedrock-adapter-3"
+            }
+          },
+          {
+            "endpoint": "ca-central-1:arn:aws:iam::100000000007:role/example-bedrock-adapter-3",
+            "id": "ca-central-1:arn:aws:iam::100000000007:role/example-bedrock-adapter-3",
+            "extraData": {
+              "region": "ca-central-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000007:role/example-bedrock-adapter-3"
+            }
+          },
+          {
+            "endpoint": "us-east-1:arn:aws:iam::100000000002:role/example-bedrock-adapter-4",
+            "id": "us-east-1:arn:aws:iam::100000000002:role/example-bedrock-adapter-4",
+            "extraData": {
+              "region": "us-east-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000002:role/example-bedrock-adapter-4"
+            }
+          },
+          {
+            "endpoint": "us-east-2:arn:aws:iam::100000000002:role/example-bedrock-adapter-4",
+            "id": "us-east-2:arn:aws:iam::100000000002:role/example-bedrock-adapter-4",
+            "extraData": {
+              "region": "us-east-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000002:role/example-bedrock-adapter-4"
+            }
+          },
+          {
+            "endpoint": "us-west-1:arn:aws:iam::100000000002:role/example-bedrock-adapter-4",
+            "id": "us-west-1:arn:aws:iam::100000000002:role/example-bedrock-adapter-4",
+            "extraData": {
+              "region": "us-west-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000002:role/example-bedrock-adapter-4"
+            }
+          },
+          {
+            "endpoint": "us-west-2:arn:aws:iam::100000000002:role/example-bedrock-adapter-4",
+            "id": "us-west-2:arn:aws:iam::100000000002:role/example-bedrock-adapter-4",
+            "extraData": {
+              "region": "us-west-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000002:role/example-bedrock-adapter-4"
+            }
+          },
+          {
+            "endpoint": "ca-central-1:arn:aws:iam::100000000002:role/example-bedrock-adapter-4",
+            "id": "ca-central-1:arn:aws:iam::100000000002:role/example-bedrock-adapter-4",
+            "extraData": {
+              "region": "ca-central-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000002:role/example-bedrock-adapter-4"
+            }
+          },
+          {
+            "endpoint": "us-east-1:arn:aws:iam::100000000008:role/example-bedrock-adapter-5",
+            "id": "us-east-1:arn:aws:iam::100000000008:role/example-bedrock-adapter-5",
+            "extraData": {
+              "region": "us-east-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000008:role/example-bedrock-adapter-5"
+            }
+          },
+          {
+            "endpoint": "us-east-2:arn:aws:iam::100000000008:role/example-bedrock-adapter-5",
+            "id": "us-east-2:arn:aws:iam::100000000008:role/example-bedrock-adapter-5",
+            "extraData": {
+              "region": "us-east-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000008:role/example-bedrock-adapter-5"
+            }
+          },
+          {
+            "endpoint": "us-west-1:arn:aws:iam::100000000008:role/example-bedrock-adapter-5",
+            "id": "us-west-1:arn:aws:iam::100000000008:role/example-bedrock-adapter-5",
+            "extraData": {
+              "region": "us-west-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000008:role/example-bedrock-adapter-5"
+            }
+          },
+          {
+            "endpoint": "us-west-2:arn:aws:iam::100000000008:role/example-bedrock-adapter-5",
+            "id": "us-west-2:arn:aws:iam::100000000008:role/example-bedrock-adapter-5",
+            "extraData": {
+              "region": "us-west-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000008:role/example-bedrock-adapter-5"
+            }
+          },
+          {
+            "endpoint": "ca-central-1:arn:aws:iam::100000000008:role/example-bedrock-adapter-5",
+            "id": "ca-central-1:arn:aws:iam::100000000008:role/example-bedrock-adapter-5",
+            "extraData": {
+              "region": "ca-central-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000008:role/example-bedrock-adapter-5"
+            }
+          },
+          {
+            "endpoint": "us-east-1:arn:aws:iam::100000000004:role/example-bedrock-adapter-6",
+            "id": "us-east-1:arn:aws:iam::100000000004:role/example-bedrock-adapter-6",
+            "extraData": {
+              "region": "us-east-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000004:role/example-bedrock-adapter-6"
+            }
+          },
+          {
+            "endpoint": "us-east-2:arn:aws:iam::100000000004:role/example-bedrock-adapter-6",
+            "id": "us-east-2:arn:aws:iam::100000000004:role/example-bedrock-adapter-6",
+            "extraData": {
+              "region": "us-east-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000004:role/example-bedrock-adapter-6"
+            }
+          },
+          {
+            "endpoint": "us-west-1:arn:aws:iam::100000000004:role/example-bedrock-adapter-6",
+            "id": "us-west-1:arn:aws:iam::100000000004:role/example-bedrock-adapter-6",
+            "extraData": {
+              "region": "us-west-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000004:role/example-bedrock-adapter-6"
+            }
+          },
+          {
+            "endpoint": "us-west-2:arn:aws:iam::100000000004:role/example-bedrock-adapter-6",
+            "id": "us-west-2:arn:aws:iam::100000000004:role/example-bedrock-adapter-6",
+            "extraData": {
+              "region": "us-west-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000004:role/example-bedrock-adapter-6"
+            }
+          },
+          {
+            "endpoint": "ca-central-1:arn:aws:iam::100000000004:role/example-bedrock-adapter-6",
+            "id": "ca-central-1:arn:aws:iam::100000000004:role/example-bedrock-adapter-6",
+            "extraData": {
+              "region": "ca-central-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000004:role/example-bedrock-adapter-6"
+            }
+          },
+          {
+            "endpoint": "us-east-1:arn:aws:iam::100000000006:role/example-bedrock-adapter-7",
+            "id": "us-east-1:arn:aws:iam::100000000006:role/example-bedrock-adapter-7",
+            "extraData": {
+              "region": "us-east-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000006:role/example-bedrock-adapter-7"
+            }
+          },
+          {
+            "endpoint": "us-east-2:arn:aws:iam::100000000006:role/example-bedrock-adapter-7",
+            "id": "us-east-2:arn:aws:iam::100000000006:role/example-bedrock-adapter-7",
+            "extraData": {
+              "region": "us-east-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000006:role/example-bedrock-adapter-7"
+            }
+          },
+          {
+            "endpoint": "us-west-1:arn:aws:iam::100000000006:role/example-bedrock-adapter-7",
+            "id": "us-west-1:arn:aws:iam::100000000006:role/example-bedrock-adapter-7",
+            "extraData": {
+              "region": "us-west-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000006:role/example-bedrock-adapter-7"
+            }
+          },
+          {
+            "endpoint": "us-west-2:arn:aws:iam::100000000006:role/example-bedrock-adapter-7",
+            "id": "us-west-2:arn:aws:iam::100000000006:role/example-bedrock-adapter-7",
+            "extraData": {
+              "region": "us-west-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000006:role/example-bedrock-adapter-7"
+            }
+          },
+          {
+            "endpoint": "ca-central-1:arn:aws:iam::100000000006:role/example-bedrock-adapter-7",
+            "id": "ca-central-1:arn:aws:iam::100000000006:role/example-bedrock-adapter-7",
+            "extraData": {
+              "region": "ca-central-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000006:role/example-bedrock-adapter-7"
+            }
+          },
+          {
+            "endpoint": "us-east-1:arn:aws:iam::100000000003:role/example-bedrock-adapter-8",
+            "id": "us-east-1:arn:aws:iam::100000000003:role/example-bedrock-adapter-8",
+            "extraData": {
+              "region": "us-east-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000003:role/example-bedrock-adapter-8"
+            }
+          },
+          {
+            "endpoint": "us-east-2:arn:aws:iam::100000000003:role/example-bedrock-adapter-8",
+            "id": "us-east-2:arn:aws:iam::100000000003:role/example-bedrock-adapter-8",
+            "extraData": {
+              "region": "us-east-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000003:role/example-bedrock-adapter-8"
+            }
+          },
+          {
+            "endpoint": "us-west-1:arn:aws:iam::100000000003:role/example-bedrock-adapter-8",
+            "id": "us-west-1:arn:aws:iam::100000000003:role/example-bedrock-adapter-8",
+            "extraData": {
+              "region": "us-west-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000003:role/example-bedrock-adapter-8"
+            }
+          },
+          {
+            "endpoint": "us-west-2:arn:aws:iam::100000000003:role/example-bedrock-adapter-8",
+            "id": "us-west-2:arn:aws:iam::100000000003:role/example-bedrock-adapter-8",
+            "extraData": {
+              "region": "us-west-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000003:role/example-bedrock-adapter-8"
+            }
+          },
+          {
+            "endpoint": "ca-central-1:arn:aws:iam::100000000003:role/example-bedrock-adapter-8",
+            "id": "ca-central-1:arn:aws:iam::100000000003:role/example-bedrock-adapter-8",
+            "extraData": {
+              "region": "ca-central-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000003:role/example-bedrock-adapter-8"
+            }
+          },
+          {
+            "endpoint": "us-east-1:arn:aws:iam::100000000009:role/example-bedrock-adapter-9",
+            "id": "us-east-1:arn:aws:iam::100000000009:role/example-bedrock-adapter-9",
+            "extraData": {
+              "region": "us-east-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000009:role/example-bedrock-adapter-9"
+            }
+          },
+          {
+            "endpoint": "us-east-2:arn:aws:iam::100000000009:role/example-bedrock-adapter-9",
+            "id": "us-east-2:arn:aws:iam::100000000009:role/example-bedrock-adapter-9",
+            "extraData": {
+              "region": "us-east-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000009:role/example-bedrock-adapter-9"
+            }
+          },
+          {
+            "endpoint": "us-west-1:arn:aws:iam::100000000009:role/example-bedrock-adapter-9",
+            "id": "us-west-1:arn:aws:iam::100000000009:role/example-bedrock-adapter-9",
+            "extraData": {
+              "region": "us-west-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000009:role/example-bedrock-adapter-9"
+            }
+          },
+          {
+            "endpoint": "us-west-2:arn:aws:iam::100000000009:role/example-bedrock-adapter-9",
+            "id": "us-west-2:arn:aws:iam::100000000009:role/example-bedrock-adapter-9",
+            "extraData": {
+              "region": "us-west-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000009:role/example-bedrock-adapter-9"
+            }
+          },
+          {
+            "endpoint": "ca-central-1:arn:aws:iam::100000000009:role/example-bedrock-adapter-9",
+            "id": "ca-central-1:arn:aws:iam::100000000009:role/example-bedrock-adapter-9",
+            "extraData": {
+              "region": "ca-central-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000009:role/example-bedrock-adapter-9"
+            }
+          },
+          {
+            "endpoint": "us-east-1:arn:aws:iam::100000000005:role/example-bedrock-adapter-10",
+            "id": "us-east-1:arn:aws:iam::100000000005:role/example-bedrock-adapter-10",
+            "extraData": {
+              "region": "us-east-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000005:role/example-bedrock-adapter-10"
+            }
+          },
+          {
+            "endpoint": "us-east-2:arn:aws:iam::100000000005:role/example-bedrock-adapter-10",
+            "id": "us-east-2:arn:aws:iam::100000000005:role/example-bedrock-adapter-10",
+            "extraData": {
+              "region": "us-east-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000005:role/example-bedrock-adapter-10"
+            }
+          },
+          {
+            "endpoint": "us-west-1:arn:aws:iam::100000000005:role/example-bedrock-adapter-10",
+            "id": "us-west-1:arn:aws:iam::100000000005:role/example-bedrock-adapter-10",
+            "extraData": {
+              "region": "us-west-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000005:role/example-bedrock-adapter-10"
+            }
+          },
+          {
+            "endpoint": "us-west-2:arn:aws:iam::100000000005:role/example-bedrock-adapter-10",
+            "id": "us-west-2:arn:aws:iam::100000000005:role/example-bedrock-adapter-10",
+            "extraData": {
+              "region": "us-west-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000005:role/example-bedrock-adapter-10"
+            }
+          },
+          {
+            "endpoint": "ca-central-1:arn:aws:iam::100000000005:role/example-bedrock-adapter-10",
+            "id": "ca-central-1:arn:aws:iam::100000000005:role/example-bedrock-adapter-10",
+            "extraData": {
+              "region": "ca-central-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000005:role/example-bedrock-adapter-10"
+            }
+          }
+        ],
+        "user_roles": [
+          "full",
+          "statgpt-service",
+          "user"
+        ],
+        "default_headers": {},
+        "interceptors": []
+      }
+    }
+  }
+}

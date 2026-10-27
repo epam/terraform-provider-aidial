@@ -1,0 +1,98 @@
+{
+  "resource": {
+    "aidial_model": {
+      "openai_o4_mini_2025_04_16_reasoning": {
+        "bucket": "platform",
+        "path": "openai.o4-mini-2025-04-16-reasoning",
+        "name": "openai.o4-mini-2025-04-16-reasoning",
+        "type": "CHAT",
+        "display_name": "OpenAI o4-mini",
+        "display_version": "2025-04-16-reasoning",
+        "override_name": "o4-mini-2025-04-16-reasoning",
+        "icon_url": "gpt3.svg",
+        "description": "OpenAI o4-mini (high reasoning effort) is optimized for fast, cost-efficient reasoning, particularly in math and coding.",
+        "input_attachment_types": [
+          "image/*",
+          "text/plain",
+          "text/markdown"
+        ],
+        "description_keywords": [
+          "Azure",
+          "Functions",
+          "Reasoning",
+          "Text Generation",
+          "Image Recognition",
+          "TXT Supported",
+          "MD Supported"
+        ],
+        "features": {
+          "auto_caching_supported": true,
+          "temperature_supported": false,
+          "tools_supported": true
+        },
+        "defaults": {
+          "custom_fields": {
+            "configuration": {
+              "reasoning": {
+                "effort": "high",
+                "summary": "auto"
+              }
+            }
+          }
+        },
+        "limits": {
+          "max_prompt_tokens": 200000,
+          "max_completion_tokens": 100000
+        },
+        "pricing": {
+          "unit": "token",
+          "prompt": "0.0000011",
+          "completion": "0.0000044",
+          "cacheRead": "0.00000028"
+        },
+        "endpoint": "http://openai-adapter.example/openai/deployments/o4-mini-2025-04-16/chat/completions",
+        "responses_endpoint": "http://openai-adapter.example/openai/v1/responses",
+        "interfaces": {},
+        "upstreams": [
+          {
+            "id": "example-a-eastus2-0",
+            "endpoint": "https://example-a-eastus2-0.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-a-eastus2-0.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-a-eastus2-1",
+            "endpoint": "https://example-a-eastus2-1.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-a-eastus2-1.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-a-eastus2-2",
+            "endpoint": "https://example-a-eastus2-2.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-a-eastus2-2.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-a-swedencentral-0",
+            "endpoint": "https://example-a-swedencentral-0.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-a-swedencentral-0.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-a-swedencentral-1",
+            "endpoint": "https://example-a-swedencentral-1.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-a-swedencentral-1.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-a-swedencentral-2",
+            "endpoint": "https://example-a-swedencentral-2.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-a-swedencentral-2.openai.azure.com/openai/v1/responses"
+          }
+        ],
+        "user_roles": [
+          "full",
+          "statgpt-service",
+          "user"
+        ],
+        "default_headers": {},
+        "interceptors": []
+      }
+    }
+  }
+}

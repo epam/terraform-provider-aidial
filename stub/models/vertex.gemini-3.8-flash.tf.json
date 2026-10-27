@@ -1,0 +1,68 @@
+{
+  "resource": {
+    "aidial_model": {
+      "vertex_gemini_3_8_flash": {
+        "bucket": "platform",
+        "path": "vertex.gemini-3.8-flash",
+        "name": "vertex.gemini-3.8-flash",
+        "type": "CHAT",
+        "display_name": "Google Gemini 3.8 Flash",
+        "display_version": "V1",
+        "override_name": "gemini-3.8-flash",
+        "icon_url": "Gemini-Pro-Vision.svg",
+        "description": "Gemini 3.8 Flash is Google's fast, general-purpose multimodal model for text, image, audio, and video understanding.",
+        "input_attachment_types": [
+          "*/*"
+        ],
+        "description_keywords": [
+          "Text Generation",
+          "GCP",
+          "TXT Supported",
+          "Image Recognition",
+          "Functions",
+          "Video Recognition",
+          "Audio Recognition",
+          "PDF Supported"
+        ],
+        "features": {
+          "tools_supported": true
+        },
+        "limits": {
+          "max_total_tokens": 999000,
+          "max_completion_tokens": 63999
+        },
+        "pricing": {
+          "unit": "token",
+          "prompt": "0.00000075",
+          "completion": "0.00000375"
+        },
+        "endpoint": "http://vertexai-adapter.example/openai/deployments/gemini-3.8-flash/chat/completions",
+        "responses_endpoint": "",
+        "interfaces": {},
+        "upstreams": [
+          {
+            "extraData": {
+              "project": "example-project-2",
+              "region": "global",
+              "compatible_model_id": "gemini-3.5-flash"
+            }
+          },
+          {
+            "extraData": {
+              "project": "example-project-1",
+              "region": "global",
+              "compatible_model_id": "gemini-3.5-flash"
+            }
+          }
+        ],
+        "user_roles": [
+          "full",
+          "statgpt-service",
+          "user"
+        ],
+        "default_headers": {},
+        "interceptors": []
+      }
+    }
+  }
+}

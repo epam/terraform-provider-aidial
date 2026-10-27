@@ -1,0 +1,41 @@
+# Terraform
+terraform.tfvars
+*.auto.tfvars
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# Go
+bin/
+dist/
+coverage.out
+*.bak
+
+# Python
+*.py
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# macOS
+.DS_Store
+
+# pre-commit
+.pre-commit-cache/
+.hooks/
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/launch.json
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+# Built provider binary
+/terraform-provider-aidial

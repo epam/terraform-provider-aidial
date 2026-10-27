@@ -1,0 +1,8 @@
+{
+  "config": {
+    "MD013": false,
+    "MD060": false
+  },
+  "globs": ["**/*.md"],
+  "ignores": ["node_modules", "openspec/**", ".claude/**", "openspec-*.md", "docs/**"]
+}

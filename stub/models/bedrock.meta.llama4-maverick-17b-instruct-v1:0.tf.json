@@ -1,0 +1,63 @@
+{
+  "resource": {
+    "aidial_model": {
+      "bedrock_meta_llama4_maverick_17b_instruct_v1_0": {
+        "bucket": "platform",
+        "path": "bedrock.meta.llama4-maverick-17b-instruct-v1:0",
+        "name": "bedrock.meta.llama4-maverick-17b-instruct-v1:0",
+        "type": "CHAT",
+        "display_name": "Llama 4",
+        "display_version": "Meta Llama 4 Maverick 17B Instruct",
+        "override_name": "meta.llama4-maverick-17b-instruct-v1:0",
+        "description": "Llama 4 Maverick is Meta's general assistant and chat workhorse model, offering industry-leading image and text understanding across 12 languages.",
+        "description_keywords": [
+          "Text Generation",
+          "Image Recognition",
+          "Functions",
+          "AWS"
+        ],
+        "input_attachment_types": [
+          "image/*"
+        ],
+        "features": {
+          "tools_supported": true
+        },
+        "limits": {
+          "max_total_tokens": 1000000
+        },
+        "pricing": {
+          "unit": "token",
+          "prompt": "0.00000024",
+          "completion": "0.00000097"
+        },
+        "endpoint": "http://bedrock-adapter.example/openai/deployments/us.meta.llama4-scout-17b-instruct-v1:0/chat/completions",
+        "responses_endpoint": "",
+        "interfaces": {},
+        "upstreams": [
+          {
+            "extraData": {
+              "region": "us-east-1"
+            }
+          },
+          {
+            "extraData": {
+              "region": "us-east-2"
+            }
+          },
+          {
+            "extraData": {
+              "region": "us-west-2"
+            }
+          }
+        ],
+        "user_roles": [
+          "full",
+          "statgpt-service",
+          "user"
+        ],
+        "default_headers": {},
+        "interceptors": []
+      }
+    }
+  }
+}

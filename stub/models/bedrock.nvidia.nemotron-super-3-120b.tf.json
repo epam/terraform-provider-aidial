@@ -1,0 +1,64 @@
+{
+  "resource": {
+    "aidial_model": {
+      "bedrock_nvidia_nemotron_super_3_120b": {
+        "bucket": "platform",
+        "path": "bedrock.nvidia.nemotron-super-3-120b",
+        "name": "bedrock.nvidia.nemotron-super-3-120b",
+        "type": "CHAT",
+        "display_name": "NVIDIA Nemotron 3 Super 120B A12B",
+        "display_version": "v1",
+        "override_name": "nvidia.nemotron-super-3-120b",
+        "description": "NVIDIA Nemotron 3 Super is a 120B-parameter open hybrid MoE model built for high-throughput, cost-efficient multi-agent workloads.",
+        "description_keywords": [
+          "Text Generation",
+          "AWS"
+        ],
+        "features": {
+          "tools_supported": true
+        },
+        "defaults": {
+          "max_tokens": 32000
+        },
+        "limits": {
+          "max_total_tokens": 262000
+        },
+        "pricing": {
+          "unit": "token",
+          "prompt": "0.00000015",
+          "completion": "0.00000065"
+        },
+        "endpoint": "http://bedrock-adapter.example/openai/deployments/nvidia.nemotron-super-3-120b/chat/completions",
+        "responses_endpoint": "",
+        "interfaces": {},
+        "upstreams": [
+          {
+            "extraData": {
+              "region": "us-east-1",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            }
+          },
+          {
+            "extraData": {
+              "region": "us-east-2",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            }
+          },
+          {
+            "extraData": {
+              "region": "us-west-2",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            }
+          }
+        ],
+        "user_roles": [
+          "full",
+          "statgpt-service",
+          "user"
+        ],
+        "default_headers": {},
+        "interceptors": []
+      }
+    }
+  }
+}

@@ -1,0 +1,418 @@
+{
+  "resource": {
+    "aidial_model": {
+      "openai_text_embedding_ada_002": {
+        "bucket": "platform",
+        "path": "openai.text-embedding-ada-002",
+        "name": "openai.text-embedding-ada-002",
+        "type": "EMBEDDING",
+        "display_name": "OpenAI text-embedding-ada-002",
+        "override_name": "text-embedding-ada-002",
+        "description": "OpenAI text-embedding-ada-002 is OpenAI's legacy general-purpose text embedding model.",
+        "pricing": {
+          "unit": "token",
+          "prompt": "0.0000001"
+        },
+        "endpoint": "http://openai-adapter.example/openai/deployments/text-embedding-ada-002/embeddings",
+        "responses_endpoint": "http://openai-adapter.example/openai/v1/responses",
+        "interfaces": {},
+        "upstreams": [
+          {
+            "endpoint": "https://example-a-australiaeast-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-australiaeast-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-australiaeast-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-brazilsouth-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-brazilsouth-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-brazilsouth-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-canadaeast-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-canadaeast-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-canadaeast-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-eastus-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-eastus-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-eastus-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-eastus2-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-eastus2-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-eastus2-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-francecentral-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-francecentral-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-francecentral-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-japaneast-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-japaneast-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-japaneast-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-northcentralus-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-northcentralus-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-northcentralus-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-norwayeast-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-norwayeast-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-norwayeast-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-southafricanorth-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-southafricanorth-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-southafricanorth-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-southcentralus-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-southcentralus-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-southcentralus-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-swedencentral-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-swedencentral-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-swedencentral-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-uksouth-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-uksouth-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-uksouth-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-westeurope-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-westeurope-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-westeurope-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-westus-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-westus-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-westus-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-westus3-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-westus3-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-a-westus3-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-b-canadaeast-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-b-canadaeast-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-b-canadaeast-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-b-eastus-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-b-eastus-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-b-eastus-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-b-francecentral-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-b-francecentral-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-b-francecentral-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-b-japaneast-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-b-japaneast-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-b-japaneast-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-b-northcentralus-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-b-northcentralus-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-b-northcentralus-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-b-swedencentral-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-b-swedencentral-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-b-swedencentral-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-b-switzerlandnorth-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-b-switzerlandnorth-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-b-switzerlandnorth-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-b-uksouth-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-b-uksouth-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-b-uksouth-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-b-westeurope-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-b-westeurope-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-b-westeurope-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-c-canadaeast-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-c-canadaeast-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-c-canadaeast-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-c-eastus-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-c-eastus-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-c-eastus-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-c-eastus2-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-c-eastus2-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-c-eastus2-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-c-francecentral-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-c-francecentral-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-c-francecentral-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-c-japaneast-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-c-japaneast-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-c-japaneast-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-c-northcentralus-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-c-northcentralus-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-c-northcentralus-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-c-southcentralus-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-c-southcentralus-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-c-southcentralus-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-c-swedencentral-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-c-swedencentral-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-c-swedencentral-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-c-switzerlandnorth-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-c-switzerlandnorth-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-c-switzerlandnorth-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-c-uksouth-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-c-uksouth-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-c-uksouth-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-c-westeurope-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-c-westeurope-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-c-westeurope-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-d-canadaeast-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-d-canadaeast-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-d-canadaeast-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-d-eastus2-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-d-eastus2-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-d-eastus2-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-d-japaneast-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-d-japaneast-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-d-japaneast-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-d-northcentralus-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-d-northcentralus-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-d-northcentralus-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-d-swedencentral-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-d-swedencentral-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-d-swedencentral-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-d-switzerlandnorth-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-d-switzerlandnorth-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-d-switzerlandnorth-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-d-uksouth-0.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-d-uksouth-1.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          },
+          {
+            "endpoint": "https://example-d-uksouth-2.openai.azure.com/openai/deployments/text-embedding-ada-002/embeddings"
+          }
+        ],
+        "user_roles": [
+          "full",
+          "statgpt-service",
+          "user"
+        ],
+        "default_headers": {},
+        "interceptors": []
+      }
+    }
+  }
+}

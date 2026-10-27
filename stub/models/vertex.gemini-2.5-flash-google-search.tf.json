@@ -1,0 +1,87 @@
+{
+  "resource": {
+    "aidial_model": {
+      "vertex_gemini_2_5_flash_google_search": {
+        "bucket": "platform",
+        "path": "vertex.gemini-2.5-flash-google-search",
+        "name": "vertex.gemini-2.5-flash-google-search",
+        "type": "CHAT",
+        "display_name": "Google Gemini 2.5 Flash",
+        "display_version": "Latest, With Google Search Grounding",
+        "override_name": "gemini-2.5-flash-google-search",
+        "icon_url": "Gemini-Pro-Vision.svg",
+        "description": "Gemini 2.5 Flash with Google Search grounding is Google's fast, general-purpose multimodal model augmented with real-time search results.",
+        "input_attachment_types": [
+          "*/*"
+        ],
+        "description_keywords": [
+          "Text Generation",
+          "Image Recognition",
+          "PDF Supported",
+          "TXT Supported",
+          "Video Recognition",
+          "Google Search Grounding",
+          "Functions",
+          "GCP"
+        ],
+        "features": {
+          "tools_supported": true
+        },
+        "defaults": {
+          "custom_fields": {
+            "configuration": {
+              "thinking": {
+                "include_thoughts": true,
+                "thinking_budget": -1
+              }
+            }
+          },
+          "tools": [
+            {
+              "type": "static_function",
+              "static_function": {
+                "name": "google_search",
+                "description": "Grounding with Google Search",
+                "configuration": {}
+              }
+            }
+          ]
+        },
+        "limits": {
+          "max_total_tokens": 999000,
+          "max_completion_tokens": 8192
+        },
+        "pricing": {
+          "unit": "token",
+          "prompt": "0.0000003",
+          "completion": "0.0000025",
+          "cacheRead": "0.00000003"
+        },
+        "endpoint": "http://vertexai-adapter.example/openai/deployments/gemini-2.5-flash/chat/completions",
+        "responses_endpoint": "",
+        "interfaces": {},
+        "upstreams": [
+          {
+            "extraData": {
+              "project": "example-project-2",
+              "region": "global"
+            }
+          },
+          {
+            "extraData": {
+              "project": "example-project-1",
+              "region": "global"
+            }
+          }
+        ],
+        "user_roles": [
+          "full",
+          "statgpt-service",
+          "user"
+        ],
+        "default_headers": {},
+        "interceptors": []
+      }
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "resource": {
+    "aidial_model": {
+      "bedrock_qwen_qwen3_coder_480b_a35b_v1_0": {
+        "bucket": "platform",
+        "path": "bedrock.qwen.qwen3-coder-480b-a35b-v1:0",
+        "name": "bedrock.qwen.qwen3-coder-480b-a35b-v1:0",
+        "type": "CHAT",
+        "display_name": "Qwen3 Coder 480B A35B Instruct",
+        "display_version": "v1",
+        "override_name": "qwen.qwen3-coder-480b-a35b-v1:0",
+        "description": "Qwen3 Coder 480B A35B is a Mixture-of-Experts model built for frontier coding performance, excelling on benchmarks like SWE-bench and CodeForces.",
+        "description_keywords": [
+          "Text Generation",
+          "AWS",
+          "Functions"
+        ],
+        "features": {
+          "cache_supported": true,
+          "tools_supported": true
+        },
+        "defaults": {
+          "max_tokens": 32000
+        },
+        "limits": {
+          "max_total_tokens": 128000
+        },
+        "pricing": {
+          "unit": "token",
+          "prompt": "0.00000045",
+          "completion": "0.0000018"
+        },
+        "endpoint": "http://bedrock-adapter.example/openai/deployments/qwen.qwen3-coder-480b-a35b-v1:0/chat/completions",
+        "responses_endpoint": "",
+        "interfaces": {},
+        "upstreams": [
+          {
+            "endpoint": "us-east-2",
+            "id": "us-east-2",
+            "extraData": {
+              "region": "us-east-2",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            }
+          },
+          {
+            "endpoint": "us-west-2",
+            "id": "us-west-2",
+            "extraData": {
+              "region": "us-west-2",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            }
+          }
+        ],
+        "user_roles": [
+          "full",
+          "statgpt-service",
+          "user"
+        ],
+        "default_headers": {},
+        "interceptors": []
+      }
+    }
+  }
+}

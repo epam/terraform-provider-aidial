@@ -1,0 +1,79 @@
+{
+  "resource": {
+    "aidial_model": {
+      "vertex_gemini_2_5_pro": {
+        "bucket": "platform",
+        "path": "vertex.gemini-2.5-pro",
+        "name": "vertex.gemini-2.5-pro",
+        "type": "CHAT",
+        "display_name": "Google Gemini 2.5 Pro",
+        "display_version": "Latest",
+        "override_name": "gemini-2.5-pro",
+        "icon_url": "Gemini-Pro-Vision.svg",
+        "description": "Gemini 2.5 Pro is Google's advanced reasoning model for complex multimodal tasks across text, image, audio, and video.",
+        "input_attachment_types": [
+          "*/*"
+        ],
+        "description_keywords": [
+          "Text Generation",
+          "Image Recognition",
+          "PDF Supported",
+          "TXT Supported",
+          "Video Recognition",
+          "Google Search Grounding",
+          "Functions",
+          "GCP"
+        ],
+        "features": {
+          "tools_supported": true
+        },
+        "defaults": {
+          "custom_fields": {
+            "configuration": {
+              "thinking": {
+                "include_thoughts": true,
+                "thinking_budget": -1
+              }
+            }
+          }
+        },
+        "limits": {
+          "max_total_tokens": 999000,
+          "max_completion_tokens": 8192
+        },
+        "pricing": {
+          "unit": "token",
+          "prompt": "0.00000125",
+          "completion": "0.0000025",
+          "cacheRead": "0.000000125"
+        },
+        "endpoint": "http://vertexai-adapter.example/openai/deployments/gemini-2.5-pro/chat/completions",
+        "responses_endpoint": "",
+        "interfaces": {},
+        "upstreams": [
+          {
+            "tier": 0,
+            "extraData": {
+              "project": "example-project-1",
+              "region": "global"
+            }
+          },
+          {
+            "tier": 1,
+            "extraData": {
+              "project": "example-project-2",
+              "region": "global"
+            }
+          }
+        ],
+        "user_roles": [
+          "full",
+          "statgpt-service",
+          "user"
+        ],
+        "default_headers": {},
+        "interceptors": []
+      }
+    }
+  }
+}

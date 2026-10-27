@@ -1,0 +1,71 @@
+{
+  "resource": {
+    "aidial_model": {
+      "bedrock_anthropic_claude_v3_haiku": {
+        "bucket": "platform",
+        "path": "bedrock.anthropic.claude-v3-haiku",
+        "name": "bedrock.anthropic.claude-v3-haiku",
+        "type": "CHAT",
+        "display_name": "Anthropic Claude 3 Haiku (Legacy)",
+        "display_version": "Latest (AWS Bedrock)",
+        "override_name": "anthropic.claude-v3-haiku",
+        "icon_url": "anthropic.svg",
+        "description": "Claude 3 Haiku is Anthropic's fastest and most compact Claude 3 model, built for near-instant responses in high-volume applications.",
+        "description_keywords": [
+          "Text Generation",
+          "Functions",
+          "AWS"
+        ],
+        "input_attachment_types": [
+          "image/*"
+        ],
+        "features": {
+          "cache_supported": true,
+          "tools_supported": true
+        },
+        "defaults": {
+          "max_tokens": 8000
+        },
+        "limits": {
+          "max_prompt_tokens": 200000
+        },
+        "pricing": {
+          "unit": "token",
+          "prompt": "0.00000025",
+          "completion": "0.00000125"
+        },
+        "endpoint": "http://bedrock-adapter.example/openai/deployments/anthropic.claude-3-haiku-20240307-v1:0/chat/completions",
+        "responses_endpoint": "",
+        "interfaces": {
+          "anthropicMessages": {
+            "base_url": "http://bedrock-adapter.example"
+          }
+        },
+        "upstreams": [
+          {
+            "endpoint": "us-east-1",
+            "id": "us-east-1",
+            "extraData": {
+              "region": "us-east-1"
+            }
+          },
+          {
+            "endpoint": "us-east-1:arn:aws:iam::100000000001:role/example-bedrock-adapter-2",
+            "id": "us-east-1:arn:aws:iam::100000000001:role/example-bedrock-adapter-2",
+            "extraData": {
+              "region": "us-east-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000001:role/example-bedrock-adapter-2"
+            }
+          }
+        ],
+        "user_roles": [
+          "full",
+          "statgpt-service",
+          "user"
+        ],
+        "default_headers": {},
+        "interceptors": []
+      }
+    }
+  }
+}

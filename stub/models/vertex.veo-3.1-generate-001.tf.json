@@ -1,0 +1,60 @@
+{
+  "resource": {
+    "aidial_model": {
+      "vertex_veo_3_1_generate_001": {
+        "bucket": "platform",
+        "path": "vertex.veo-3.1-generate-001",
+        "name": "vertex.veo-3.1-generate-001",
+        "type": "CHAT",
+        "display_name": "Google Veo 3.1",
+        "display_version": "001",
+        "override_name": "veo-3.1-generate-001",
+        "description": "Veo 3.1 is Google's video generation model for text-to-video, image-to-video, and video-to-video workflows.",
+        "input_attachment_types": [
+          "image/jpeg",
+          "image/png",
+          "video/mp4"
+        ],
+        "description_keywords": [
+          "Video to Video",
+          "GCP",
+          "Text to Video",
+          "Video Recognition",
+          "Image to Video"
+        ],
+        "features": {
+          "temperature_supported": true
+        },
+        "pricing": {
+          "unit": "token",
+          "prompt": "0",
+          "completion": "0.4"
+        },
+        "endpoint": "http://vertexai-adapter.example/openai/deployments/veo-3.1-generate-001/chat/completions",
+        "responses_endpoint": "",
+        "interfaces": {},
+        "upstreams": [
+          {
+            "extraData": {
+              "project": "example-project-2",
+              "region": "global"
+            }
+          },
+          {
+            "extraData": {
+              "project": "example-project-1",
+              "region": "global"
+            }
+          }
+        ],
+        "user_roles": [
+          "full",
+          "statgpt-service",
+          "user"
+        ],
+        "default_headers": {},
+        "interceptors": []
+      }
+    }
+  }
+}

@@ -1,0 +1,280 @@
+{
+  "resource": {
+    "aidial_model": {
+      "openai_gpt_chat_latest_reasoning": {
+        "bucket": "platform",
+        "path": "openai.gpt-chat-latest-reasoning",
+        "name": "openai.gpt-chat-latest-reasoning",
+        "type": "CHAT",
+        "display_name": "GPT Chat Latest",
+        "display_version": "latest-reasoning",
+        "override_name": "gpt-chat-latest-reasoning",
+        "icon_url": "gpt3.svg",
+        "description": "Advanced, natural, multimodal, and context-aware conversations for enterprise applications, with high reasoning effort enabled.",
+        "input_attachment_types": [
+          "image/*",
+          "text/plain",
+          "text/markdown",
+          "application/pdf"
+        ],
+        "description_keywords": [
+          "Azure",
+          "Functions",
+          "Reasoning",
+          "Text Generation",
+          "Image Recognition",
+          "PDF Supported",
+          "TXT Supported",
+          "MD Supported"
+        ],
+        "features": {
+          "auto_caching_supported": true,
+          "temperature_supported": false,
+          "tools_supported": true
+        },
+        "defaults": {
+          "custom_fields": {
+            "configuration": {
+              "reasoning": {
+                "effort": "medium",
+                "summary": "auto"
+              }
+            }
+          }
+        },
+        "limits": {
+          "max_prompt_tokens": 200000,
+          "max_completion_tokens": 128000
+        },
+        "pricing": {
+          "unit": "token",
+          "prompt": "0.000005",
+          "completion": "0.00003",
+          "cacheRead": "0.0000005"
+        },
+        "endpoint": "http://openai-adapter.example/openai/deployments/gpt-chat-latest-reasoning/chat/completions",
+        "responses_endpoint": "http://openai-adapter.example/openai/v1/responses",
+        "interfaces": {},
+        "upstreams": [
+          {
+            "id": "example-a-eastus2-0",
+            "endpoint": "https://example-a-eastus2-0.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-a-eastus2-0.openai.azure.com/openai/v1/responses",
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "id": "example-a-eastus2-1",
+            "endpoint": "https://example-a-eastus2-1.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-a-eastus2-1.openai.azure.com/openai/v1/responses",
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "id": "example-a-eastus2-2",
+            "endpoint": "https://example-a-eastus2-2.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-a-eastus2-2.openai.azure.com/openai/v1/responses",
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "id": "example-a-polandcentral-0",
+            "endpoint": "https://example-a-polandcentral-0.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-a-polandcentral-0.openai.azure.com/openai/v1/responses",
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "id": "example-a-polandcentral-1",
+            "endpoint": "https://example-a-polandcentral-1.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-a-polandcentral-1.openai.azure.com/openai/v1/responses",
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "id": "example-a-polandcentral-2",
+            "endpoint": "https://example-a-polandcentral-2.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-a-polandcentral-2.openai.azure.com/openai/v1/responses",
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "id": "example-a-southcentralus-0",
+            "endpoint": "https://example-a-southcentralus-0.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-a-southcentralus-0.openai.azure.com/openai/v1/responses",
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "id": "example-a-southcentralus-1",
+            "endpoint": "https://example-a-southcentralus-1.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-a-southcentralus-1.openai.azure.com/openai/v1/responses",
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "id": "example-a-southcentralus-2",
+            "endpoint": "https://example-a-southcentralus-2.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-a-southcentralus-2.openai.azure.com/openai/v1/responses",
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "id": "example-a-swedencentral-0",
+            "endpoint": "https://example-a-swedencentral-0.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-a-swedencentral-0.openai.azure.com/openai/v1/responses",
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "id": "example-a-swedencentral-1",
+            "endpoint": "https://example-a-swedencentral-1.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-a-swedencentral-1.openai.azure.com/openai/v1/responses",
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "id": "example-a-swedencentral-2",
+            "endpoint": "https://example-a-swedencentral-2.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-a-swedencentral-2.openai.azure.com/openai/v1/responses",
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "id": "example-c-eastus2-0",
+            "endpoint": "https://example-c-eastus2-0.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-c-eastus2-0.openai.azure.com/openai/v1/responses",
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "id": "example-c-eastus2-1",
+            "endpoint": "https://example-c-eastus2-1.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-c-eastus2-1.openai.azure.com/openai/v1/responses",
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "id": "example-c-eastus2-2",
+            "endpoint": "https://example-c-eastus2-2.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-c-eastus2-2.openai.azure.com/openai/v1/responses",
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "id": "example-c-southcentralus-0",
+            "endpoint": "https://example-c-southcentralus-0.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-c-southcentralus-0.openai.azure.com/openai/v1/responses",
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "id": "example-c-southcentralus-1",
+            "endpoint": "https://example-c-southcentralus-1.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-c-southcentralus-1.openai.azure.com/openai/v1/responses",
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "id": "example-c-southcentralus-2",
+            "endpoint": "https://example-c-southcentralus-2.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-c-southcentralus-2.openai.azure.com/openai/v1/responses",
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "id": "example-c-swedencentral-0",
+            "endpoint": "https://example-c-swedencentral-0.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-c-swedencentral-0.openai.azure.com/openai/v1/responses",
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "id": "example-c-swedencentral-1",
+            "endpoint": "https://example-c-swedencentral-1.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-c-swedencentral-1.openai.azure.com/openai/v1/responses",
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "id": "example-c-swedencentral-2",
+            "endpoint": "https://example-c-swedencentral-2.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-c-swedencentral-2.openai.azure.com/openai/v1/responses",
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "id": "example-d-eastus2-0",
+            "endpoint": "https://example-d-eastus2-0.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-d-eastus2-0.openai.azure.com/openai/v1/responses",
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "id": "example-d-eastus2-1",
+            "endpoint": "https://example-d-eastus2-1.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-d-eastus2-1.openai.azure.com/openai/v1/responses",
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "id": "example-d-eastus2-2",
+            "endpoint": "https://example-d-eastus2-2.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-d-eastus2-2.openai.azure.com/openai/v1/responses",
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "id": "example-d-southcentralus-0",
+            "endpoint": "https://example-d-southcentralus-0.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-d-southcentralus-0.openai.azure.com/openai/v1/responses",
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "id": "example-d-southcentralus-1",
+            "endpoint": "https://example-d-southcentralus-1.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-d-southcentralus-1.openai.azure.com/openai/v1/responses",
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "id": "example-d-southcentralus-2",
+            "endpoint": "https://example-d-southcentralus-2.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-d-southcentralus-2.openai.azure.com/openai/v1/responses",
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "id": "example-d-swedencentral-0",
+            "endpoint": "https://example-d-swedencentral-0.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-d-swedencentral-0.openai.azure.com/openai/v1/responses",
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "id": "example-d-swedencentral-1",
+            "endpoint": "https://example-d-swedencentral-1.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-d-swedencentral-1.openai.azure.com/openai/v1/responses",
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "id": "example-d-swedencentral-2",
+            "endpoint": "https://example-d-swedencentral-2.openai.azure.com/openai/v1/responses",
+            "responses_endpoint": "https://example-d-swedencentral-2.openai.azure.com/openai/v1/responses",
+            "weight": 1,
+            "tier": 0
+          }
+        ],
+        "user_roles": [
+          "full",
+          "statgpt-service",
+          "user"
+        ],
+        "default_headers": {},
+        "interceptors": []
+      }
+    }
+  }
+}

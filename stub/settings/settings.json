@@ -1,0 +1,12 @@
+{
+  "identityProviders": {
+    "test": {
+      "rolePath": "roles",
+      "disableJwtVerification": true
+    }
+  },
+  "encryption": {
+    "key": "key",
+    "secret": "secret"
+  }
+}

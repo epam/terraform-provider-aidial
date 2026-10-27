@@ -1,0 +1,11 @@
+title = "terraform-provider-aidial"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Vendored upstream docs and the local-only stub Core demo key"
+paths = [
+  '''openapicore/''',
+  '''stub/''',
+]

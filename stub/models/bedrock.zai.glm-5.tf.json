@@ -1,0 +1,64 @@
+{
+  "resource": {
+    "aidial_model": {
+      "bedrock_zai_glm_5": {
+        "bucket": "platform",
+        "path": "bedrock.zai.glm-5",
+        "name": "bedrock.zai.glm-5",
+        "type": "CHAT",
+        "display_name": "GLM 5",
+        "display_version": "v1",
+        "override_name": "zai.glm-5",
+        "description": "GLM 5 is a general-purpose reasoning and text generation model.",
+        "description_keywords": [
+          "Text Generation",
+          "AWS"
+        ],
+        "features": {
+          "tools_supported": true
+        },
+        "defaults": {
+          "max_tokens": 32000
+        },
+        "limits": {
+          "max_total_tokens": 203000
+        },
+        "pricing": {
+          "unit": "token",
+          "prompt": "0.000001",
+          "completion": "0.0000032"
+        },
+        "endpoint": "http://bedrock-adapter.example/openai/deployments/zai.glm-5/chat/completions",
+        "responses_endpoint": "",
+        "interfaces": {},
+        "upstreams": [
+          {
+            "extraData": {
+              "region": "us-east-1",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            }
+          },
+          {
+            "extraData": {
+              "region": "us-east-2",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            }
+          },
+          {
+            "extraData": {
+              "region": "us-west-2",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            }
+          }
+        ],
+        "user_roles": [
+          "full",
+          "statgpt-hitlimit",
+          "user"
+        ],
+        "default_headers": {},
+        "interceptors": []
+      }
+    }
+  }
+}

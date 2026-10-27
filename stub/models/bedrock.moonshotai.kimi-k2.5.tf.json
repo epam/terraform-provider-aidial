@@ -1,0 +1,64 @@
+{
+  "resource": {
+    "aidial_model": {
+      "bedrock_moonshotai_kimi_k2_5": {
+        "bucket": "platform",
+        "path": "bedrock.moonshotai.kimi-k2.5",
+        "name": "bedrock.moonshotai.kimi-k2.5",
+        "type": "CHAT",
+        "display_name": "Kimi K2.5",
+        "display_version": "v1",
+        "override_name": "moonshotai.kimi-k2.5",
+        "description": "Kimi K2.5 is a general-purpose reasoning and text generation model.",
+        "description_keywords": [
+          "Text Generation",
+          "AWS",
+          "Reasoning"
+        ],
+        "features": {
+          "tools_supported": true
+        },
+        "defaults": {
+          "max_tokens": 32000
+        },
+        "limits": {
+          "max_total_tokens": 256000
+        },
+        "pricing": {
+          "unit": "token",
+          "prompt": "0.0000006",
+          "completion": "0.000003"
+        },
+        "endpoint": "http://bedrock-adapter.example/openai/deployments/moonshotai.kimi-k2.5/chat/completions",
+        "responses_endpoint": "",
+        "interfaces": {},
+        "upstreams": [
+          {
+            "extraData": {
+              "region": "us-east-1",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            }
+          },
+          {
+            "extraData": {
+              "region": "us-east-2",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            }
+          },
+          {
+            "extraData": {
+              "region": "us-west-2",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            }
+          }
+        ],
+        "user_roles": [
+          "StatGPT.Partners",
+          "user"
+        ],
+        "default_headers": {},
+        "interceptors": []
+      }
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "routes": {
+    "rate": {
+      "paths": ["/v1/rate"],
+      "rewritePath": true,
+      "methods": ["POST", "GET", "HEAD"],
+      "response": {
+        "status": 200,
+        "body": "OK"
+      }
+    }
+  },
+  "keys": {
+    "df54b7f3-12ff-4749-9ec9-e001e9d12650": {
+      "project": "DEMO-PROJECT",
+      "role": "admin"
+    }
+  },
+  "roles": {
+    "default": {
+      "name": "default",
+      "limits": {}
+    },
+    "admin": {
+      "name": "admin",
+      "limits": {}
+    }
+  }
+}

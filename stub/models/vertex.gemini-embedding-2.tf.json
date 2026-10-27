@@ -1,0 +1,49 @@
+{
+  "resource": {
+    "aidial_model": {
+      "vertex_gemini_embedding_2": {
+        "bucket": "platform",
+        "path": "vertex.gemini-embedding-2",
+        "name": "vertex.gemini-embedding-2",
+        "type": "EMBEDDING",
+        "display_name": "Gemini Embedding 2",
+        "display_version": null,
+        "override_name": "gemini-embedding-2",
+        "description": "Gemini Embedding 2 is Google's general-purpose text embedding model.",
+        "limits": {
+          "max_prompt_tokens": 8192
+        },
+        "pricing": {
+          "unit": "token",
+          "prompt": "0.0000002"
+        },
+        "endpoint": "http://vertexai-adapter.example/openai/deployments/gemini-embedding-2/embeddings",
+        "responses_endpoint": "",
+        "interfaces": {},
+        "upstreams": [
+          {
+            "extraData": {
+              "project": "example-project-2",
+              "region": "global",
+              "compatible_model_id": "gemini-embedding-2-preview"
+            }
+          },
+          {
+            "extraData": {
+              "project": "example-project-1",
+              "region": "global",
+              "compatible_model_id": "gemini-embedding-2-preview"
+            }
+          }
+        ],
+        "user_roles": [
+          "full",
+          "statgpt-service",
+          "user"
+        ],
+        "default_headers": {},
+        "interceptors": []
+      }
+    }
+  }
+}

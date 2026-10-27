@@ -1,0 +1,146 @@
+{
+  "resource": {
+    "aidial_model": {
+      "openai_tts_001": {
+        "bucket": "platform",
+        "path": "openai.tts-001",
+        "name": "openai.tts-001",
+        "type": "CHAT",
+        "display_name": "TTS",
+        "display_version": "001",
+        "description": "TTS converts text to natural sounding speech, optimized for realtime or interactive scenarios. Supports six different voices.",
+        "override_name": "tts-001",
+        "description_keywords": [
+          "Azure",
+          "Text-to-Speech"
+        ],
+        "features": {
+          "tools_supported": false
+        },
+        "pricing": {
+          "unit": "token",
+          "prompt": "0.000015",
+          "completion": "0"
+        },
+        "endpoint": "http://openai-adapter.example/openai/deployments/tts-001/audio/speech",
+        "interfaces": {},
+        "upstreams": [
+          {
+            "endpoint": "https://example-a-northcentralus-0.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          },
+          {
+            "endpoint": "https://example-a-northcentralus-1.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          },
+          {
+            "endpoint": "https://example-a-northcentralus-2.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          },
+          {
+            "endpoint": "https://example-a-swedencentral-0.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          },
+          {
+            "endpoint": "https://example-a-swedencentral-1.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          },
+          {
+            "endpoint": "https://example-a-swedencentral-2.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          },
+          {
+            "endpoint": "https://example-a-westus3-0.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          },
+          {
+            "endpoint": "https://example-a-westus3-1.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          },
+          {
+            "endpoint": "https://example-a-westus3-2.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          },
+          {
+            "endpoint": "https://example-b-northcentralus-0.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          },
+          {
+            "endpoint": "https://example-b-northcentralus-1.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          },
+          {
+            "endpoint": "https://example-b-northcentralus-2.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          },
+          {
+            "endpoint": "https://example-b-swedencentral-0.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          },
+          {
+            "endpoint": "https://example-b-swedencentral-1.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          },
+          {
+            "endpoint": "https://example-b-swedencentral-2.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          },
+          {
+            "endpoint": "https://example-b-westus3-0.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          },
+          {
+            "endpoint": "https://example-b-westus3-1.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          },
+          {
+            "endpoint": "https://example-b-westus3-2.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          },
+          {
+            "endpoint": "https://example-c-northcentralus-0.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          },
+          {
+            "endpoint": "https://example-c-northcentralus-1.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          },
+          {
+            "endpoint": "https://example-c-northcentralus-2.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          },
+          {
+            "endpoint": "https://example-c-swedencentral-0.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          },
+          {
+            "endpoint": "https://example-c-swedencentral-1.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          },
+          {
+            "endpoint": "https://example-c-swedencentral-2.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          },
+          {
+            "endpoint": "https://example-c-westus3-0.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          },
+          {
+            "endpoint": "https://example-c-westus3-1.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          },
+          {
+            "endpoint": "https://example-c-westus3-2.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          },
+          {
+            "endpoint": "https://example-d-northcentralus-0.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          },
+          {
+            "endpoint": "https://example-d-northcentralus-1.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          },
+          {
+            "endpoint": "https://example-d-northcentralus-2.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          },
+          {
+            "endpoint": "https://example-d-swedencentral-0.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          },
+          {
+            "endpoint": "https://example-d-swedencentral-1.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          },
+          {
+            "endpoint": "https://example-d-swedencentral-2.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          },
+          {
+            "endpoint": "https://example-d-westus3-0.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          },
+          {
+            "endpoint": "https://example-d-westus3-1.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          },
+          {
+            "endpoint": "https://example-d-westus3-2.openai.azure.com/openai/deployments/tts-001/audio/speech"
+          }
+        ],
+        "user_roles": [
+          "full",
+          "user"
+        ],
+        "default_headers": {},
+        "interceptors": []
+      }
+    }
+  }
+}

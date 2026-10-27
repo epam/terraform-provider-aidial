@@ -1,0 +1,250 @@
+{
+  "resource": {
+    "aidial_model": {
+      "openai_gpt_image_2_2026_04_21": {
+        "bucket": "platform",
+        "path": "openai.gpt-image-2-2026-04-21",
+        "name": "openai.gpt-image-2-2026-04-21",
+        "type": "CHAT",
+        "display_name": "OpenAI GPT Image 2.0",
+        "display_version": "2026-04-21",
+        "icon_url": "gpt3.svg",
+        "description": "GPT-image-2 is OpenAI's latest image generation model with better performance, quality, editing controls, and face preservation.",
+        "override_name": "gpt-image-2-2026-04-21",
+        "input_attachment_types": [
+          "image/*"
+        ],
+        "description_keywords": [
+          "Image Generation",
+          "Azure"
+        ],
+        "pricing": {
+          "unit": "token",
+          "prompt": "0.000005",
+          "completion": "0.00003"
+        },
+        "endpoint": "http://openai-adapter.example/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+        "responses_endpoint": "http://openai-adapter.example/openai/v1/responses",
+        "interfaces": {},
+        "upstreams": [
+          {
+            "id": "example-a-eastus2-0",
+            "endpoint": "https://example-a-eastus2-0.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-a-eastus2-0.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-a-eastus2-1",
+            "endpoint": "https://example-a-eastus2-1.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-a-eastus2-1.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-a-eastus2-2",
+            "endpoint": "https://example-a-eastus2-2.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-a-eastus2-2.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-a-polandcentral-0",
+            "endpoint": "https://example-a-polandcentral-0.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-a-polandcentral-0.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-a-polandcentral-1",
+            "endpoint": "https://example-a-polandcentral-1.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-a-polandcentral-1.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-a-polandcentral-2",
+            "endpoint": "https://example-a-polandcentral-2.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-a-polandcentral-2.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-a-swedencentral-0",
+            "endpoint": "https://example-a-swedencentral-0.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-a-swedencentral-0.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-a-swedencentral-1",
+            "endpoint": "https://example-a-swedencentral-1.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-a-swedencentral-1.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-a-swedencentral-2",
+            "endpoint": "https://example-a-swedencentral-2.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-a-swedencentral-2.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-a-uaenorth-0",
+            "endpoint": "https://example-a-uaenorth-0.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-a-uaenorth-0.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-a-uaenorth-1",
+            "endpoint": "https://example-a-uaenorth-1.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-a-uaenorth-1.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-a-uaenorth-2",
+            "endpoint": "https://example-a-uaenorth-2.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-a-uaenorth-2.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-a-westus3-0",
+            "endpoint": "https://example-a-westus3-0.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-a-westus3-0.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-a-westus3-1",
+            "endpoint": "https://example-a-westus3-1.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-a-westus3-1.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-a-westus3-2",
+            "endpoint": "https://example-a-westus3-2.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-a-westus3-2.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-b-eastus2-0",
+            "endpoint": "https://example-b-eastus2-0.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-b-eastus2-0.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-b-eastus2-1",
+            "endpoint": "https://example-b-eastus2-1.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-b-eastus2-1.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-b-eastus2-2",
+            "endpoint": "https://example-b-eastus2-2.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-b-eastus2-2.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-b-swedencentral-0",
+            "endpoint": "https://example-b-swedencentral-0.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-b-swedencentral-0.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-b-swedencentral-1",
+            "endpoint": "https://example-b-swedencentral-1.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-b-swedencentral-1.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-b-swedencentral-2",
+            "endpoint": "https://example-b-swedencentral-2.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-b-swedencentral-2.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-b-westus3-0",
+            "endpoint": "https://example-b-westus3-0.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-b-westus3-0.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-b-westus3-1",
+            "endpoint": "https://example-b-westus3-1.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-b-westus3-1.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-b-westus3-2",
+            "endpoint": "https://example-b-westus3-2.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-b-westus3-2.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-c-eastus2-0",
+            "endpoint": "https://example-c-eastus2-0.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-c-eastus2-0.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-c-eastus2-1",
+            "endpoint": "https://example-c-eastus2-1.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-c-eastus2-1.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-c-eastus2-2",
+            "endpoint": "https://example-c-eastus2-2.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-c-eastus2-2.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-c-swedencentral-0",
+            "endpoint": "https://example-c-swedencentral-0.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-c-swedencentral-0.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-c-swedencentral-1",
+            "endpoint": "https://example-c-swedencentral-1.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-c-swedencentral-1.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-c-swedencentral-2",
+            "endpoint": "https://example-c-swedencentral-2.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-c-swedencentral-2.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-c-westus3-0",
+            "endpoint": "https://example-c-westus3-0.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-c-westus3-0.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-c-westus3-1",
+            "endpoint": "https://example-c-westus3-1.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-c-westus3-1.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-c-westus3-2",
+            "endpoint": "https://example-c-westus3-2.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-c-westus3-2.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-d-eastus2-0",
+            "endpoint": "https://example-d-eastus2-0.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-d-eastus2-0.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-d-eastus2-1",
+            "endpoint": "https://example-d-eastus2-1.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-d-eastus2-1.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-d-eastus2-2",
+            "endpoint": "https://example-d-eastus2-2.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-d-eastus2-2.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-d-swedencentral-0",
+            "endpoint": "https://example-d-swedencentral-0.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-d-swedencentral-0.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-d-swedencentral-1",
+            "endpoint": "https://example-d-swedencentral-1.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-d-swedencentral-1.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-d-swedencentral-2",
+            "endpoint": "https://example-d-swedencentral-2.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-d-swedencentral-2.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-d-westus3-0",
+            "endpoint": "https://example-d-westus3-0.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-d-westus3-0.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-d-westus3-1",
+            "endpoint": "https://example-d-westus3-1.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-d-westus3-1.openai.azure.com/openai/v1/responses"
+          },
+          {
+            "id": "example-d-westus3-2",
+            "endpoint": "https://example-d-westus3-2.openai.azure.com/openai/deployments/gpt-image-2-2026-04-21/images/generations",
+            "responses_endpoint": "https://example-d-westus3-2.openai.azure.com/openai/v1/responses"
+          }
+        ],
+        "user_roles": [
+          "statgpt-service",
+          "user"
+        ],
+        "default_headers": {},
+        "interceptors": []
+      }
+    }
+  }
+}

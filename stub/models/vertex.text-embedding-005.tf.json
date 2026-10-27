@@ -1,0 +1,46 @@
+{
+  "resource": {
+    "aidial_model": {
+      "vertex_text_embedding_005": {
+        "bucket": "platform",
+        "path": "vertex.text-embedding-005",
+        "name": "vertex.text-embedding-005",
+        "type": "EMBEDDING",
+        "display_name": "Google text-embedding-005",
+        "display_version": "v1",
+        "override_name": "text-embedding-005",
+        "description": "Google text-embedding-005 generates text embeddings for semantic search and retrieval workloads.",
+        "limits": {
+          "max_prompt_tokens": 2048
+        },
+        "pricing": {
+          "unit": "token",
+          "prompt": "0.000000025347"
+        },
+        "endpoint": "http://vertexai-adapter.example/openai/deployments/text-embedding-005/embeddings",
+        "responses_endpoint": "",
+        "interfaces": {},
+        "upstreams": [
+          {
+            "extraData": {
+              "project": "example-project-2",
+              "region": "global"
+            }
+          },
+          {
+            "extraData": {
+              "project": "example-project-1",
+              "region": "global"
+            }
+          }
+        ],
+        "user_roles": [
+          "full",
+          "user"
+        ],
+        "default_headers": {},
+        "interceptors": []
+      }
+    }
+  }
+}

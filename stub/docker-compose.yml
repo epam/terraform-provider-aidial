@@ -1,0 +1,44 @@
+services:
+  valkey:
+    image: valkey/valkey:9
+    healthcheck:
+      test: ["CMD-SHELL", "valkey-cli", "-a", "phu6Kaele2eih0ah", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    entrypoint:
+      - valkey-server
+      - --stop-writes-on-bgsave-error no
+      - --protected-mode no
+      - --cluster-enabled no
+      - --requirepass phu6Kaele2eih0ah
+      - --replica-read-only no
+
+  core:
+    user: '501'
+    ports:
+      - "8081:8080"
+    image: epam/ai-dial-core:0.48.1
+    environment:
+      'AIDIAL_SETTINGS': '/opt/settings/settings.json'
+      'JAVA_OPTS': '-Dgflog.config=/opt/settings/gflog.xml'
+      'LOG_DIR': '/app/log'
+      'STORAGE_DIR': '/app/data'
+      'aidial.config.files': '["/opt/config/config.json"]'
+      'aidial.storage.overrides': '{ "jclouds.filesystem.basedir": "data" }'
+      'aidial.encryption.secret': 'kaja1gafohph2Ies'
+      'aidial.encryption.key': 'ejuyae2yei3oS6ro'
+      'aidial.redis.singleServerConfig.address': 'redis://valkey:6379'
+      'aidial.redis.singleServerConfig.password': 'phu6Kaele2eih0ah'
+      'aidial.storage.provider': 'filesystem'
+      'aidial.storage.prefix': 'core'
+      'aidial.storage.bucket': 'dial'
+      'aidial.storage.createBucket': 'true'
+      'AIDIAL_LOG_LEVEL': 'DEBUG'
+    depends_on:
+      - valkey
+    volumes:
+      - ./settings:/opt/settings
+      - ${DIAL_DIR:-.}/core:/opt/config
+      - ${DIAL_DIR:-.}/core-logs/:/app/log
+      - ${DIAL_DIR:-.}/core-data/:/app/data

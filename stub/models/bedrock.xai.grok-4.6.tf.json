@@ -1,0 +1,503 @@
+{
+  "resource": {
+    "aidial_model": {
+      "bedrock_xai_grok_4_6": {
+        "bucket": "platform",
+        "path": "bedrock.xai.grok-4.6",
+        "name": "bedrock.xai.grok-4.6",
+        "type": "CHAT",
+        "display_name": "xAI Grok 4.6",
+        "display_version": "v1 (AWS Bedrock)",
+        "override_name": "xai.grok-4.6",
+        "description": "Grok 4.6 is xAI's flagship reasoning model, built for advanced reasoning, coding, math, and agentic workflows.",
+        "description_keywords": [
+          "Text Generation",
+          "xAI",
+          "Grok",
+          "Reasoning",
+          "Image Recognition",
+          "AWS"
+        ],
+        "input_attachment_types": [
+          "image/*"
+        ],
+        "features": {
+          "system_prompt_supported": false,
+          "tools_supported": true,
+          "seed_supported": true,
+          "temperature_supported": false,
+          "auto_caching_supported": true,
+          "parallel_tool_calls_supported": true,
+          "max_tokens_supported": true,
+          "custom_temperature_supported": false
+        },
+        "limits": {
+          "max_total_tokens": 500000
+        },
+        "pricing": {
+          "unit": "token",
+          "prompt": "0.000002",
+          "completion": "0.000006",
+          "cacheRead": "0.0000005"
+        },
+        "endpoint": "http://bedrock-adapter.example/openai/deployments/global.xai.grok-4.6/chat/completions",
+        "responses_endpoint": "",
+        "interfaces": {},
+        "upstreams": [
+          {
+            "extraData": {
+              "region": "us-east-1",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-east-2",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-west-1",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-west-2",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "ca-central-1",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-east-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000001:role/example-bedrock-adapter-2",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-east-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000001:role/example-bedrock-adapter-2",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-west-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000001:role/example-bedrock-adapter-2",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-west-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000001:role/example-bedrock-adapter-2",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "ca-central-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000001:role/example-bedrock-adapter-2",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-east-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000007:role/example-bedrock-adapter-3",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-east-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000007:role/example-bedrock-adapter-3",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-west-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000007:role/example-bedrock-adapter-3",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-west-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000007:role/example-bedrock-adapter-3",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "ca-central-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000007:role/example-bedrock-adapter-3",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-east-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000002:role/example-bedrock-adapter-4",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-east-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000002:role/example-bedrock-adapter-4",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-west-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000002:role/example-bedrock-adapter-4",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-west-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000002:role/example-bedrock-adapter-4",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "ca-central-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000002:role/example-bedrock-adapter-4",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-east-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000008:role/example-bedrock-adapter-5",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-east-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000008:role/example-bedrock-adapter-5",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-west-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000008:role/example-bedrock-adapter-5",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-west-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000008:role/example-bedrock-adapter-5",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "ca-central-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000008:role/example-bedrock-adapter-5",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-east-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000004:role/example-bedrock-adapter-6",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-east-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000004:role/example-bedrock-adapter-6",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-west-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000004:role/example-bedrock-adapter-6",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-west-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000004:role/example-bedrock-adapter-6",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "ca-central-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000004:role/example-bedrock-adapter-6",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-east-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000006:role/example-bedrock-adapter-7",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-east-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000006:role/example-bedrock-adapter-7",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-west-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000006:role/example-bedrock-adapter-7",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-west-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000006:role/example-bedrock-adapter-7",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "ca-central-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000006:role/example-bedrock-adapter-7",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-east-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000003:role/example-bedrock-adapter-8",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-east-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000003:role/example-bedrock-adapter-8",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-west-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000003:role/example-bedrock-adapter-8",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-west-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000003:role/example-bedrock-adapter-8",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "ca-central-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000003:role/example-bedrock-adapter-8",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-east-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000009:role/example-bedrock-adapter-9",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-east-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000009:role/example-bedrock-adapter-9",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-west-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000009:role/example-bedrock-adapter-9",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-west-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000009:role/example-bedrock-adapter-9",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "ca-central-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000009:role/example-bedrock-adapter-9",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-east-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000005:role/example-bedrock-adapter-10",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-east-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000005:role/example-bedrock-adapter-10",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-west-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000005:role/example-bedrock-adapter-10",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "us-west-2",
+              "aws_assume_role_arn": "arn:aws:iam::100000000005:role/example-bedrock-adapter-10",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          },
+          {
+            "extraData": {
+              "region": "ca-central-1",
+              "aws_assume_role_arn": "arn:aws:iam::100000000005:role/example-bedrock-adapter-10",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            },
+            "weight": 1,
+            "tier": 0
+          }
+        ],
+        "user_roles": [
+          "full",
+          "statgpt-service",
+          "user"
+        ],
+        "default_headers": {},
+        "interceptors": []
+      }
+    }
+  }
+}

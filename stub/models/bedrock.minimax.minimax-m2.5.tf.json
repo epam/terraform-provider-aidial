@@ -1,0 +1,65 @@
+{
+  "resource": {
+    "aidial_model": {
+      "bedrock_minimax_minimax_m2_5": {
+        "bucket": "platform",
+        "path": "bedrock.minimax.minimax-m2.5",
+        "name": "bedrock.minimax.minimax-m2.5",
+        "type": "CHAT",
+        "display_name": "MiniMax M2.5",
+        "display_version": "v1",
+        "override_name": "minimax.minimax-m2.5",
+        "description": "MiniMax M2.5 is an agent-native frontier model trained to reason efficiently and complete complex workflows under real-world time and cost constraints.",
+        "description_keywords": [
+          "Text Generation",
+          "AWS",
+          "Reasoning"
+        ],
+        "features": {
+          "tools_supported": true
+        },
+        "defaults": {
+          "max_tokens": 32000
+        },
+        "limits": {
+          "max_total_tokens": 196000
+        },
+        "pricing": {
+          "unit": "token",
+          "prompt": "0.0000003",
+          "completion": "0.0000012"
+        },
+        "endpoint": "http://bedrock-adapter.example/openai/deployments/minimax.minimax-m2.5/chat/completions",
+        "responses_endpoint": "",
+        "interfaces": {},
+        "upstreams": [
+          {
+            "extraData": {
+              "region": "us-east-1",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            }
+          },
+          {
+            "extraData": {
+              "region": "us-east-2",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            }
+          },
+          {
+            "extraData": {
+              "region": "us-west-2",
+              "compatible_model_id": "amazon.nova-pro-v1:0"
+            }
+          }
+        ],
+        "user_roles": [
+          "full",
+          "statgpt-service",
+          "user"
+        ],
+        "default_headers": {},
+        "interceptors": []
+      }
+    }
+  }
+}

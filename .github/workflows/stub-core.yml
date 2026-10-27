@@ -1,0 +1,80 @@
+name: Stub Core apply
+
+# Opt-in: plans and applies every model config under stub/models/ against the
+# local, disposable DIAL Core stack in stub/docker-compose.yml.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    env:
+      TF_IN_AUTOMATION: "true"
+      TF_INPUT: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.25"
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: "1.12.0"
+          terraform_wrapper: false
+      - name: Build provider
+        run: |
+          mkdir -p "$RUNNER_TEMP/provider"
+          CGO_ENABLED=0 go build -trimpath -o "$RUNNER_TEMP/provider/terraform-provider-aidial" .
+          cat > "$RUNNER_TEMP/terraformrc" <<EOF
+          provider_installation {
+            dev_overrides {
+              "epam/aidial" = "$RUNNER_TEMP/provider"
+            }
+            direct {}
+          }
+          EOF
+      - name: Start stub Core
+        working-directory: stub
+        run: |
+          cp .env.example .env
+          docker compose up -d
+      - name: Wait for Core
+        working-directory: stub
+        run: |
+          . ./.env
+          export TF_VAR_aidial_base_url=http://localhost:8081
+          for i in $(seq 1 30); do
+            status="$(curl -sS -o /dev/null -w '%{http_code}' -H "Api-Key: ${TF_VAR_aidial_api_key}" "${TF_VAR_aidial_base_url}/v1/bucket" || echo 000)"
+            [ "$status" = 200 ] && exit 0
+            sleep 2
+          done
+          docker compose ps
+          docker compose logs --tail=200
+          exit 1
+      - name: Plan and apply
+        working-directory: stub/models
+        run: |
+          . ../.env
+          export TF_VAR_aidial_base_url=http://localhost:8081
+          export TF_CLI_CONFIG_FILE="$RUNNER_TEMP/terraformrc"
+          terraform plan
+          terraform apply -auto-approve
+      - name: Export state
+        if: always()
+        run: |
+          if [ -f stub/models/terraform.tfstate ]; then
+            cp stub/models/terraform.tfstate stub-models.tfstate.json
+          fi
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: stub-models-state
+          path: stub-models.tfstate.json
+          if-no-files-found: ignore
+          retention-days: 2
+      - name: Stop stub Core
+        if: always()
+        working-directory: stub
+        run: docker compose down -v

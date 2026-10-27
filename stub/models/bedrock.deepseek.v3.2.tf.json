@@ -1,0 +1,59 @@
+{
+  "resource": {
+    "aidial_model": {
+      "bedrock_deepseek_v3_2": {
+        "bucket": "platform",
+        "path": "bedrock.deepseek.v3.2",
+        "name": "bedrock.deepseek.v3.2",
+        "type": "CHAT",
+        "display_name": "DeepSeek V3.2",
+        "display_version": "v1",
+        "override_name": "deepseek.v3.2",
+        "description": "DeepSeek V3.2 harmonizes high computational efficiency with superior reasoning and agentic performance over long contexts.",
+        "description_keywords": [
+          "Text Generation",
+          "AWS",
+          "Reasoning"
+        ],
+        "features": {
+          "tools_supported": true
+        },
+        "defaults": {
+          "max_tokens": 32000
+        },
+        "limits": {
+          "max_total_tokens": 164000
+        },
+        "pricing": {
+          "unit": "token",
+          "prompt": "0.00000062",
+          "completion": "0.00000185"
+        },
+        "endpoint": "http://bedrock-adapter.example/openai/deployments/deepseek.v3.2/chat/completions",
+        "responses_endpoint": "",
+        "interfaces": {},
+        "upstreams": [
+          {
+            "extraData": {
+              "region": "us-east-2",
+              "compatible_model_id": "deepseek.r1-v1:0"
+            }
+          },
+          {
+            "extraData": {
+              "region": "us-west-2",
+              "compatible_model_id": "deepseek.r1-v1:0"
+            }
+          }
+        ],
+        "user_roles": [
+          "full",
+          "statgpt-service",
+          "user"
+        ],
+        "default_headers": {},
+        "interceptors": []
+      }
+    }
+  }
+}

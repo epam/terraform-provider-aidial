@@ -1,0 +1,19 @@
+version: "2"
+linters:
+  default: none
+  enable:
+    - govet
+    - errcheck
+    - staticcheck
+    - ineffassign
+    - unused
+  settings:
+    errcheck:
+      exclude-functions:
+        - (io.Closer).Close
+        - (net/http.ResponseWriter).Write
+        - github.com/hashicorp/terraform-plugin-framework/providerserver.Serve
+formatters:
+  enable:
+    - gofmt
+    - goimports

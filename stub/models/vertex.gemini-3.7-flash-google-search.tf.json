@@ -1,0 +1,88 @@
+{
+  "resource": {
+    "aidial_model": {
+      "vertex_gemini_3_7_flash_google_search": {
+        "bucket": "platform",
+        "path": "vertex.gemini-3.7-flash-google-search",
+        "name": "vertex.gemini-3.7-flash-google-search",
+        "type": "CHAT",
+        "display_name": "Google Gemini 3.7 Flash",
+        "display_version": "With Google Search Grounding",
+        "override_name": "gemini-3.7-flash-google-search",
+        "icon_url": "Gemini-Pro-Vision.svg",
+        "description": "Gemini 3.7 Flash with Google Search grounding is Google's fast, general-purpose multimodal model augmented with real-time search results.",
+        "input_attachment_types": [
+          "*/*"
+        ],
+        "description_keywords": [
+          "Text Generation",
+          "GCP",
+          "Google Search Grounding",
+          "TXT Supported",
+          "Image Recognition",
+          "Functions",
+          "Video Recognition",
+          "Audio Recognition",
+          "PDF Supported"
+        ],
+        "features": {
+          "tools_supported": true
+        },
+        "defaults": {
+          "custom_fields": {
+            "configuration": {
+              "thinking": {
+                "include_thoughts": true,
+                "thinking_budget": -1
+              }
+            }
+          },
+          "tools": [
+            {
+              "type": "static_function",
+              "static_function": {
+                "name": "google_search"
+              }
+            }
+          ]
+        },
+        "limits": {
+          "max_prompt_tokens": 999999,
+          "max_completion_tokens": 63999
+        },
+        "pricing": {
+          "unit": "token",
+          "prompt": "0.00000075",
+          "completion": "0.00000375",
+          "cacheRead": "0.000000075"
+        },
+        "endpoint": "http://vertexai-adapter.example/openai/deployments/gemini-3.7-flash/chat/completions",
+        "responses_endpoint": "",
+        "interfaces": {},
+        "upstreams": [
+          {
+            "extraData": {
+              "project": "example-project-2",
+              "region": "global",
+              "compatible_model_id": "gemini-3.5-flash"
+            }
+          },
+          {
+            "extraData": {
+              "project": "example-project-1",
+              "region": "global",
+              "compatible_model_id": "gemini-3.5-flash"
+            }
+          }
+        ],
+        "user_roles": [
+          "full",
+          "statgpt-service",
+          "user"
+        ],
+        "default_headers": {},
+        "interceptors": []
+      }
+    }
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "resource": {
+    "aidial_model": {
+      "openai_whisper_001": {
+        "bucket": "platform",
+        "path": "openai.whisper-001",
+        "name": "openai.whisper-001",
+        "type": "CHAT",
+        "display_name": "Whisper",
+        "display_version": "001",
+        "override_name": "whisper-001",
+        "description": "Whisper transcribes speech audio into text in the spoken language, and can translate speech into English.",
+        "input_attachment_types": [
+          "audio/*"
+        ],
+        "description_keywords": [
+          "Azure",
+          "Speech-to-Text",
+          "Transcribe"
+        ],
+        "features": {
+          "tools_supported": false
+        },
+        "pricing": {
+          "unit": "token",
+          "prompt": "0.0001",
+          "completion": "0"
+        },
+        "endpoint": "http://openai-adapter.example/openai/deployments/whisper-001/chat/completions",
+        "responses_endpoint": "http://openai-adapter.example/openai/v1/responses",
+        "interfaces": {},
+        "upstreams": [
+          {
+            "endpoint": "https://example-a-eastus2-0.openai.azure.com/openai/deployments/whisper-001/audio/transcriptions"
+          },
+          {
+            "endpoint": "https://example-a-eastus2-1.openai.azure.com/openai/deployments/whisper-001/audio/transcriptions"
+          },
+          {
+            "endpoint": "https://example-a-eastus2-2.openai.azure.com/openai/deployments/whisper-001/audio/transcriptions"
+          },
+          {
+            "endpoint": "https://example-a-northcentralus-0.openai.azure.com/openai/deployments/whisper-001/audio/transcriptions"
+          },
+          {
+            "endpoint": "https://example-a-northcentralus-1.openai.azure.com/openai/deployments/whisper-001/audio/transcriptions"
+          },
+          {
+            "endpoint": "https://example-a-northcentralus-2.openai.azure.com/openai/deployments/whisper-001/audio/transcriptions"
+          },
+          {
+            "endpoint": "https://example-a-swedencentral-0.openai.azure.com/openai/deployments/whisper-001/audio/transcriptions"
+          },
+          {
+            "endpoint": "https://example-a-swedencentral-1.openai.azure.com/openai/deployments/whisper-001/audio/transcriptions"
+          },
+          {
+            "endpoint": "https://example-a-swedencentral-2.openai.azure.com/openai/deployments/whisper-001/audio/transcriptions"
+          },
+          {
+            "endpoint": "https://example-b-northcentralus-0.openai.azure.com/openai/deployments/whisper-001/audio/transcriptions"
+          },
+          {
+            "endpoint": "https://example-b-northcentralus-1.openai.azure.com/openai/deployments/whisper-001/audio/transcriptions"
+          },
+          {
+            "endpoint": "https://example-b-northcentralus-2.openai.azure.com/openai/deployments/whisper-001/audio/transcriptions"
+          },
+          {
+            "endpoint": "https://example-b-swedencentral-0.openai.azure.com/openai/deployments/whisper-001/audio/transcriptions"
+          },
+          {
+            "endpoint": "https://example-b-swedencentral-1.openai.azure.com/openai/deployments/whisper-001/audio/transcriptions"
+          },
+          {
+            "endpoint": "https://example-b-swedencentral-2.openai.azure.com/openai/deployments/whisper-001/audio/transcriptions"
+          },
+          {
+            "endpoint": "https://example-c-northcentralus-0.openai.azure.com/openai/deployments/whisper-001/audio/transcriptions"
+          },
+          {
+            "endpoint": "https://example-c-northcentralus-1.openai.azure.com/openai/deployments/whisper-001/audio/transcriptions"
+          },
+          {
+            "endpoint": "https://example-c-northcentralus-2.openai.azure.com/openai/deployments/whisper-001/audio/transcriptions"
+          },
+          {
+            "endpoint": "https://example-c-swedencentral-0.openai.azure.com/openai/deployments/whisper-001/audio/transcriptions"
+          },
+          {
+            "endpoint": "https://example-c-swedencentral-1.openai.azure.com/openai/deployments/whisper-001/audio/transcriptions"
+          },
+          {
+            "endpoint": "https://example-c-swedencentral-2.openai.azure.com/openai/deployments/whisper-001/audio/transcriptions"
+          },
+          {
+            "endpoint": "https://example-d-eastus2-0.openai.azure.com/openai/deployments/whisper-001/audio/transcriptions"
+          },
+          {
+            "endpoint": "https://example-d-eastus2-1.openai.azure.com/openai/deployments/whisper-001/audio/transcriptions"
+          },
+          {
+            "endpoint": "https://example-d-eastus2-2.openai.azure.com/openai/deployments/whisper-001/audio/transcriptions"
+          },
+          {
+            "endpoint": "https://example-d-northcentralus-0.openai.azure.com/openai/deployments/whisper-001/audio/transcriptions"
+          },
+          {
+            "endpoint": "https://example-d-northcentralus-1.openai.azure.com/openai/deployments/whisper-001/audio/transcriptions"
+          },
+          {
+            "endpoint": "https://example-d-northcentralus-2.openai.azure.com/openai/deployments/whisper-001/audio/transcriptions"
+          },
+          {
+            "endpoint": "https://example-d-swedencentral-0.openai.azure.com/openai/deployments/whisper-001/audio/transcriptions"
+          },
+          {
+            "endpoint": "https://example-d-swedencentral-1.openai.azure.com/openai/deployments/whisper-001/audio/transcriptions"
+          },
+          {
+            "endpoint": "https://example-d-swedencentral-2.openai.azure.com/openai/deployments/whisper-001/audio/transcriptions"
+          }
+        ],
+        "user_roles": [
+          "full",
+          "statgpt-service",
+          "user"
+        ],
+        "default_headers": {},
+        "interceptors": []
+      }
+    }
+  }
+}
