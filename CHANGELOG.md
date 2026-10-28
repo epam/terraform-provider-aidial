@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow [Semantic Versioning](https://semver.org/).
 
+## 0.2.0 - 2026-10-28
+
+### Added
+
+- Resource and data source `aidial_catalog_schema`.
+- `catalog_schema_id` and `catalog_properties` on `aidial_model` and the `aidial_file_model` data source.
+- Local ephemeral DIAL Core for integration and acceptance tests (`make core-up`, `make test-integration`, `make testacc`).
+
 ## 0.1.0 - 2026-10-27
 
 First public release, published to the Terraform Registry as `epam/aidial`.
