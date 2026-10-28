@@ -1,0 +1,41 @@
+# Throwaway DIAL Core + Valkey for integration and acceptance runs.
+# Shared by scripts/core.sh (local) and the CI integration job.
+# Config is inline (not bind-mounted) so it also works against a remote Docker daemon.
+# Versions: CORE_VERSION (default latest). Publish address: CORE_BIND:CORE_PORT.
+name: aidial-test
+
+services:
+  valkey:
+    image: valkey/valkey:9-alpine
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  core:
+    image: epam/ai-dial-core:${CORE_VERSION:-latest}
+    ports:
+      - "${CORE_BIND:-0.0.0.0}:${CORE_PORT:-8080}:8080"
+    environment:
+      AIDIAL_SETTINGS: /opt/core/settings.json
+    depends_on:
+      valkey:
+        condition: service_healthy
+    configs:
+      - source: core_config
+        target: /opt/core/config.json
+      - source: core_settings
+        target: /opt/core/settings.json
+
+configs:
+  core_config:
+    content: |
+      {"keys":{"ci-check-key":{"project":"ci","role":"admin"}},"roles":{"admin":{"limits":{}},"default":{"limits":{}}}}
+  core_settings:
+    content: |
+      {"config":{"files":["/opt/core/config.json"]},
+       "identityProviders":{"ci":{"jwksUrl":"http://localhost/jwks","rolePath":"roles","issuerPattern":".*"}},
+       "encryption":{"secret":"ci-secret","key":"ci-key"},
+       "redis":{"singleServerConfig":{"address":"redis://valkey:6379"}},
+       "access":{"admin":{"rules":[{"function":"EQUAL","source":"roles","targets":["admin"]}]}}}

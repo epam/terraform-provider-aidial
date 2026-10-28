@@ -316,7 +316,7 @@ The provider code, its behavior specs, the local DIAL Core stack and the integra
 
 - Resource behavior is specified once under `openspec/` and implemented once under `internal/`. When a resource's behavior changes, update the spec and the code together; don't describe behavior only in a README or a commit message. System-wide rules that apply to every resource (for example bucket/path defaults) live in their own spec (`openspec/resource-identity-defaults`), not copied into each per-resource spec.
 - The disposable DIAL Core stack used by CI and by local runs is defined once under `stub/`. Model configs for it live in `stub/models/`; don't copy them into `examples/` or `tests/`.
-- `tests/integration/` holds manifests that run in CI against an ephemeral DIAL Core. `stub/models/` holds manifests that run against the local stub. Keep them separate: they have different backends and different expectations.
+- `tests/integration/` holds manifests that run in CI and locally (`make test-integration`) against an ephemeral DIAL Core defined in `tests/core/`. `stub/models/` holds manifests that run against the local stub. Keep them separate: they have different backends and different expectations.
 - CI and release pipelines live in `.github/workflows/`; release packaging is configured in `.goreleaser.yml`.
 
 ### Structure of the repository
@@ -384,6 +384,44 @@ make docs          # tfplugindocs generate (writes docs/, which is committed; CI
 ```
 
 To debug a test, open a `_test.go` file and run **Debug test (current file's package)** from `.vscode/launch.json` (or select a test name and use **Debug test (selected name)**). Debugging a running provider binary is not set up, since `main.go` has no `-debug` flag.
+
+## Testing against a local Core
+
+The CI integration job and the Go acceptance tests run against a throwaway DIAL Core plus Valkey defined once in `tests/core/docker-compose.yml`. Neither the devcontainer nor the agent running in it needs Docker access: you start the Core on the host and the devcontainer only makes HTTP calls to it. This part is optional; skip it if you only run unit tests.
+
+### Core on the host, tests in the devcontainer (recommended)
+
+1. On the host (not in the devcontainer), from a checkout of this repository:
+
+   ```bash
+   scripts/core.sh up                          # CORE_VERSION=0.48.1 scripts/core.sh up to pin a version (default: latest)
+   ```
+
+   It starts Core and Valkey, waits for `/health` and prints the URL. The Core is published on `0.0.0.0:8080` so containers can reach it, which also exposes it to your network, so firewall the port or set `CORE_BIND=127.0.0.1` when you only use it from the host. It uses the throwaway API key `ci-check-key` and holds no real data. `CORE_PORT` changes the port. A `/health` answer of `401` still counts as up.
+
+2. In the devcontainer, nothing needs to be set. With no Docker daemon reachable, the scripts default to a Core on the host at `http://host.docker.internal:8080` (`CORE_PORT` changes the port). If that name does not resolve, they fall back to the container's default gateway. `host.docker.internal` is mapped by `runArgs` in `.devcontainer/devcontainer.json`, which only takes effect after you rebuild the devcontainer. Set `CORE_URL` (for example in `~/devcontainer.env`) to override the address.
+
+   ```bash
+   scripts/core.sh url     # shows the Core URL the scripts will use
+   make test-integration   # validate, plan, apply, null-vs-empty drift check, destroy (same as CI)
+   make testacc            # Go acceptance tests (TestAcc*, gated by TF_ACC)
+   ```
+
+   In this mode the scripts only wait for the Core's `/health`; they never start, stop or delete it. For manual `terraform apply`, use `base_url = "$(scripts/core.sh url)"` and `api_key = "ci-check-key"`.
+
+3. Back on the host, remove the Core when you are done, or run `up` again for a clean one (it recreates the Core):
+
+   ```bash
+   scripts/core.sh down
+   ```
+
+The runs create resources with per-run unique paths, but the Core keeps its state between runs until `down` or `up`.
+
+### Core started by the scripts (host with Docker)
+
+On a machine with a reachable Docker daemon (not the devcontainer, which has no Docker) and without `CORE_URL`, `make test-integration` and `make testacc` start a fresh Core themselves, run, and remove it. To use an already running Core there instead, set `CORE_URL=http://localhost:8080`. The devcontainer deliberately has no Docker client: any daemon it could control would be a way out of it.
+
+`CORE_VERSION=<tag>` picks the image in both modes. Plain `go test ./...` skips the acceptance tests and needs no Core or Docker. Without a reachable Core or daemon the scripts stop with a message pointing here.
 
 ## Build
 

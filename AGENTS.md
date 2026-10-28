@@ -15,7 +15,7 @@ go vet ./...
 terraform fmt -check -recursive                       # for .tf files (examples/, stub/, tests/)
 ```
 
-`Makefile` wraps these: `make build|install-dev|test|vet|fmt|lint|lint-md|docs` (`install-dev` builds into `dist/linux_amd64` for `dev_overrides`; `lint` is `golangci-lint run` + `tfproviderlint ./...`; `docs` is `tfplugindocs generate --provider-name aidial`; `docs/` is committed and CI fails on drift, so rerun it after schema or `examples/` changes). The devcontainer installs all these tools.
+`Makefile` wraps these: `make build|install-dev|test|vet|fmt|lint|lint-md|docs|core-up|core-down|test-integration|testacc` (`install-dev` builds into `dist/linux_amd64` for `dev_overrides`; `lint` is `golangci-lint run` + `tfproviderlint ./...`; `docs` is `tfplugindocs generate --provider-name aidial`; `docs/` is committed and CI fails on drift, so rerun it after schema or `examples/` changes). The devcontainer installs all these tools.
 
 Pre-commit (`.pre-commit-config.yaml`) runs `gofmt -w`, `goimports -w`, `golangci-lint run`, `tfproviderlint ./...`, `markdownlint-cli2` and `terraform fmt -recursive`.
 
@@ -25,6 +25,7 @@ Other test environments:
 
 - `stub/` is a disposable local DIAL Core (`stub/docker-compose.yml`); `stub/models/*.tf*` are applied to it by the manually dispatched `Stub Core apply` workflow (`.github/workflows/stub-core.yml`).
 - `tests/integration/` holds manifests applied in CI by the `integration` job of `.github/workflows/ci.yml` against an ephemeral DIAL Core (`epam/ai-dial-core:latest` + Valkey containers started by the job, no secrets). `drift_check_null_vs_empty.sh` is run from that directory after `terraform apply` and needs `DIAL_BASE_URL`, `DIAL_API_KEY`, `curl` and `jq`.
+- Local ephemeral Core: `tests/core/docker-compose.yml` (version via `CORE_VERSION`, default `latest`) is shared by CI and `make test-integration` / `make testacc` (`scripts/core.sh`, `scripts/test-integration.sh`). The devcontainer has no Docker by default: start the Core on the host with `scripts/core.sh up`; with no Docker daemon the scripts default to `http://host.docker.internal:8080` (override with `CORE_URL`) and only connect to it; see README "Testing against a local Core". Acceptance tests are `TestAcc*` in `internal/provider/*_acc_test.go`, skipped without `TF_ACC`.
 - Releases: pushing a `vX.Y.Z` tag runs `.github/workflows/release.yml` (GoReleaser, GPG-signed checksums, Registry manifest; see README "Releasing").
 
 ## Architecture

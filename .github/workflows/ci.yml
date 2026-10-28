@@ -109,18 +109,13 @@ jobs:
             (cd "$dir" && terraform validate)
           done
 
-  # Applies tests/integration against a throwaway DIAL Core (plus Valkey), so it
-  # needs no secrets and leaves no shared state. The URL and key are passed with
-  # -var-file, not TF_VAR_*, so repository variables cannot redirect the run to
-  # a real Core.
+  # Applies tests/integration against a throwaway DIAL Core (plus Valkey) defined in
+  # tests/core, so it needs no secrets and leaves no shared state. The URL and key are
+  # passed with -var-file by scripts/test-integration.sh, not TF_VAR_*, so repository
+  # variables cannot redirect the run to a real Core.
   integration:
     needs: [validate, test]
     runs-on: ubuntu-latest
-    env:
-      CHECK_BASE_URL: http://localhost:8080
-      CHECK_API_KEY: ci-check-key # must match the key in the Core config below
-      TF_IN_AUTOMATION: "true"
-      TF_INPUT: "false"
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-go@v7
@@ -130,67 +125,10 @@ jobs:
         with:
           terraform_version: ${{ env.TERRAFORM_VERSION }}
           terraform_wrapper: false
-      - name: Build provider
-        run: |
-          mkdir -p "$RUNNER_TEMP/provider"
-          CGO_ENABLED=0 go build -trimpath -o "$RUNNER_TEMP/provider/terraform-provider-aidial" .
-          cat > "$RUNNER_TEMP/terraformrc" <<EOF
-          provider_installation {
-            dev_overrides {
-              "epam/aidial" = "$RUNNER_TEMP/provider"
-            }
-            direct {}
-          }
-          EOF
-      - name: Start DIAL Core and Valkey
-        run: |
-          mkdir -p "$RUNNER_TEMP/core"
-          cat > "$RUNNER_TEMP/core/config.json" <<'J'
-          {"keys":{"ci-check-key":{"project":"ci","role":"admin"}},"roles":{"admin":{"limits":{}},"default":{"limits":{}}}}
-          J
-          cat > "$RUNNER_TEMP/core/settings.json" <<'J'
-          {"config":{"files":["/opt/core/config.json"]},
-           "identityProviders":{"ci":{"jwksUrl":"http://localhost/jwks","rolePath":"roles","issuerPattern":".*"}},
-           "encryption":{"secret":"ci-secret","key":"ci-key"},
-           "redis":{"singleServerConfig":{"address":"redis://valkey:6379"}},
-           "access":{"admin":{"rules":[{"function":"EQUAL","source":"roles","targets":["admin"]}]}}}
-          J
-          chmod -R a+rX "$RUNNER_TEMP/core"
-          docker network create core-net
-          docker run -d --name valkey --network core-net valkey/valkey:9-alpine
-          docker run -d --name core --network core-net -p 8080:8080 \
-            -v "$RUNNER_TEMP/core:/opt/core:ro" \
-            -e AIDIAL_SETTINGS=/opt/core/settings.json \
-            epam/ai-dial-core:latest # release tag, intentionally unpinned
-      - name: Wait for Core
-        run: |
-          for i in $(seq 1 60); do
-            curl -sf "$CHECK_BASE_URL/health" >/dev/null && exit 0
-            sleep 2
-          done
-          echo "DIAL Core did not become healthy"
-          docker logs core --tail 100
-          exit 1
-      - name: Apply, drift check, destroy
-        working-directory: tests/integration
-        run: |
-          export TF_CLI_CONFIG_FILE="$RUNNER_TEMP/terraformrc"
-          cat > terraform.tfvars.json <<EOF
-          {
-            "aidial_base_url": "${CHECK_BASE_URL}",
-            "aidial_api_key": "${CHECK_API_KEY}",
-            "aidial_role_bucket": "platform",
-            "aidial_role_path": "tf-aidial-ci-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}",
-            "aidial_service_key": "ci-dummy"
-          }
-          EOF
-          terraform validate
-          terraform plan -var-file=terraform.tfvars.json
-          terraform apply -auto-approve -var-file=terraform.tfvars.json
-          # Second apply: change the model outside Terraform and show that the
-          # null vs "" / [] difference is detected and reverted.
-          DIAL_BASE_URL="$CHECK_BASE_URL" DIAL_API_KEY="$CHECK_API_KEY" sh ./drift_check_null_vs_empty.sh
-          terraform destroy -auto-approve -var-file=terraform.tfvars.json
+      - name: Integration run (Core, apply, drift check, destroy)
+        env:
+          CORE_VERSION: latest # release tag, intentionally unpinned
+        run: scripts/test-integration.sh
       - name: Upload Terraform state
         if: always()
         uses: actions/upload-artifact@v7
