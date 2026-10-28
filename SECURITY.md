@@ -24,7 +24,7 @@ gh attestation verify terraform-provider-aidial_<version>_<os>_<arch>.zip --repo
 
 ## Repository safeguards
 
-CI runs `govulncheck`, CodeQL, dependency review, gitleaks and zizmor (`.github/workflows/security.yml`), and `gosec` through golangci-lint. `govulncheck`, CodeQL and gitleaks also run weekly on `main`. GitHub Actions are pinned to commit SHAs, and Dependabot proposes updates after a three-day cooldown.
+CI runs `govulncheck`, CodeQL, dependency review, gitleaks and zizmor (`.github/workflows/security.yml`), and `gosec` through golangci-lint. `govulncheck`, CodeQL and gitleaks also run weekly on `main`. GitHub Actions are pinned to commit SHAs, and Dependabot proposes updates after a seven-day cooldown.
 
 ### Settings maintainers apply in GitHub
 

@@ -5,7 +5,7 @@
 - [x] 1.1 Pin every action in `ci.yml`, `stub-core.yml` and `release.yml` to a commit SHA with a version comment, and verify `grep -rn "uses:" .github/workflows` shows no tag references
 - [ ] 1.2 Add `persist-credentials: false` to every checkout and move release permissions to job level with `permissions: {}` at workflow level; verify with `zizmor .github/workflows` (or the CI zizmor job)
 - [x] 1.3 Remove the state artifact uploads from `ci.yml` and `stub-core.yml`; verify `grep -rn upload-artifact .github/workflows` is empty
-- [x] 1.4 Group Actions updates and add a 3-day cooldown for `gomod` and `github-actions` in `.github/dependabot.yml`; verify the YAML parses
+- [x] 1.4 Group Actions updates and add a 7-day cooldown for `gomod` and `github-actions` in `.github/dependabot.yml`; verify the YAML parses
 
 ## 2. Security checks
 

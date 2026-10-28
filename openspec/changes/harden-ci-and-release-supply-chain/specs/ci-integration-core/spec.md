@@ -39,11 +39,11 @@ Workflows SHALL declare no write permission at workflow level, SHALL grant addit
 - **THEN** its jobs receive at most read access to repository contents, plus `security-events: write` only on jobs that upload code scanning results
 
 ### Requirement: Dependency update cooldown
-Dependabot SHALL group GitHub Actions updates into a single weekly pull request and SHALL wait three days after a release before proposing it for Go modules and GitHub Actions.
+Dependabot SHALL group GitHub Actions updates into a single weekly pull request and SHALL wait seven days after a release before proposing it for Go modules and GitHub Actions.
 
 #### Scenario: Fresh release
 - **WHEN** an action publishes a new version
-- **THEN** Dependabot proposes it no earlier than three days later
+- **THEN** Dependabot proposes it no earlier than seven days later
 
 ## REMOVED Requirements
 

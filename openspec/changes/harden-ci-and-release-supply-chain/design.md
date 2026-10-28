@@ -25,6 +25,8 @@ CI (`ci.yml`), the manual stub apply (`stub-core.yml`) and the tag release (`rel
 - **One new workflow, `security.yml`.** Jobs run on pull requests, pushes to `main`, a weekly cron and manual dispatch. Keeping them out of `ci.yml` lets maintainers require the `Security` checks separately. All jobs block; the cron only notifies through the failed run.
 - **zizmor lints the workflows.** It enforces SHA pins and flags injection patterns, so the pinning requirement is checked mechanically rather than by review.
 - **gosec scope.** Findings in test code are excluded in `.golangci.yml` (G104 on `httptest` handlers, mirroring the existing errcheck exclusion; G704 in the acceptance-test cleanup that calls the Core named by `DIAL_BASE_URL`). The one production finding, the ignored `Serve` error in `main.go`, gets a `//nolint:gosec` with a reason, because handling it would change exit behavior and is out of scope.
+- **No Go cache in the release job.** `setup-go` caches by default, and the release publishes artifacts, so `cache: false` there prevents restoring a cache a pull request run could have poisoned (zizmor `cache-poisoning`).
+- **govulncheck v1.7.0.** It is the newest release whose module supports the project's Go 1.25 toolchain; v1.8 and later require Go 1.26. The devcontainer pins the same version so local and CI results match.
 - **Least privilege by default.** `permissions: {}` at workflow level where jobs declare their own, `persist-credentials: false` on every checkout, and release permissions moved to the job. The `release` environment is referenced in the workflow; its reviewers and secrets are maintainer configuration.
 - **Drop state artifact uploads.** The Terraform state can hold sensitive values and the dummy CI keys set a bad precedent. Logs remain; local reproduction uses `scripts/test-integration.sh`.
 - **Images stay tag-based.** `epam/ai-dial-core:latest` is an intentional upstream canary, and no Dependabot `docker` ecosystem is added.
@@ -33,6 +35,6 @@ CI (`ci.yml`), the manual stub apply (`stub-core.yml`) and the tag release (`rel
 
 - [The release path cannot be fully tested before a tag] → Run `goreleaser release --snapshot --clean` locally, and treat the first tag as the real test.
 - [Blocking scanners may fail on unrelated advisories] → Fix or pin the dependency; narrow, commented suppressions only.
-- [The 3-day cooldown delays non-security updates] → Security updates bypass the cooldown.
+- [The 7-day cooldown delays non-security updates] → Security updates bypass the cooldown.
 - [Newly required checks do nothing until branch protection names them] → Documented in `SECURITY.md`; the maintainer applies it.
 - [The `release` environment auto-creates on first run without reviewers] → The checklist tells maintainers to add reviewers and move the secrets before the next tag.

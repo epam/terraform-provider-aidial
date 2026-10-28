@@ -6,7 +6,7 @@ CI and release automation run on mutable action tags, the release workflow grant
 
 ## What Changes
 
-- Pin every GitHub Action to a full commit SHA, and have Dependabot group action updates and wait three days before proposing a new version.
+- Pin every GitHub Action to a full commit SHA, and have Dependabot group action updates and wait seven days before proposing a new version.
 - Run workflows with least privilege: no persisted checkout credentials, job-level release permissions, and a protected `release` environment for the signing job.
 - Add a build provenance attestation and a per-archive SBOM to releases, keeping the GPG-signed checksums the Terraform Registry verifies.
 - Add blocking CI security checks: `govulncheck`, CodeQL, dependency review, gitleaks and zizmor, plus `gosec` through golangci-lint. `govulncheck`, CodeQL and gitleaks also run weekly on the default branch.
