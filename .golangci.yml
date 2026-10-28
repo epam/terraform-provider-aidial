@@ -7,12 +7,23 @@ linters:
     - staticcheck
     - ineffassign
     - unused
+    - gosec
   settings:
     errcheck:
       exclude-functions:
         - (io.Closer).Close
         - (net/http.ResponseWriter).Write
         - github.com/hashicorp/terraform-plugin-framework/providerserver.Serve
+  exclusions:
+    rules:
+      # Mirrors the errcheck exclusion for ResponseWriter.Write in httptest handlers.
+      - path: _test\.go
+        linters: [gosec]
+        text: "G104"
+      # Acceptance-test cleanup calls the Core named by the DIAL_BASE_URL test environment.
+      - path: internal/provider/acc_helpers_test\.go
+        linters: [gosec]
+        text: "G704"
 formatters:
   enable:
     - gofmt
