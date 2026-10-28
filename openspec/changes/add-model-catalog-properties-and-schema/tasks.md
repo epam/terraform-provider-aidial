@@ -19,7 +19,7 @@
 
 ## 4. Integration and docs
 
-- [ ] 4.1 Run the new `tests/integration/tf_aidial_integration_catalog_schema.tf` manifest against ephemeral Core (CI `integration` job) and use the result to settle the design open questions (schema must exist at model save? `$id` vs `catalogSchemaId`; manifest is written, not yet run)
+- [x] 4.1 Ran the new `tests/integration/tf_aidial_integration_catalog_schema.tf` manifest plus a temporary probe against ephemeral Core in CI; findings recorded in design.md ("Verified Against Core")
 - [x] 4.2 Add `examples/` snippets, run `make docs`, commit `docs/`
 - [x] 4.3 Update legacy specs by hand: add `catalog-schema-*` notes and remove the "not implemented" mentions of `catalog_schema_id`/`catalog_properties` in `openspec/model-schema/spec.md`; update `openspec/file-model-schema/spec.md`, and the path-default exception in `openspec/resource-identity-defaults`
 - [x] 4.4 Run `go build`, `go test ./... -race`, `go vet`, `gofmt`, `make lint`, `terraform fmt -check -recursive`
