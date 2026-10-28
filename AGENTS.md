@@ -33,7 +33,7 @@ Other test environments:
 Terraform Plugin Framework provider with two packages:
 
 - `internal/client`: DIAL Core HTTP client (`Api-Key` header on every request).
-- `internal/provider`: resources `aidial_role`, `aidial_key`, `aidial_model`, `aidial_route` and data sources `aidial_bucket`, `aidial_role`, `aidial_file_model`, plus shared helpers.
+- `internal/provider`: resources `aidial_role`, `aidial_key`, `aidial_model`, `aidial_route` and data sources `aidial_bucket`, `aidial_role`, `aidial_model` (API-managed models by `bucket`/`path`), `aidial_file_model` (static-config models by name only), `aidial_catalog_schema`, plus shared helpers.
 
 Conventions that span several files:
 

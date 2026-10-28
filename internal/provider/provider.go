@@ -60,6 +60,7 @@ func (p *AidialProvider) DataSources(_ context.Context) []func() datasource.Data
 		func() datasource.DataSource { return &roleDataSource{} },
 		func() datasource.DataSource { return &bucketDataSource{} },
 		func() datasource.DataSource { return &fileModelDataSource{} },
+		func() datasource.DataSource { return &modelDataSource{} },
 		func() datasource.DataSource { return &catalogSchemaDataSource{} },
 	}
 }
