@@ -43,7 +43,7 @@ func TestGetFileModelNotFound(t *testing.T) {
 	}
 }
 
-func TestGetFileModelEscapesDotsInName(t *testing.T) {
+func TestGetFileModelEscapesSlashInName(t *testing.T) {
 	var gotPath string
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		gotPath = r.URL.EscapedPath()
@@ -58,7 +58,7 @@ func TestGetFileModelEscapesDotsInName(t *testing.T) {
 	// url.PathEscape encodes "/" as %2F rather than treating it as a
 	// path separator, so a name containing a slash stays a single
 	// path segment.
-	if want := "/v1/admin/config/file/models/a/b"; gotPath != want {
+	if want := "/v1/admin/config/file/models/a%2Fb"; gotPath != want {
 		t.Fatalf("expected request path %q, got %q", want, gotPath)
 	}
 }

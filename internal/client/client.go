@@ -144,9 +144,15 @@ func NewClient(baseURL, apiKey string) (*Client, error) {
 	}, nil
 }
 
+// escapeSegment encodes v as exactly one URL path segment, so reserved
+// characters (/, ?, #, %, space) never change the request path or query.
+func escapeSegment(v string) string {
+	return url.PathEscape(v)
+}
+
 func (c *Client) roleURL(bucket, path string) string {
-	escBucket := strings.ReplaceAll(bucket, "/", "%2F")
-	escPath := strings.ReplaceAll(path, "/", "%2F")
+	escBucket := escapeSegment(bucket)
+	escPath := escapeSegment(path)
 	return c.baseURL + "/v1/roles/" + escBucket + "/" + escPath
 }
 
@@ -339,7 +345,7 @@ func deleteResource(ctx context.Context, c *Client, url string) error {
 	return nil
 }
 
-func (c *Client) GetBucket(ctx context.Context, bucket string) (*Bucket, error) {
+func (c *Client) GetBucket(ctx context.Context) (*Bucket, error) {
 	req, err := c.newRequest(ctx, http.MethodGet, c.baseURL+"/v1/bucket", nil)
 	if err != nil {
 		return nil, err
@@ -391,8 +397,8 @@ type Key struct {
 }
 
 func (c *Client) keyURL(bucket, path string) string {
-	escBucket := strings.ReplaceAll(bucket, "/", "%2F")
-	escPath := strings.ReplaceAll(path, "/", "%2F")
+	escBucket := escapeSegment(bucket)
+	escPath := escapeSegment(path)
 	return c.baseURL + "/v1/keys/" + escBucket + "/" + escPath
 }
 
@@ -561,8 +567,8 @@ type Model struct {
 }
 
 func (c *Client) modelURL(bucket, path string) string {
-	escBucket := strings.ReplaceAll(bucket, "/", "%2F")
-	escPath := strings.ReplaceAll(path, "/", "%2F")
+	escBucket := escapeSegment(bucket)
+	escPath := escapeSegment(path)
 	return c.baseURL + "/v1/models/" + escBucket + "/" + escPath
 }
 
@@ -579,7 +585,7 @@ func (c *Client) DeleteModel(ctx context.Context, bucket, path string) error {
 }
 
 func (c *Client) fileModelURL(name string) string {
-	return c.baseURL + "/v1/admin/config/file/models/" + name
+	return c.baseURL + "/v1/admin/config/file/models/" + escapeSegment(name)
 }
 
 // GetFileModel reads a file-sourced model: one defined in DIAL Core's
@@ -618,8 +624,8 @@ type Route struct {
 }
 
 func (c *Client) routeURL(bucket, path string) string {
-	escBucket := strings.ReplaceAll(bucket, "/", "%2F")
-	escPath := strings.ReplaceAll(path, "/", "%2F")
+	escBucket := escapeSegment(bucket)
+	escPath := escapeSegment(path)
 	return c.baseURL + "/v1/routes/" + escBucket + "/" + escPath
 }
 
@@ -640,8 +646,8 @@ func (c *Client) DeleteRoute(ctx context.Context, bucket, path string) error {
 type CatalogSchema = json.RawMessage
 
 func (c *Client) catalogSchemaURL(bucket, path string) string {
-	escBucket := strings.ReplaceAll(bucket, "/", "%2F")
-	escPath := strings.ReplaceAll(path, "/", "%2F")
+	escBucket := escapeSegment(bucket)
+	escPath := escapeSegment(path)
 	return c.baseURL + "/v1/catalog_schemas/" + escBucket + "/" + escPath
 }
 

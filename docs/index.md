@@ -15,7 +15,8 @@ Terraform provider for [EPAM AI DIAL Core](https://github.com/epam/ai-dial-core)
 terraform {
   required_providers {
     aidial = {
-      source = "epam/aidial"
+      source  = "epam/aidial"
+      version = "~> 0.2"
     }
   }
 }

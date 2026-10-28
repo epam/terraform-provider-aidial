@@ -7,9 +7,15 @@ on:
 
 permissions: {}
 
+# A release run must finish; never cancel it because the same ref triggers again.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   goreleaser:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     # Protected environment: add required reviewers and move the signing secrets here
     # (see SECURITY.md).
     environment: release
@@ -42,13 +48,32 @@ jobs:
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
-      # GoReleaser's sboms block shells out to syft.
+      # The release description is the CHANGELOG section for this tag. Fail before
+      # publishing anything when it is missing or empty.
+      - name: Extract release notes
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          version="${TAG#v}"
+          awk -v v="$version" '
+            /^## / { if (on) exit; if ($0 == "## " v || index($0, "## " v " ") == 1) on = 1; next }
+            on
+          ' CHANGELOG.md > "$RUNNER_TEMP/release-notes.md"
+          if ! grep -q '[^[:space:]]' "$RUNNER_TEMP/release-notes.md"; then
+            echo "CHANGELOG.md has no non-empty '## $version' section" >&2
+            exit 1
+          fi
+      # GoReleaser's sboms block shells out to syft. The GoReleaser and syft versions
+      # match .devcontainer/Dockerfile and the goreleaser check step in ci.yml; bump them together.
       - name: Install syft
         uses: anchore/sbom-action/download-syft@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
+        with:
+          syft-version: v1.54.1
       - uses: goreleaser/goreleaser-action@f06c13b6b1a9625abc9e6e439d9c05a8f2190e94 # v7.2.3
         with:
-          version: "~> v2"
-          args: release --clean
+          version: v2.18.3
+          args: release --clean --release-notes ${{ runner.temp }}/release-notes.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
@@ -64,3 +89,16 @@ jobs:
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
           subject-checksums: ${{ steps.checksums.outputs.path }}
+      # Check what was actually published, which is what the Registry ingests.
+      - name: Verify published release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          dir="$(mktemp -d)"
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --dir "$dir"
+          cd "$dir"
+          gpg --verify ./*_SHA256SUMS.sig ./*_SHA256SUMS
+          sha256sum -c ./*_SHA256SUMS
+          gh attestation verify ./*_linux_amd64.zip --repo "$GITHUB_REPOSITORY"

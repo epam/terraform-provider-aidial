@@ -33,11 +33,11 @@ Other test environments:
 Terraform Plugin Framework provider with two packages:
 
 - `internal/client`: DIAL Core HTTP client (`Api-Key` header on every request).
-- `internal/provider`: resources `aidial_role`, `aidial_key`, `aidial_model`, `aidial_route` and data sources `aidial_bucket`, `aidial_role`, `aidial_model` (API-managed models by `bucket`/`path`), `aidial_file_model` (static-config models by name only), `aidial_catalog_schema`, plus shared helpers.
+- `internal/provider`: resources `aidial_role`, `aidial_key`, `aidial_model`, `aidial_route`, `aidial_catalog_schema` and data sources `aidial_bucket`, `aidial_role`, `aidial_model` (API-managed models by `bucket`/`path`), `aidial_file_model` (static-config models by name only), `aidial_catalog_schema`, plus shared helpers.
 
 Conventions that span several files:
 
-- **Shared identity model.** All four resources have optional `bucket` (default `platform`) and `path` (default: `name`; required for `aidial_key`, which has no name). Both force replacement, and `id` is `<bucket>/<path>`. The defaults are plan modifiers in `internal/provider/helpers.go`.
+- **Shared identity model.** All five resources have optional `bucket` (default `platform`) and `path` (default: `name`; required for `aidial_key` and `aidial_catalog_schema`, which have no name). Both force replacement, and `id` is `<bucket>/<path>`. The role, model and route defaults are plan modifiers in `internal/provider/helpers.go`; key and catalog schema use `stringdefault` for `bucket`.
 - **API semantics.** GET 404 means the resource is absent (not an error), and DELETE 404 is a successful no-op. PUT returns only `{"name": ...}`, so every create/update re-reads via GET to get the real state. ETag/`If-Match` headers are not used. `aidial_key`'s GET never returns the secret `key`, so state must keep the prior sensitive value, and PUT requires a non-empty `key`.
 - **Null vs empty stays distinct** for `aidial_model` (and the other resources' collections). When the API omits nested objects/lists/sets, they are normalized to explicit nulls to avoid plan churn. The free-form `defaults` attribute (`model_defaults.go`) keeps the prior value when the API JSON is semantically equal, so config types and formatting survive read-back.
 - **Specs first.** Behavior is specified once in `openspec/<capability>/spec.md` (per-resource `*-schema`, `*-client`, `*-add/read/update/delete/import`, `*-state-consistency`). Cross-resource rules live in `openspec/resource-identity-defaults`. Update the spec and the code together. `openapicore/open_api_core.yaml` is the DIAL Core API contract they are checked against. The OpenSpec workflow skills and `/opsx:*` commands are installed per user in `~/.claude/`, not in the repo.

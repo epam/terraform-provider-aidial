@@ -39,7 +39,7 @@ func (d *bucketDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	b, err := d.client.GetBucket(ctx, "")
+	b, err := d.client.GetBucket(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError("Failed to read bucket", err.Error())
 		return

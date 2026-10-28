@@ -11,7 +11,7 @@ The provider SHALL register the type name `aidial`, so every resource and data s
 
 #### Scenario: Resource types
 - **WHEN** the provider schema is exported
-- **THEN** the resources are `aidial_role`, `aidial_key`, `aidial_model` and `aidial_route`, and the data sources are `aidial_bucket`, `aidial_role` and `aidial_file_model`
+- **THEN** the resources are `aidial_role`, `aidial_key`, `aidial_model`, `aidial_route` and `aidial_catalog_schema`, and the data sources are `aidial_bucket`, `aidial_role`, `aidial_model`, `aidial_file_model` and `aidial_catalog_schema`
 
 #### Scenario: Old names absent
 - **WHEN** a configuration uses `dial_role` or any other `dial_*` type
