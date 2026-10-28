@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-model-catalog-properties-and-schema. Update Purpose after archive.
+Let `aidial_model` carry catalog metadata (`catalog_schema_id`, `catalog_properties`) and keep its state consistent with DIAL Core.
 
 ## Requirements
 

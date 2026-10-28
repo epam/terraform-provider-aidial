@@ -2,13 +2,25 @@
 
 ## Purpose
 
-TBD - created by archiving change add-model-catalog-properties-and-schema. Update Purpose after archive.
+Manage DIAL Core catalog schemas (JSON Schema documents under `/v1/catalog_schemas`) through the `aidial_catalog_schema` resource and data source, so models can reference them via `catalog_schema_id`.
 
 ## Requirements
 
 ### Requirement: Catalog schema client methods
 
-`internal/client/client.go` SHALL provide `GetCatalogSchema(ctx, bucket, path)`, `SaveCatalogSchema(ctx, bucket, path, schema)` and `DeleteCatalogSchema(ctx, bucket, path)` against `/v1/catalog_schemas/{bucket}/{path}`, following the existing client conventions: `Api-Key` header, GET 404 returns `(nil, nil)`, DELETE 404 is success, other non-2xx are API errors with status and body, PUT response treated as `{"name": ...}` only, ETag headers not used. The schema is carried as an opaque JSON object; the metadata keys `name` and `status` that Core adds on GET SHALL be removed.
+`internal/client/client.go` SHALL provide `GetCatalogSchema(ctx, bucket, path)`, `SaveCatalogSchema(ctx, bucket, path, schema)` and `DeleteCatalogSchema(ctx, bucket, path)` against `/v1/catalog_schemas/{bucket}/{path}`, following the existing client conventions. The schema is carried as an opaque JSON object; the metadata keys `name` and `status` that Core adds on GET SHALL be removed.
+
+#### Scenario: Request conventions
+- **WHEN** any catalog schema method calls the API
+- **THEN** it sends the `Api-Key` header and does not use ETag or `If-Match` headers
+
+#### Scenario: API error
+- **WHEN** a request returns a non-2xx status other than the GET/DELETE 404 cases
+- **THEN** the error includes the status and response body
+
+#### Scenario: PUT response
+- **WHEN** `SaveCatalogSchema` receives a successful response
+- **THEN** the body is treated as `{"name": ...}` only
 
 #### Scenario: Schema not found
 - **WHEN** `GetCatalogSchema` receives `404`
