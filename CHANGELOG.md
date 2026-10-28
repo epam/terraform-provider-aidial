@@ -12,6 +12,7 @@ Version 0.2.1 was published on GitHub but never reached the Terraform Registry, 
 
 - `SHA256SUMS` lists only the provider zips and the manifest again. SBOMs remain release assets and are covered by a build provenance attestation instead.
 - The release workflow fails when the published `SHA256SUMS` lists anything other than zips and the manifest.
+- Release builds and CI use the newest Go 1.26 patch release instead of the runner image's cached one, which picks up standard library security fixes (GO-2026-6809 in `crypto/x509`, fixed in Go 1.26.10).
 
 ## 0.2.1 - 2026-10-28
 

@@ -31,6 +31,8 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version: "1.26"
+          # Resolve the newest patch, not the runner image's cached one, so stdlib fixes apply.
+          check-latest: true
           # A release publishes artifacts, so do not restore a cache that PR runs could have poisoned.
           cache: false
       - name: Require signing secrets
