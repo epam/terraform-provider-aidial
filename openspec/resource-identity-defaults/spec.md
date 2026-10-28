@@ -26,7 +26,7 @@ System-wide rules for how `bucket` and `path` (the resource identity) are defaul
 
 `path` SHALL be optional and computed on `aidial_model`, `aidial_role` and `aidial_route`. When it is not configured, its plan value SHALL equal the configured `name`. If `name` is not yet known at plan time, `path` SHALL stay unknown until it is.
 
-`aidial_key` is excluded: its `name` is computed by the API, so `path` remains required there.
+`aidial_key` is excluded: its `name` is computed by the API, so `path` remains required there. `aidial_catalog_schema` is excluded too: a catalog schema has no `name` (it is identified by its `$id`), so `path` is required there and `bucket` follows the default-bucket rule.
 
 #### Scenario: Path omitted
 - **WHEN** a resource config sets `name` but not `path`
