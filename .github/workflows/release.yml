@@ -25,6 +25,8 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version: "1.25"
+          # A release publishes artifacts, so do not restore a cache that PR runs could have poisoned.
+          cache: false
       - name: Require signing secrets
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
