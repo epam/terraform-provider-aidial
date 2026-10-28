@@ -6,7 +6,7 @@ Thanks for helping improve the provider. The [README](README.md) covers the devc
 
 1. Open an issue for larger changes before starting.
 2. Behavior is specified under `openspec/`. Update the spec and the code together.
-3. Add or update unit tests next to the code (`internal/provider`, `internal/client`).
+3. Add or update unit tests next to the code (`internal/provider`, `internal/client`). To test against a real Core without waiting for CI, see [Testing against a local Core](README.md#testing-against-a-local-core).
 4. Run the checks CI runs:
 
    ```bash
