@@ -38,7 +38,11 @@ archives:
   - formats: [zip]
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
 
+# The Registry requires every file listed in SHA256SUMS to be a provider zip or the
+# manifest, so SBOMs are published as release assets but kept out of the checksums.
 checksum:
+  ids:
+    - default
   name_template: "{{ .ProjectName }}_{{ .Version }}_SHA256SUMS"
   algorithm: sha256
   extra_files:
@@ -46,7 +50,8 @@ checksum:
       name_template: "{{ .ProjectName }}_{{ .Version }}_manifest.json"
 
 sboms:
-  - artifacts: archive
+  - id: sbom
+    artifacts: archive
 
 signs:
   - artifacts: checksum
