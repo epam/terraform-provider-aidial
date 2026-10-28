@@ -31,6 +31,8 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version: "1.26"
+          # Resolve the newest patch, not the runner image's cached one, so stdlib fixes apply.
+          check-latest: true
           # A release publishes artifacts, so do not restore a cache that PR runs could have poisoned.
           cache: false
       - name: Require signing secrets
@@ -89,6 +91,12 @@ jobs:
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
           subject-checksums: ${{ steps.checksums.outputs.path }}
+      # SBOMs are not in SHA256SUMS (the Registry rejects releases that list them there),
+      # so attest them directly.
+      - name: Attest SBOMs
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: dist/*.sbom.json
       # Check what was actually published, which is what the Registry ingests.
       - name: Verify published release
         env:
@@ -100,5 +108,10 @@ jobs:
           gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --dir "$dir"
           cd "$dir"
           gpg --verify ./*_SHA256SUMS.sig ./*_SHA256SUMS
+          # The Registry rejects checksum files that list anything but zips and the manifest.
+          if awk '{print $2}' ./*_SHA256SUMS | grep -v -E '\.zip$|_manifest\.json$'; then
+            echo "SHA256SUMS lists files other than zips and the manifest" >&2
+            exit 1
+          fi
           sha256sum -c ./*_SHA256SUMS
           gh attestation verify ./*_linux_amd64.zip --repo "$GITHUB_REPOSITORY"

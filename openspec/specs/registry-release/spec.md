@@ -61,11 +61,26 @@ The release SHALL publish a GitHub build provenance attestation whose subjects a
 - **THEN** `SHA256SUMS`, its detached GPG signature and the manifest are still present and unchanged in format
 
 ### Requirement: SBOM per archive
-The release SHALL include a software bill of materials for each platform archive.
+The release SHALL include a software bill of materials for each platform archive as a release asset, covered by a build provenance attestation but not listed in `SHA256SUMS`.
 
 #### Scenario: SBOM assets
 - **WHEN** the release assets are listed
-- **THEN** each zip has a corresponding SBOM asset, and each SBOM is covered by `SHA256SUMS`
+- **THEN** each zip has a corresponding SBOM asset
+
+#### Scenario: SBOM attested
+- **WHEN** `gh attestation verify` is run on a released SBOM against this repository
+- **THEN** verification succeeds
+
+### Requirement: Checksums list only Registry artifacts
+`SHA256SUMS` SHALL list only the provider zips and the Registry manifest, because the Terraform Registry rejects a release whose checksum file names any other file. The release workflow SHALL fail when the published checksum file lists anything else.
+
+#### Scenario: Checksum contents
+- **WHEN** the lines of the published `SHA256SUMS` are read
+- **THEN** every listed file is a `terraform-provider-aidial_<version>_<os>_<arch>.zip` or `terraform-provider-aidial_<version>_manifest.json`
+
+#### Scenario: Unexpected entry
+- **WHEN** the published `SHA256SUMS` lists another file, such as an SBOM
+- **THEN** the release workflow's verification step fails
 
 ### Requirement: Protected release environment
 The release job SHALL run in a GitHub environment named `release`, SHALL hold `contents: write`, `id-token: write` and `attestations: write` only at job level, and the workflow SHALL grant no permissions by default.
