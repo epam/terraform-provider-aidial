@@ -11,6 +11,13 @@ ARG TFPLUGINDOCS_VERSION=0.25.0
 ARG TFPROVIDERLINT_VERSION=0.31.0
 ARG GOLANGCI_LINT_VERSION=2.15.0
 ARG MARKDOWNLINT_CLI2_VERSION=0.24.0
+ARG GOVULNCHECK_VERSION=1.9.0
+ARG ZIZMOR_VERSION=1.30.1
+ARG ZIZMOR_SHA256=e65324f4430c2717591937edcec90ccbefaf14c174f8ec9415e03ca875b46e1a
+ARG GORELEASER_VERSION=2.18.3
+ARG GORELEASER_SHA256=b8dee4728bca1aba0d71a832a17cd0a3799f75372878e7ffa36aef2343bce0bc
+ARG SYFT_VERSION=1.54.1
+ARG SYFT_SHA256=c069905b391cc4c20a5ba65ad5c10be2a7ba074f8ea6ad203e24d14e303dad47
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -56,6 +63,7 @@ RUN mkdir -p "${GOBIN}" \
     && go install golang.org/x/tools/gopls@v${GOPLS_VERSION} \
     && go install github.com/go-delve/delve/cmd/dlv@v${DELVE_VERSION} \
     && go install golang.org/x/tools/cmd/goimports@v${GOTOOLS_VERSION} \
+    && go install golang.org/x/vuln/cmd/govulncheck@v${GOVULNCHECK_VERSION} \
     && go install github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs@v${TFPLUGINDOCS_VERSION} \
     # tfproviderlint's own x/tools is too old to read Go 1.27 export data, so build it against a newer one
     && mkdir /tmp/tfpl && cd /tmp/tfpl && go mod init tfpl \
@@ -65,6 +73,18 @@ RUN mkdir -p "${GOBIN}" \
 
 # golangci-lint
 RUN curl -fsSL "https://github.com/golangci/golangci-lint/releases/download/v${GOLANGCI_LINT_VERSION}/golangci-lint-${GOLANGCI_LINT_VERSION}-linux-amd64.tar.gz" | tar -xz -C /usr/local/bin --strip-components=1 "golangci-lint-${GOLANGCI_LINT_VERSION}-linux-amd64/golangci-lint"
+
+# Security and release tooling (mirrors the Security workflow and the release job), checksum-verified
+RUN curl -fsSL -o /tmp/zizmor.tar.gz "https://github.com/zizmorcore/zizmor/releases/download/v${ZIZMOR_VERSION}/zizmor-x86_64-unknown-linux-gnu.tar.gz" \
+    && echo "${ZIZMOR_SHA256}  /tmp/zizmor.tar.gz" | sha256sum -c - \
+    && tar -xzf /tmp/zizmor.tar.gz -C /usr/local/bin zizmor \
+    && curl -fsSL -o /tmp/goreleaser.tar.gz "https://github.com/goreleaser/goreleaser/releases/download/v${GORELEASER_VERSION}/goreleaser_Linux_x86_64.tar.gz" \
+    && echo "${GORELEASER_SHA256}  /tmp/goreleaser.tar.gz" | sha256sum -c - \
+    && tar -xzf /tmp/goreleaser.tar.gz -C /usr/local/bin goreleaser \
+    && curl -fsSL -o /tmp/syft.tar.gz "https://github.com/anchore/syft/releases/download/v${SYFT_VERSION}/syft_${SYFT_VERSION}_linux_amd64.tar.gz" \
+    && echo "${SYFT_SHA256}  /tmp/syft.tar.gz" | sha256sum -c - \
+    && tar -xzf /tmp/syft.tar.gz -C /usr/local/bin syft \
+    && rm /tmp/zizmor.tar.gz /tmp/goreleaser.tar.gz /tmp/syft.tar.gz
 
 USER node
 ENV GOPATH=/home/node/go

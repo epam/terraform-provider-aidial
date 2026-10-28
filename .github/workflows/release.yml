@@ -5,19 +5,28 @@ on:
     tags:
       - "v[0-9]+.[0-9]+.[0-9]+"
 
-permissions:
-  contents: write
+permissions: {}
 
 jobs:
   goreleaser:
     runs-on: ubuntu-latest
+    # Protected environment: add required reviewers and move the signing secrets here
+    # (see SECURITY.md).
+    environment: release
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-      - uses: actions/setup-go@v7
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          go-version: "1.25"
+          go-version: "1.26"
+          # A release publishes artifacts, so do not restore a cache that PR runs could have poisoned.
+          cache: false
       - name: Require signing secrets
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
@@ -29,14 +38,29 @@ jobs:
           fi
       - name: Import GPG key
         id: import_gpg
-        uses: crazy-max/ghaction-import-gpg@v7
+        uses: crazy-max/ghaction-import-gpg@2dc316deee8e90f13e1a351ab510b4d5bc0c82cd # v7.0.0
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
-      - uses: goreleaser/goreleaser-action@v7
+      # GoReleaser's sboms block shells out to syft.
+      - name: Install syft
+        uses: anchore/sbom-action/download-syft@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
+      - uses: goreleaser/goreleaser-action@f06c13b6b1a9625abc9e6e439d9c05a8f2190e94 # v7.2.3
         with:
           version: "~> v2"
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
+      # The signed SHA256SUMS file and its GPG signature remain the Terraform Registry
+      # contract; the attestation covers every archive and SBOM it lists.
+      - name: Locate checksums file
+        id: checksums
+        run: |
+          set -euo pipefail
+          file="$(ls dist/*_SHA256SUMS)"
+          echo "path=$file" >> "$GITHUB_OUTPUT"
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-checksums: ${{ steps.checksums.outputs.path }}

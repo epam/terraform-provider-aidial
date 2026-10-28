@@ -362,6 +362,8 @@ The target fails without changing anything if the tag or file does not exist. Af
 | `dlv` | debugger (used by the Go extension) |
 | `golangci-lint`, `tfproviderlint` | linting (`.golangci.yml`) |
 | `markdownlint-cli2` | Markdown linting (`.markdownlint-cli2.jsonc`; excludes `openspec/`) |
+| `govulncheck`, `zizmor`, `gitleaks` | local runs of the `Security` workflow checks |
+| `goreleaser`, `syft` | local release dry run (`goreleaser release --snapshot --clean`) with SBOMs |
 | `tfplugindocs` | provider documentation generation |
 | `terraform` | running configurations against a local build |
 | `gh` | pushing to GitHub and reading CI status (see below) |

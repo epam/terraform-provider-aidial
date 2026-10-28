@@ -8,6 +8,7 @@ import (
 )
 
 func main() {
+	//nolint:gosec // Serve's error is deliberately ignored today; handling it would change exit behavior.
 	providerserver.Serve(
 		context.Background(),
 		aidial.New,
