@@ -10,6 +10,15 @@ resource "aidial_model" "example" {
   description     = "Example chat model served through an OpenAI-compatible adapter."
   override_name   = "gpt-example"
 
+  catalog_schema_id = "https://dial.epam.com/catalog-schemas/model"
+  catalog_properties = {
+    provider            = "Provider"
+    vendor              = "Vendor"
+    license             = "License"
+    knowledgeCutoffDate = "2026-08-17"
+    parameters          = "100B"
+  }
+
   endpoint = "https://adapter.example.com/openai/deployments/gpt-example/chat/completions"
 
   input_attachment_types = ["image/*", "application/pdf"]

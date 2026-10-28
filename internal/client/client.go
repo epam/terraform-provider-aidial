@@ -554,6 +554,10 @@ type Model struct {
 	DefaultHeaders       map[string]string         `json:"defaultHeaders,omitempty"`
 	// Defaults is a free-form object (MapStringObject in the API), passed through as-is.
 	Defaults json.RawMessage `json:"defaults,omitempty"`
+	// CatalogSchemaID references a catalog schema (see CatalogSchema) by its $id.
+	CatalogSchemaID *string `json:"catalogSchemaId,omitempty"`
+	// CatalogProperties is a free-form object (MapStringObject in the API), passed through as-is.
+	CatalogProperties json.RawMessage `json:"catalogProperties,omitempty"`
 }
 
 func (c *Client) modelURL(bucket, path string) string {
@@ -629,4 +633,35 @@ func (c *Client) SaveRoute(ctx context.Context, bucket, path string, route *Rout
 
 func (c *Client) DeleteRoute(ctx context.Context, bucket, path string) error {
 	return deleteResource(ctx, c, c.routeURL(bucket, path))
+}
+
+// CatalogSchema is a catalog schema document: a JSON Schema with a required
+// $id plus arbitrary extra keys, so it is kept as an opaque JSON object.
+type CatalogSchema = json.RawMessage
+
+func (c *Client) catalogSchemaURL(bucket, path string) string {
+	escBucket := strings.ReplaceAll(bucket, "/", "%2F")
+	escPath := strings.ReplaceAll(path, "/", "%2F")
+	return c.baseURL + "/v1/catalog_schemas/" + escBucket + "/" + escPath
+}
+
+// GetCatalogSchema returns the schema document without the name and status
+// keys DIAL Core merges into the GET response (EntityMetadata), or nil when
+// the schema does not exist.
+func (c *Client) GetCatalogSchema(ctx context.Context, bucket, path string) (CatalogSchema, error) {
+	doc, err := getResource[map[string]json.RawMessage](ctx, c, c.catalogSchemaURL(bucket, path))
+	if err != nil || doc == nil {
+		return nil, err
+	}
+	delete(*doc, "name")
+	delete(*doc, "status")
+	return json.Marshal(doc)
+}
+
+func (c *Client) SaveCatalogSchema(ctx context.Context, bucket, path string, schema CatalogSchema) error {
+	return saveResource(ctx, c, c.catalogSchemaURL(bucket, path), schema)
+}
+
+func (c *Client) DeleteCatalogSchema(ctx context.Context, bucket, path string) error {
+	return deleteResource(ctx, c, c.catalogSchemaURL(bucket, path))
 }

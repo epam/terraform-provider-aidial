@@ -30,6 +30,8 @@ data "aidial_file_model" "gpt5" {
 
 - `api_name` (String) Canonical model name returned by the DIAL API.
 - `author` (String)
+- `catalog_properties` (Dynamic) Catalog metadata of the model (free-form object).
+- `catalog_schema_id` (String) URI of the catalog schema describing catalog_properties.
 - `default_headers` (Map of String) Additional headers sent with every request to the model's endpoint.
 - `defaults` (Dynamic) Default request parameters merged into every request to the model (free-form object).
 - `dependencies` (Set of String)

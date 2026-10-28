@@ -25,6 +25,15 @@ resource "aidial_model" "example" {
   description     = "Example chat model served through an OpenAI-compatible adapter."
   override_name   = "gpt-example"
 
+  catalog_schema_id = "https://dial.epam.com/catalog-schemas/model"
+  catalog_properties = {
+    provider            = "Provider"
+    vendor              = "Vendor"
+    license             = "License"
+    knowledgeCutoffDate = "2026-08-17"
+    parameters          = "100B"
+  }
+
   endpoint = "https://adapter.example.com/openai/deployments/gpt-example/chat/completions"
 
   input_attachment_types = ["image/*", "application/pdf"]
@@ -77,6 +86,8 @@ resource "aidial_model" "example" {
 
 - `author` (String)
 - `bucket` (String) Target DIAL bucket. Defaults to "platform" when not set.
+- `catalog_properties` (Dynamic) Catalog metadata of the model (free-form object, sent to DIAL as `catalogProperties`), e.g. provider, vendor, license, knowledgeCutoffDate, parameters.
+- `catalog_schema_id` (String) URI (`$id`) of the catalog schema describing `catalog_properties`, e.g. the `schema_id` of an `aidial_catalog_schema`.
 - `default_headers` (Map of String)
 - `defaults` (Dynamic) Default request parameters merged into every request to the model (free-form object, sent to DIAL as-is), e.g. max_tokens, custom_fields, tools.
 - `dependencies` (Set of String)

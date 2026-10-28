@@ -27,7 +27,7 @@ The schema SHALL include:
 
 - `name` (required, the file-sourced model name to look up)
 - `api_name` (computed, canonical name returned by the API)
-- every other `aidial_model` computed attribute (`type`, `display_name`, `description`, `endpoint`, `user_roles`, `responses_endpoint`, `display_version`, `icon_url`, `intro`, `reference`, `forward_auth_token`, `max_retry_attempts`, `author`, `status`, `features`, `limits`, `pricing`, `upstreams`, `dependencies`, `description_keywords`, `input_attachment_types`, `interceptors`, `fields_hashing_order`, `override_name`, `interfaces`, `default_headers`, `defaults`), all `Computed`-only since this data source has no write path
+- every other `aidial_model` computed attribute (`type`, `display_name`, `description`, `endpoint`, `user_roles`, `responses_endpoint`, `display_version`, `icon_url`, `intro`, `reference`, `forward_auth_token`, `max_retry_attempts`, `author`, `status`, `features`, `limits`, `pricing`, `upstreams`, `dependencies`, `description_keywords`, `input_attachment_types`, `interceptors`, `fields_hashing_order`, `override_name`, `interfaces`, `default_headers`, `defaults`, `catalog_schema_id`, `catalog_properties`), all `Computed`-only since this data source has no write path
 
 There is no `id`, `bucket`, or `path` attribute — file-sourced models are not bucket-scoped.
 

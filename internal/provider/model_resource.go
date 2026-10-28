@@ -59,6 +59,9 @@ type modelResourceModel struct {
 	Interfaces     types.Map     `tfsdk:"interfaces"`
 	DefaultHeaders types.Map     `tfsdk:"default_headers"`
 	Defaults       types.Dynamic `tfsdk:"defaults"`
+
+	CatalogSchemaID   types.String  `tfsdk:"catalog_schema_id"`
+	CatalogProperties types.Dynamic `tfsdk:"catalog_properties"`
 }
 
 type modelInterfaceModel struct {
@@ -185,6 +188,14 @@ func (r *modelResource) Schema(_ context.Context, _ resource.SchemaRequest, resp
 			"defaults": schema.DynamicAttribute{
 				Optional:    true,
 				Description: "Default request parameters merged into every request to the model (free-form object, sent to DIAL as-is), e.g. max_tokens, custom_fields, tools.",
+			},
+			"catalog_schema_id": schema.StringAttribute{
+				Optional:    true,
+				Description: "URI (`$id`) of the catalog schema describing `catalog_properties`, e.g. the `schema_id` of an `aidial_catalog_schema`.",
+			},
+			"catalog_properties": schema.DynamicAttribute{
+				Optional:    true,
+				Description: "Catalog metadata of the model (free-form object, sent to DIAL as `catalogProperties`), e.g. provider, vendor, license, knowledgeCutoffDate, parameters.",
 			},
 			"override_name": schema.StringAttribute{
 				Optional: true,
@@ -630,6 +641,13 @@ func modelFromPlan(ctx context.Context, plan modelResourceModel) (*client.Model,
 	}
 	result.Defaults = defaults
 
+	catalogProperties, err := freeFormObjectFromPlan("catalog_properties", plan.CatalogProperties)
+	if err != nil {
+		return nil, err
+	}
+	result.CatalogProperties = catalogProperties
+	result.CatalogSchemaID = stringPointer(plan.CatalogSchemaID)
+
 	return result, nil
 }
 
@@ -758,6 +776,13 @@ func setModelState(ctx context.Context, state *modelResourceModel, model *client
 		return fmt.Errorf("failed to set defaults: %w", err)
 	}
 	state.Defaults = defaults
+
+	catalogProperties, err := freeFormObjectToState(state.CatalogProperties, model.CatalogProperties)
+	if err != nil {
+		return fmt.Errorf("failed to set catalog_properties: %w", err)
+	}
+	state.CatalogProperties = catalogProperties
+	state.CatalogSchemaID = stringValue(model.CatalogSchemaID)
 
 	if len(model.Upstreams) > 0 {
 		var upstreamObjs []attr.Value

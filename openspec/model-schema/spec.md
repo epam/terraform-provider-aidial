@@ -37,7 +37,9 @@ The schema SHALL include:
 - `defaults` (optional, free-form object, a Terraform dynamic attribute): sent to DIAL Core as-is, matching the API's `MapStringObject` (e.g. `max_tokens`, `custom_fields`, `tools`). Keys inside it are not renamed. It must be an object. On read the configured value is kept when the API returns equivalent JSON; otherwise the API value is stored (objects as objects, arrays as tuples). An unset `defaults` stays null when the API returns `{}` or omits it, and a configured `{}` stays `{}`. Schema version 1: state written by schema version 0 (where `defaults` only modeled `tools = [{ type, static_function = { name } }]`) is upgraded automatically to the same JSON
 - `tokenizer_model` (optional, computed, string; sent as `tokenizerModel`): model whose tokenizer DIAL Core uses for token counting, e.g. `gpt-4-0314`. Also exposed by the `aidial_file_model` data source
 - `max_input_attachments` (optional, computed, integer; sent as `maxInputAttachments`): maximum number of attachments in one request. Also exposed by the `aidial_file_model` data source
-- `embedding_dimensions`, `catalog_schema_id`, `base_url` (model-level), `responses_defaults`, `catalog_properties` (optional, computed; present in DIAL Core `Model` and currently unmapped)
+- `catalog_schema_id` (optional, string; sent as `catalogSchemaId`): URI of the catalog schema (see `aidial_catalog_schema`) describing `catalog_properties`
+- `catalog_properties` (optional, free-form object, a Terraform dynamic attribute; sent as `catalogProperties`): handled like `defaults` (arbitrary JSON values, keys not renamed, must be an object, configured value kept when the API returns equivalent JSON, unset stays null for `{}`/omitted)
+- `embedding_dimensions`, `base_url` (model-level), `responses_defaults` (optional, computed; present in DIAL Core `Model` and currently unmapped)
 - `created_at`, `updated_at` (computed; present in DIAL Core `Model` and currently unmapped)
 
 `id` SHALL be composed as `<bucket>/<path>`.
@@ -65,6 +67,6 @@ The schema SHALL include:
   - `upstreams[].secret_extra_data` is modeled as a map; the API defines it as a single write-only string.
   - `upstreams[].extra_data` is modeled as a map (`map[string]string`), but the checked-in OpenAPI spec types `Upstream.extraData` as a plain write-only string — this was deliberately changed based on observed real API behavior, the same category of spec/reality drift as `role-client`'s `FlexibleFloat64` cost-limit handling.
   - `upstreams[].base_url`, `upstreams[].interfaces` (per-upstream) and `upstreams[].auth_type` (`UpstreamAuthType`: `API_KEY` or `BEARER`, added in the 0.49.3 contract) are not implemented.
-  - `embedding_dimensions`, `catalog_schema_id`, `base_url` (model-level), `responses_defaults`, `catalog_properties`, `created_at`, `updated_at` are not implemented.
+  - `embedding_dimensions`, `base_url` (model-level), `responses_defaults`, `created_at`, `updated_at` are not implemented.
   These are tracked as follow-up work, not yet reflected in `model_resource.go`.
   - `override_name`, model-level `interfaces` (`base_url` only), `default_headers`, `defaults` (`tools`/`static_function` only), `fields_hashing_order`, and `features.skills_supported` were previously listed here as gaps but are now implemented.

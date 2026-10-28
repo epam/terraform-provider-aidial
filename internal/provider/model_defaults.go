@@ -20,15 +20,21 @@ import (
 // defaultsFromPlan converts the free-form `defaults` value into the JSON object
 // sent to DIAL Core (Model.defaults is MapStringObject in the API).
 func defaultsFromPlan(value types.Dynamic) (json.RawMessage, error) {
+	return freeFormObjectFromPlan("defaults", value)
+}
+
+// freeFormObjectFromPlan converts a free-form object attribute (a MapStringObject
+// in the API) into the JSON sent to DIAL Core; name is used in diagnostics.
+func freeFormObjectFromPlan(name string, value types.Dynamic) (json.RawMessage, error) {
 	if value.IsNull() || value.IsUnknown() || value.IsUnderlyingValueNull() || value.IsUnderlyingValueUnknown() {
 		return nil, nil
 	}
 	decoded, err := attrValueToJSON(value)
 	if err != nil {
-		return nil, fmt.Errorf("invalid defaults: %w", err)
+		return nil, fmt.Errorf("invalid %s: %w", name, err)
 	}
 	if _, ok := decoded.(map[string]any); !ok {
-		return nil, fmt.Errorf("defaults must be an object")
+		return nil, fmt.Errorf("%s must be an object", name)
 	}
 	return json.Marshal(decoded)
 }
@@ -37,6 +43,11 @@ func defaultsFromPlan(value types.Dynamic) (json.RawMessage, error) {
 // returned the same JSON, so Terraform's types and formatting from the config
 // survive the read-back. Otherwise the API value becomes the new state.
 func defaultsToState(prior types.Dynamic, api json.RawMessage) (types.Dynamic, error) {
+	return freeFormObjectToState(prior, api)
+}
+
+// freeFormObjectToState is defaultsToState for any free-form object attribute.
+func freeFormObjectToState(prior types.Dynamic, api json.RawMessage) (types.Dynamic, error) {
 	var apiValue any
 	if len(bytes.TrimSpace(api)) > 0 {
 		decoder := json.NewDecoder(bytes.NewReader(api))

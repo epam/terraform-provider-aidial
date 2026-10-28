@@ -53,6 +53,9 @@ type fileModelDataSourceModel struct {
 	Interfaces     types.Map     `tfsdk:"interfaces"`
 	DefaultHeaders types.Map     `tfsdk:"default_headers"`
 	Defaults       types.Dynamic `tfsdk:"defaults"`
+
+	CatalogSchemaID   types.String  `tfsdk:"catalog_schema_id"`
+	CatalogProperties types.Dynamic `tfsdk:"catalog_properties"`
 }
 
 func (d *fileModelDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -174,6 +177,11 @@ func (d *fileModelDataSource) Schema(_ context.Context, _ datasource.SchemaReque
 				Computed:    true,
 				Description: "Default request parameters merged into every request to the model (free-form object).",
 			},
+			"catalog_schema_id": schema.StringAttribute{Computed: true, Description: "URI of the catalog schema describing catalog_properties."},
+			"catalog_properties": schema.DynamicAttribute{
+				Computed:    true,
+				Description: "Catalog metadata of the model (free-form object).",
+			},
 		},
 	}
 }
@@ -250,6 +258,8 @@ func (d *fileModelDataSource) Read(ctx context.Context, req datasource.ReadReque
 	config.Interfaces = full.Interfaces
 	config.DefaultHeaders = full.DefaultHeaders
 	config.Defaults = full.Defaults
+	config.CatalogSchemaID = full.CatalogSchemaID
+	config.CatalogProperties = full.CatalogProperties
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &config)...)
 }
