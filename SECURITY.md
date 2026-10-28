@@ -24,13 +24,15 @@ gh attestation verify terraform-provider-aidial_<version>_<os>_<arch>.zip --repo
 
 ## Repository safeguards
 
-CI runs `govulncheck`, CodeQL, dependency review, gitleaks and zizmor (`.github/workflows/security.yml`), and `gosec` through golangci-lint. `govulncheck`, CodeQL and gitleaks also run weekly on `main`. GitHub Actions are pinned to commit SHAs, and Dependabot proposes updates after a seven-day cooldown.
+CI runs `govulncheck`, CodeQL, dependency review, gitleaks and zizmor (`.github/workflows/security.yml`), and `gosec` through golangci-lint. `govulncheck`, CodeQL, gitleaks and zizmor also run weekly on `main`; dependency review runs on pull requests only. GitHub Actions are pinned to commit SHAs, and Dependabot proposes updates after a seven-day cooldown.
 
 ### Settings maintainers apply in GitHub
 
 These cannot be configured from the repository, so apply them once:
 
-- Branch protection on `main`: require pull requests, code owner review, and the `CI` and `Security` checks.
+- Branch protection on `main`: require pull requests and the `CI` and `Security` checks. Add required code owner review once there is a second maintainer, because authors cannot approve their own pull requests.
 - Tag protection (a ruleset) for `v*` so only maintainers can create release tags.
 - Secret scanning with push protection enabled.
-- A `release` environment with required reviewers. Move `GPG_PRIVATE_KEY` and `PASSPHRASE` from repository secrets into it, so only the release job can read them.
+- Private vulnerability reporting enabled, because the reporting instructions above rely on it.
+- Actions settings: a read-only default workflow token, no permission for Actions to create or approve pull requests, and required full-length commit SHA pinning of actions.
+- A `release` environment with required reviewers, restricted to `v*` tags. Move `GPG_PRIVATE_KEY` and `PASSPHRASE` from repository secrets into it, so only the release job can read them.

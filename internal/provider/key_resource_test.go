@@ -93,3 +93,42 @@ func TestSetKeyStateSecuredNull(t *testing.T) {
 		t.Fatalf("expected secured to be null when API omits it, got %v", state.Secured)
 	}
 }
+
+// The key-state-consistency spec: omitted project/role are null, except that
+// an explicit "" in the plan or prior state is kept.
+func TestSetKeyStateProjectRoleNullVsEmpty(t *testing.T) {
+	cases := []struct {
+		name        string
+		prior       types.String
+		api         string
+		wantProject types.String
+	}{
+		{"omitted, unknown plan", types.StringUnknown(), "", types.StringNull()},
+		{"omitted, null prior", types.StringNull(), "", types.StringNull()},
+		{"explicit empty string kept", types.StringValue(""), "", types.StringValue("")},
+		{"removed outside terraform", types.StringValue("demo"), "", types.StringNull()},
+		{"value returned", types.StringNull(), "demo", types.StringValue("demo")},
+		{"value returned over empty prior", types.StringValue(""), "demo", types.StringValue("demo")},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			state := keyResourceModel{
+				Key:     types.StringValue("k"),
+				Project: tc.prior,
+				Role:    tc.prior,
+			}
+			key := &client.Key{Project: tc.api, Role: tc.api}
+
+			if err := setKeyState(context.Background(), &state, key); err != nil {
+				t.Fatalf("setKeyState: %v", err)
+			}
+			if !state.Project.Equal(tc.wantProject) {
+				t.Errorf("project: want %v, got %v", tc.wantProject, state.Project)
+			}
+			if !state.Role.Equal(tc.wantProject) {
+				t.Errorf("role: want %v, got %v", tc.wantProject, state.Role)
+			}
+		})
+	}
+}

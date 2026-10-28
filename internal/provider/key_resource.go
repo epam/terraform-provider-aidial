@@ -140,6 +140,21 @@ func keyFromPlan(ctx context.Context, plan keyResourceModel) (*client.Key, error
 	return result, nil
 }
 
+// optionalString maps an optional API string to state. DIAL Core omits empty
+// values, so an empty api is stored as null, except when prior (the plan on
+// create/update, the state on refresh) is exactly "": Core cannot echo that
+// back, and storing null would contradict the plan or show a perpetual diff.
+func optionalString(api string, prior types.String) types.String {
+	if api != "" {
+		return types.StringValue(api)
+	}
+	if !prior.IsNull() && !prior.IsUnknown() && prior.ValueString() == "" {
+		return prior
+	}
+
+	return types.StringNull()
+}
+
 func setKeyState(ctx context.Context, state *keyResourceModel, key *client.Key) error {
 	roles, diags := types.SetValueFrom(ctx, types.StringType, key.Roles)
 	if diags.HasError() {
@@ -150,8 +165,8 @@ func setKeyState(ctx context.Context, state *keyResourceModel, key *client.Key) 
 	// the secret value back, so key.Key decodes as "" on refresh. state.Key
 	// is Required (not Computed), so it must be left as whatever the plan
 	// already has rather than overwritten here.
-	state.Project = types.StringValue(key.Project)
-	state.Role = types.StringValue(key.Role)
+	state.Project = optionalString(key.Project, state.Project)
+	state.Role = optionalString(key.Role, state.Role)
 	state.Roles = roles
 	state.Name = types.StringValue(key.Name)
 	state.Status = types.StringValue(key.Status)
@@ -196,10 +211,6 @@ func (r *keyResource) Create(ctx context.Context, req resource.CreateRequest, re
 		return
 	}
 
-	if saved.Key == "" {
-		saved.Key = plan.Key.ValueString()
-	}
-
 	plan.ID = types.StringValue(plan.Bucket.ValueString() + "/" + plan.Path.ValueString())
 
 	if err := setKeyState(ctx, &plan, saved); err != nil {
@@ -225,10 +236,6 @@ func (r *keyResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 	if key == nil {
 		resp.State.RemoveResource(ctx)
 		return
-	}
-
-	if key.Key == "" {
-		key.Key = state.Key.ValueString()
 	}
 
 	if err := setKeyState(ctx, &state, key); err != nil {
@@ -268,10 +275,6 @@ func (r *keyResource) Update(ctx context.Context, req resource.UpdateRequest, re
 			"The API returned success but the key could not be read.",
 		)
 		return
-	}
-
-	if saved.Key == "" {
-		saved.Key = plan.Key.ValueString()
 	}
 
 	plan.ID = types.StringValue(plan.Bucket.ValueString() + "/" + plan.Path.ValueString())

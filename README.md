@@ -1,6 +1,6 @@
 # Terraform Provider for DIAL
 
-This provider manages [DIAL Core](https://github.com/epam/ai-dial-core) resources — roles, API keys, models, and routes — plus read-only bucket/role lookups, through the DIAL Core API.
+This provider manages [DIAL Core](https://github.com/epam/ai-dial-core) resources — roles, API keys, models, routes, and catalog schemas — plus read-only bucket, role, model, file-sourced model and catalog schema lookups, through the DIAL Core API.
 
 - Registry: [`epam/aidial`](https://registry.terraform.io/providers/epam/aidial)
 - Documentation: [`docs/`](docs/) (also rendered on the Registry)
@@ -35,14 +35,14 @@ This provider manages [DIAL Core](https://github.com/epam/ai-dial-core) resource
 
 ## Installation
 
-Declare the provider and configure it. Terraform downloads and verifies it from the Registry on `terraform init`.
+Terraform 1.5 or later is required. Declare the provider and configure it. Terraform downloads and verifies it from the Registry on `terraform init`.
 
 ```hcl
 terraform {
   required_providers {
     aidial = {
       source  = "epam/aidial"
-      version = "~> 0.1"
+      version = "~> 0.2"
     }
   }
 }
@@ -63,11 +63,14 @@ provider "aidial" {
 | Resource | `aidial_key` | Create/update/delete an API key bound to a role. |
 | Resource | `aidial_model` | Create/update/delete a model deployment (endpoint, features, pricing, upstreams, ...). |
 | Resource | `aidial_route` | Create/update/delete a routing rule (methods, paths, permissions, upstreams, static response, ...). |
+| Resource | `aidial_catalog_schema` | Create/update/delete a catalog schema (a JSON Schema that models reference through `catalog_schema_id`). |
 | Data source | `aidial_bucket` | Look up a bucket's `bucket`/`appdata`. |
 | Data source | `aidial_role` | Look up an existing role without managing it. |
+| Data source | `aidial_model` | Look up an existing API-managed model by `bucket`/`path` without managing it. |
 | Data source | `aidial_file_model` | Look up a file-sourced model (statically configured in DIAL Core, not bucket-scoped, no resource equivalent). |
+| Data source | `aidial_catalog_schema` | Look up an existing catalog schema without managing it. |
 
-All four resources share the same identity model: `bucket` (default `platform`) and `path` (default: the resource `name`; required for `aidial_key`, which has no configurable name) are optional and force replacement on change, and `id` is persisted as `<bucket>/<path>`.
+All five resources share the same identity model: `bucket` (default `platform`) and `path` (default: the resource `name`; required for `aidial_key` and `aidial_catalog_schema`, which have no configurable name) are optional and force replacement on change, and `id` is persisted as `<bucket>/<path>`.
 
 ## Bucket data source
 
@@ -497,14 +500,15 @@ One-time setup (repository owner; the namespace is the GitHub account that owns 
 
 1. Create a GPG key without expiry for signing: `gpg --full-generate-key`.
 2. Add the public key (`gpg --armor --export <id>`) under the Registry namespace's signing keys in [HashiCorp Cloud / Registry settings](https://registry.terraform.io/settings/gpg-keys).
-3. Add the repository secrets `GPG_PRIVATE_KEY` (`gpg --armor --export-secret-keys <id>`) and `PASSPHRASE`.
+3. Add the secrets `GPG_PRIVATE_KEY` (`gpg --armor --export-secret-keys <id>`) and `PASSPHRASE` to the `release` environment (see `SECURITY.md`).
 4. Publish the provider once from the Registry UI (Publish → Provider, GitHub sign-in).
 
 For each release (maintainers):
 
-1. Move the `CHANGELOG.md` entry from Unreleased to the version.
-2. Tag and push: `git tag v0.1.0 && git push origin v0.1.0`. Tags must match `vX.Y.Z`.
-3. Confirm the GitHub release lists the zips, `_SHA256SUMS`, `_SHA256SUMS.sig` and `_manifest.json`; the Registry picks the version up from there.
+1. Move the `CHANGELOG.md` entries from `Unreleased` into a `## X.Y.Z - YYYY-MM-DD` section. That section becomes the GitHub release notes, and the release fails if it is missing or empty.
+2. Create an annotated tag and push it: `git tag -a vX.Y.Z -m "vX.Y.Z" && git push origin vX.Y.Z`. Tags must match `vX.Y.Z`.
+3. Approve the deployment to the `release` environment when the workflow asks for it.
+4. The workflow then downloads the published assets and verifies the GPG signature, every checksum and the build attestation. Confirm that it passed and that the GitHub release lists the zips, `_SHA256SUMS`, `_SHA256SUMS.sig` and `_manifest.json`; the Registry picks the version up from there.
 
 Test a release locally without publishing or signing:
 
