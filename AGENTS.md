@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-The binary is named `terraform-provider-aidial` (module `github.com/epam/terraform-provider-aidial`, Registry address `epam/aidial`). CI builds with Go 1.25, matching `go.mod`.
+The binary is named `terraform-provider-aidial` (module `github.com/epam/terraform-provider-aidial`, Registry address `epam/aidial`). CI and releases build with Go 1.26 (latest patch, for the standard-library fixes `govulncheck` enforces), matching `go.mod`.
 
 ```bash
 go build -o terraform-provider-aidial
