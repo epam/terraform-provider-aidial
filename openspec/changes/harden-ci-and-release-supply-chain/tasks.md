@@ -22,10 +22,15 @@
 - [ ] 4.1 Add `.github/CODEOWNERS` covering the repository, `.github/`, `.goreleaser.yml` and `SECURITY.md`; verify GitHub reports the file valid on the pull request
 - [x] 4.2 Extend `SECURITY.md` with the attestation verification command and the GitHub settings checklist; verify `markdownlint-cli2 SECURITY.md` passes and the documented `gh attestation verify` command matches the release asset names
 
-## 5. Integration
+## 5. Devcontainer tooling
 
-- [x] 5.1 Run the full local check set (`gofmt -l .`, `go vet ./...`, `go test ./... -count=1 -race`, `golangci-lint run`, `gitleaks detect`, `markdownlint-cli2`) and verify all pass
-- [ ] 5.2 Open the pull request and verify every `CI` and `Security` job passes
+- [x] 5.1 Add pinned, checksum-verified `govulncheck`, `zizmor`, `goreleaser` and `syft` to `.devcontainer/Dockerfile` and the README tool table; verify the pinned SHA-256 values match the release assets
+- [ ] 5.2 Rebuild the devcontainer and verify `govulncheck -version`, `zizmor --version`, `goreleaser --version` and `syft version` run
+
+## 6. Integration
+
+- [x] 6.1 Run the full local check set (`gofmt -l .`, `go vet ./...`, `go test ./... -count=1 -race`, `golangci-lint run`, `gitleaks detect`, `markdownlint-cli2`) and verify all pass
+- [ ] 6.2 Open the pull request and verify every `CI` and `Security` job passes
 
 ## Workflow follow-up
 

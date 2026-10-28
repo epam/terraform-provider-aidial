@@ -11,6 +11,7 @@ CI and release automation run on mutable action tags, the release workflow grant
 - Add a build provenance attestation and a per-archive SBOM to releases, keeping the GPG-signed checksums the Terraform Registry verifies.
 - Add blocking CI security checks: `govulncheck`, CodeQL, dependency review, gitleaks and zizmor, plus `gosec` through golangci-lint. `govulncheck`, CodeQL and gitleaks also run weekly on the default branch.
 - **BREAKING (CI only):** stop uploading Terraform state as CI artifacts; this removes the "Debug state is kept" requirement.
+- Add `govulncheck`, `zizmor`, `goreleaser` and `syft` to the devcontainer so the new checks and the release dry run can run locally.
 - Add `CODEOWNERS` and a `SECURITY.md` checklist of GitHub settings that maintainers apply by hand.
 
 ## Capabilities
@@ -23,11 +24,12 @@ None.
 
 - `ci-integration-core`: remove the state-artifact upload requirement; add requirements for blocking security checks and for least-privilege, SHA-pinned workflows.
 - `registry-release`: add requirements for build provenance, an SBOM per archive, and a protected release environment.
+- `devcontainer-tooling`: add the four security and release tools, with checksum-verified downloads.
 - `public-repo-readiness`: add requirements for `CODEOWNERS` and for documented GitHub settings in `SECURITY.md`.
 
 ## Impact
 
-- Changed: `.github/workflows/{ci,stub-core,release}.yml`, `.github/dependabot.yml`, `.goreleaser.yml`, `.golangci.yml`, `SECURITY.md`; `main.go` gains one reasoned `//nolint:gosec`.
+- Changed: `.github/workflows/{ci,stub-core,release}.yml`, `.github/dependabot.yml`, `.goreleaser.yml`, `.golangci.yml`, `SECURITY.md`, `.devcontainer/Dockerfile`, README tool table; `main.go` gains one reasoned `//nolint:gosec`.
 - New: `.github/workflows/security.yml`, `.github/CODEOWNERS`.
-- Unchanged: provider and client behavior, `stub/` and `tests/core` (environment hardening is out of scope), and the devcontainer.
+- Unchanged: provider and client behavior, `stub/` and `tests/core` (environment hardening is out of scope), and the rest of the devcontainer (only the four tools are added).
 - Maintainers must enable branch protection with the new checks, tag protection for `v*`, secret scanning with push protection, and a `release` environment (documented, not applied by this change).
