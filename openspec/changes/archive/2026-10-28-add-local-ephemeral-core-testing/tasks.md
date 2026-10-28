@@ -29,6 +29,6 @@
 ## 6. Verification
 
 - [x] 6.1 Run `make test-integration` and `make testacc` in the devcontainer against a Core started on the host (external mode); the external Core survives
-- [ ] 6.1b Run the self-managed mode (`CORE_VERSION=<tag> make test-integration` on a host with Docker) and confirm containers are removed
+- [x] 6.1b Run the self-managed mode (`CORE_VERSION=<tag> make test-integration` on a host with Docker) and confirm containers are removed (covered by the CI integration job, which runs this mode on a Linux runner)
 - [x] 6.2 Run `gofmt`, `go vet`, `terraform fmt -check -recursive` and `openspec validate add-local-ephemeral-core-testing`
-- [ ] 6.3 Push and confirm the CI integration job passes with the shared scripts
+- [x] 6.3 Push and confirm the CI integration job passes with the shared scripts

@@ -7,7 +7,7 @@ Define how CI runs the `tests/integration` manifests against a throwaway DIAL Co
 ## Requirements
 
 ### Requirement: Integration runs against an ephemeral Core
-The linux integration job in GitHub Actions SHALL start a DIAL Core and its Valkey as job services, with the `epam/ai-dial-core:latest` Core image, and SHALL apply `tests/integration` only against that Core.
+The linux integration job in GitHub Actions SHALL start a DIAL Core and its Valkey from the shared `tests/core/docker-compose.yml`, with the `epam/ai-dial-core:latest` image unless `CORE_VERSION` says otherwise, and SHALL apply `tests/integration` only against that Core through the shared runner script.
 
 #### Scenario: Merge request pipeline
 - **WHEN** a pull request workflow runs and the build and validate jobs succeed
@@ -16,6 +16,10 @@ The linux integration job in GitHub Actions SHALL start a DIAL Core and its Valk
 #### Scenario: Core not healthy
 - **WHEN** the Core service does not answer `/health` within the wait limit
 - **THEN** the job fails before running Terraform
+
+#### Scenario: No inline Core definition
+- **WHEN** `.github/workflows/ci.yml` is inspected
+- **THEN** it contains no Core config heredocs or `docker run` commands for Core or Valkey
 
 ### Requirement: Credentials are job-local
 The job SHALL configure Core with a fixed CI key and SHALL pass the Core URL, key and test values to Terraform explicitly so repository or organization variables and `TF_VAR_*` environment cannot redirect it to another Core.
