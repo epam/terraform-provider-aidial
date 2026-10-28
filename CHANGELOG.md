@@ -6,13 +6,24 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## 0.2.2 - 2026-10-28
 
-Version 0.2.1 was published on GitHub but never reached the Terraform Registry, because its `SHA256SUMS` listed the SBOM files and the Registry rejects such releases. Use 0.2.2, which includes everything from 0.2.1.
+Version 0.2.1 was published on GitHub but never reached the Terraform Registry, because its `SHA256SUMS` listed the SBOM files and the Registry rejects such releases. This release fixes that and includes everything from 0.2.1, so if you are upgrading from 0.2.0, read the security and behavior notes below.
+
+### Security
+
+- The `aidial_model` and `aidial_file_model` data sources now mark upstream `key` and `secret_extra_data` as sensitive, so Terraform redacts them in plan, apply and console output. A root module `output` that exposes them must now set `sensitive = true`.
+- Releases are built with the newest Go 1.26 patch release instead of the runner image's cached one, which picks up standard library security fixes (GO-2026-6809 in `crypto/x509`, fixed in Go 1.26.10).
 
 ### Fixed
 
+- Path parameters (`bucket`, `path` and the file model `name`) are now percent-encoded as a single URL path segment. Previously only `/` was encoded, and file model names were not encoded at all, so names containing `?`, `#`, `%` or spaces produced wrong requests. Names without reserved characters are unaffected.
+- `aidial_key` stores null for `project` and `role` when DIAL Core omits them, instead of an empty string. An explicitly configured `""` is still kept, and existing state is unchanged.
 - `SHA256SUMS` lists only the provider zips and the manifest again. SBOMs remain release assets and are covered by a build provenance attestation instead.
-- The release workflow fails when the published `SHA256SUMS` lists anything other than zips and the manifest.
-- Release builds and CI use the newest Go 1.26 patch release instead of the runner image's cached one, which picks up standard library security fixes (GO-2026-6809 in `crypto/x509`, fixed in Go 1.26.10).
+
+### Changed
+
+- Documentation covers every resource and data source, requires Terraform 1.5 or later, and shows an `import` block example for each resource.
+- The release pipeline publishes this changelog section as the release notes, pins GoReleaser and syft, and verifies the signature, checksums and attestation after publishing. It fails when `SHA256SUMS` lists anything other than zips and the manifest. See 0.2.1 below for details.
+- GitHub Actions dependencies were updated (GoReleaser action 7.3.0, CodeQL 4.39.1, dependency review 5.0.0, zizmor 0.7.1).
 
 ## 0.2.1 - 2026-10-28
 
