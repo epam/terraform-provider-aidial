@@ -21,6 +21,10 @@ The `aidial_file_model` data source SHALL expose both as computed attributes.
 - **WHEN** `catalog_properties` is configured as a non-object value
 - **THEN** the provider returns a diagnostic and does not call the API
 
+#### Scenario: Referenced schema does not exist
+- **WHEN** `catalog_schema_id` references a schema that DIAL Core does not have
+- **THEN** create/update fails with the API error (400, "Catalog schema not found") surfaced as a diagnostic
+
 ### Requirement: Catalog attribute state consistency
 
 State handling for the new attributes SHALL follow the model null-vs-empty rules.

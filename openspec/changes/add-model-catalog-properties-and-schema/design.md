@@ -25,7 +25,8 @@ The OpenAPI contract (`openapicore/open_api_core.yaml`) defines `Model.catalogSc
 - Core may validate `catalogProperties` against the schema on save and reject mismatches; this is surfaced as an API error diagnostic (assumption to confirm in integration test).
 - Whether Core echoes `catalogSchemaId` back with a default for models that omit it is unverified; an unset attribute would then show drift; revisit making it computed if the integration run shows Core adding a default.
 
-## Open Questions
+## Verified Against Core (CI integration job)
 
-- Does Core require the referenced schema to exist at model save time? Determines whether docs must recommend `depends_on`/references.
-- Is `$id` required to equal `catalogSchemaId` exactly (and for what bucket/path mapping)? Verify in the integration run before finalising docs.
+- Saving a model whose `catalogSchemaId` has no matching schema fails with `400 Catalog properties validation failed: Catalog schema not found: <id>`, so the schema must exist first. Docs and the integration manifest therefore reference `aidial_catalog_schema.<name>.schema_id`, which orders creation.
+- Core resolves `catalogSchemaId` by the schema's `$id`, not by its bucket/path: a schema stored at an unrelated path was found by its `$id`.
+- A model without `catalog_schema_id`/`catalog_properties` is created and read back with no plan churn (the attributes stay null), so optional-only is correct.
