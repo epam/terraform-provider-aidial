@@ -25,7 +25,7 @@
 ## 5. Devcontainer tooling
 
 - [x] 5.1 Add pinned, checksum-verified `govulncheck`, `zizmor`, `goreleaser` and `syft` to `.devcontainer/Dockerfile` and the README tool table; verify the pinned SHA-256 values match the release assets
-- [ ] 5.2 Rebuild the devcontainer and verify `govulncheck -version`, `zizmor --version`, `goreleaser --version` and `syft version` run
+- [x] 5.2 Rebuild the devcontainer and verify `govulncheck -version`, `zizmor --version`, `goreleaser --version` and `syft version` run
 
 ## 6. Integration
 
