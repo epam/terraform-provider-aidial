@@ -26,7 +26,7 @@
 
 - [x] 4.1 Run `go test ./... -count=1 -race`, `test -z "$(gofmt -l .)"`, `go vet ./...`, `make lint`; verify all pass
 - [x] 4.2 Run `openspec validate add-application-type-schema --strict`; verify it reports no errors
-- [ ] 4.3 Commit the openapicore refresh and the feature using `feat:` semantic commit(s); verify `git status` is clean
+- [x] 4.3 Commit the openapicore refresh and the feature using `feat:` semantic commit(s); verify `git status` is clean
 
 ## Workflow follow-up
 
