@@ -14,7 +14,8 @@ Manages a DIAL Core catalog schema (`PUT /v1/catalog_schemas/{bucket}/{path}`): 
 
 ```terraform
 resource "aidial_catalog_schema" "model" {
-  path = "model"
+  bucket = "platform"
+  path   = "model"
 
   schema = jsonencode({
     "$id" = "https://dial.epam.com/catalog-schemas/model"
@@ -32,12 +33,9 @@ resource "aidial_catalog_schema" "model" {
 
 ### Required
 
+- `bucket` (String) Target DIAL bucket. Must be "platform".
 - `path` (String) Catalog schema path inside the target bucket.
 - `schema` (String) The catalog schema as a JSON object string (use `jsonencode`). Must contain a non-blank `$id`.
-
-### Optional
-
-- `bucket` (String) Target DIAL bucket. Defaults to "platform" when not set.
 
 ### Read-Only
 

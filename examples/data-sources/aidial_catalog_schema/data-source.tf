@@ -1,3 +1,4 @@
 data "aidial_catalog_schema" "model" {
-  path = "model"
+  bucket = "platform"
+  path   = "model"
 }

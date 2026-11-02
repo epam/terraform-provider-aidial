@@ -13,9 +13,9 @@ The provider SHALL expose a resource named `<provider>_model` (e.g. `aidial_mode
 The schema SHALL include:
 
 - `id` (computed)
-- `bucket` (optional, computed, default `platform`, replace on change; see `resource-identity-defaults`)
-- `path` (optional, computed, defaults to `name`, replace on change; see `resource-identity-defaults`)
-- `name` (required, model name sent to the API)
+- `bucket` (required, must be `platform`, replace on change; see `resource-identity`)
+- `path` (required, non-empty, replace on change; see `resource-identity`)
+- `name` (optional, computed; model name sent to the API when configured, otherwise derived by DIAL Core from `path` and read back; see Name handling below)
 - `api_name` (computed, canonical name returned by the API)
 - `type` (required, one of `CHAT`, `COMPLETION`, `EMBEDDING`, per DIAL Core `ModelType`)
 - `display_name`, `intro` (optional, computed; DIAL Core models these as `LocalizedValue`, i.e. either a plain string or a locale-keyed map of strings)
@@ -55,6 +55,24 @@ The schema SHALL include:
 #### Scenario: Stable resource ID
 - **WHEN** model exists remotely
 - **THEN** `id` is persisted as `<bucket>/<path>` across refreshes
+
+#### Scenario: Identity attributes required
+- **WHEN** `bucket` or `path` is omitted from configuration
+- **THEN** validation fails at plan time
+
+Name handling: DIAL Core addresses a model only by `bucket` and `path` and ignores the `name` in the request body, so `name` carries no identity. When `name` is configured the provider sends it and keeps the configured value in state; when omitted the provider sends none, and `name` is taken from the API response on create, then kept stable across plans.
+
+#### Scenario: Name omitted
+- **WHEN** a config sets `bucket` and `path` but not `name`
+- **THEN** the model is created, no `name` is sent, and `name` in state equals `api_name`
+
+#### Scenario: Name configured
+- **WHEN** a config sets `name`
+- **THEN** `name` is sent and the configured value is kept in state, whatever the API returns
+
+#### Scenario: Name added or removed later
+- **WHEN** `name` is added to, changed in or removed from a config with `bucket` and `path` unchanged
+- **THEN** the plan updates in place or shows no change, and never plans replacement
 
 ## Implementation Notes
 

@@ -95,7 +95,7 @@ func stateString(t *testing.T, resp *datasource.ReadResponse, name string) types
 	return value
 }
 
-func TestModelDataSourceDefaultsAndPopulatesState(t *testing.T) {
+func TestModelDataSourcePopulatesState(t *testing.T) {
 	var gotPath string
 	c := modelDataSourceServer(t, func(w http.ResponseWriter, r *http.Request) {
 		gotPath = r.URL.Path
@@ -108,7 +108,7 @@ func TestModelDataSourceDefaultsAndPopulatesState(t *testing.T) {
 		})
 	})
 
-	resp := readModelDataSource(t, c, map[string]string{"name": "gpt-4o"})
+	resp := readModelDataSource(t, c, map[string]string{"name": "gpt-4o", "bucket": "platform", "path": "gpt-4o"})
 	if resp.Diagnostics.HasError() {
 		t.Fatalf("unexpected diagnostics: %v", resp.Diagnostics)
 	}
@@ -135,7 +135,7 @@ func TestModelDataSourceOmittedCollectionsFollowResource(t *testing.T) {
 		_, _ = w.Write([]byte(`{"name":"m","type":"chat","status":"APPLIED"}`))
 	})
 
-	resp := readModelDataSource(t, c, map[string]string{"name": "m"})
+	resp := readModelDataSource(t, c, map[string]string{"name": "m", "bucket": "platform", "path": "m"})
 	if resp.Diagnostics.HasError() {
 		t.Fatalf("unexpected diagnostics: %v", resp.Diagnostics)
 	}
@@ -165,14 +165,14 @@ func TestModelDataSourceExplicitBucketAndPath(t *testing.T) {
 		_, _ = w.Write([]byte(`{"name":"m","type":"chat","status":"APPLIED"}`))
 	})
 
-	resp := readModelDataSource(t, c, map[string]string{"name": "m", "bucket": "team", "path": "folder/m"})
+	resp := readModelDataSource(t, c, map[string]string{"name": "m", "bucket": "platform", "path": "folder/m"})
 	if resp.Diagnostics.HasError() {
 		t.Fatalf("unexpected diagnostics: %v", resp.Diagnostics)
 	}
-	if gotPath != "/v1/models/team/folder/m" {
+	if gotPath != "/v1/models/platform/folder/m" {
 		t.Fatalf("unexpected request path %q", gotPath)
 	}
-	if got := stateString(t, resp, "id"); got.ValueString() != "team/folder/m" {
+	if got := stateString(t, resp, "id"); got.ValueString() != "platform/folder/m" {
 		t.Fatalf("unexpected id %v", got)
 	}
 }
@@ -182,7 +182,7 @@ func TestModelDataSourceNotFound(t *testing.T) {
 		w.WriteHeader(http.StatusNotFound)
 	})
 
-	resp := readModelDataSource(t, c, map[string]string{"name": "missing"})
+	resp := readModelDataSource(t, c, map[string]string{"name": "missing", "bucket": "platform", "path": "missing"})
 	if !resp.Diagnostics.HasError() {
 		t.Fatal("expected a not-found diagnostic")
 	}
@@ -198,7 +198,7 @@ func TestModelDataSourceAPIError(t *testing.T) {
 		_, _ = io.WriteString(w, "boom")
 	})
 
-	resp := readModelDataSource(t, c, map[string]string{"name": "m"})
+	resp := readModelDataSource(t, c, map[string]string{"name": "m", "bucket": "platform", "path": "m"})
 	if !resp.Diagnostics.HasError() {
 		t.Fatal("expected an API error diagnostic")
 	}

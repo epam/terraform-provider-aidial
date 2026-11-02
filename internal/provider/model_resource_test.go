@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
@@ -442,27 +441,6 @@ func TestFeaturesSkillsSupportedRoundTrip(t *testing.T) {
 	}
 	if !roundTripped.SkillsSupported.ValueBool() {
 		t.Fatal("expected skills_supported to round-trip as true")
-	}
-}
-
-func TestModelSchemaBucketDefaultsToPlatform(t *testing.T) {
-	var schemaResp resource.SchemaResponse
-	(&modelResource{}).Schema(context.Background(), resource.SchemaRequest{}, &schemaResp)
-
-	attr, ok := schemaResp.Schema.Attributes["bucket"].(schema.StringAttribute)
-	if !ok {
-		t.Fatalf("bucket attribute is not a StringAttribute")
-	}
-	if attr.Required || !attr.Optional || !attr.Computed {
-		t.Fatalf("bucket must be optional+computed, got required=%v optional=%v computed=%v", attr.Required, attr.Optional, attr.Computed)
-	}
-
-	// Test the plan modifier directly
-	req := planmodifier.StringRequest{ConfigValue: types.StringNull(), PlanValue: types.StringUnknown()}
-	modResp := &planmodifier.StringResponse{PlanValue: req.PlanValue}
-	bucketDefaultsToPlatform{}.PlanModifyString(context.Background(), req, modResp)
-	if modResp.PlanValue.ValueString() != "platform" {
-		t.Fatalf("bucket default = %q, want %q", modResp.PlanValue.ValueString(), "platform")
 	}
 }
 

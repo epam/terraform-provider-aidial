@@ -13,12 +13,9 @@ Manages a role in DIAL Core (`PUT /v1/roles/{bucket}/{path}`): limits, sharing, 
 ## Example Usage
 
 ```terraform
-data "aidial_bucket" "current" {}
-
 resource "aidial_role" "example" {
-  bucket = data.aidial_bucket.current.bucket
+  bucket = "platform"
   path   = "my-role"
-  name   = "roles/${data.aidial_bucket.current.bucket}/my-role"
 
   description  = "Example role"
   display_name = "Example Role"
@@ -49,16 +46,16 @@ resource "aidial_role" "example" {
 
 ### Required
 
-- `name` (String) Role name stored in the DIAL API request body.
+- `bucket` (String) Target DIAL bucket. Must be "platform".
+- `path` (String) Role path inside the target bucket.
 
 ### Optional
 
-- `bucket` (String) Target DIAL bucket. Defaults to "platform" when not set.
 - `cost_limit` (Attributes) Cost limits for this role. (see [below for nested schema](#nestedatt--cost_limit))
 - `description` (String) Role description.
 - `display_name` (String) Human-readable role name.
 - `limits` (Map of String) Map of limit names to JSON objects encoded as strings.
-- `path` (String) Role path inside the target bucket. Defaults to name when not set.
+- `name` (String) Role name sent in the DIAL API request body. DIAL Core ignores it and derives the name from path, so it can be omitted; then it is read back from the API.
 - `share` (Map of String) Map of share names to JSON objects encoded as strings.
 - `topics` (Set of String) Topics associated with the role.
 

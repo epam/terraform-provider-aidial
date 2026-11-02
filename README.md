@@ -70,7 +70,7 @@ provider "aidial" {
 | Data source | `aidial_file_model` | Look up a file-sourced model (statically configured in DIAL Core, not bucket-scoped, no resource equivalent). |
 | Data source | `aidial_catalog_schema` | Look up an existing catalog schema without managing it. |
 
-All five resources share the same identity model: `bucket` (default `platform`) and `path` (default: the resource `name`; required for `aidial_key` and `aidial_catalog_schema`, which have no configurable name) are optional and force replacement on change, and `id` is persisted as `<bucket>/<path>`.
+All five resources, and the `aidial_role`, `aidial_model` and `aidial_catalog_schema` data sources, share the same identity model: `bucket` and `path` are required, with no defaults. `bucket` must be `platform` (DIAL Core stores these resources only there; the bucket returned by `aidial_bucket` is not accepted) and `path` must be non-empty and may contain `/`. Omitting either fails validation at plan time. Both force replacement on change, and `id` is persisted as `<bucket>/<path>`.
 
 ## Bucket data source
 
@@ -86,9 +86,8 @@ The API response is stored in state as `bucket` and `appdata`.
 
 ```hcl
 resource "aidial_role" "example" {
-  bucket = data.aidial_bucket.current.bucket
+  bucket = "platform"
   path   = "my-role"
-  name   = "roles/${data.aidial_bucket.current.bucket}/my-role"
 
   description  = "Example role"
   display_name = "Example Role"
@@ -116,13 +115,13 @@ resource "aidial_role" "example" {
 
 `limits` and `share` are maps whose values are JSON strings. Use `jsonencode(...)` so Terraform serializes nested objects safely; the provider decodes those strings only far enough to canonicalize them and stores them back as JSON strings, so `limits` values are not required to match any particular shape (DIAL Core's documented `Limit` object, or ad-hoc shapes such as `{"enabled": true}`, both work).
 
-`name` is the value you configure and is never rewritten by the provider, even if the API returns a canonicalized name (for example DIAL Core may strip a `roles/<bucket>/` prefix from the value it echoes back). The API's own value is exposed separately as the computed `api_name` attribute. `description`, `display_name`, and `topics` are optional/computed and are preserved across updates when left unset in config, so applying changes to an existing role does not clear metadata Terraform isn't managing. `created_at`, `updated_at`, and `granted_keys` are computed/read-only.
+`name` is optional: DIAL Core addresses the role by `bucket` and `path` and derives its name from `path`, so you can leave `name` out and it is read back from the API. When you do configure it, the value is sent and never rewritten by the provider, even if the API returns a canonicalized name (for example DIAL Core may strip a `roles/<bucket>/` prefix from the value it echoes back). The API's own value is exposed separately as the computed `api_name` attribute. `description`, `display_name`, and `topics` are optional/computed and are preserved across updates when left unset in config, so applying changes to an existing role does not clear metadata Terraform isn't managing. `created_at`, `updated_at`, and `granted_keys` are computed/read-only.
 
 ## Key resource
 
 ```hcl
 resource "aidial_key" "example" {
-  bucket = data.aidial_bucket.current.bucket
+  bucket = "platform"
   path   = "my-key"
 
   key     = var.aidial_key_value
@@ -137,9 +136,8 @@ resource "aidial_key" "example" {
 
 ```hcl
 resource "aidial_model" "example" {
-  bucket       = data.aidial_bucket.current.bucket
+  bucket       = "platform"
   path         = "my-model"
-  name         = "my-model"
   type         = "CHAT"
   display_name = "My Model"
   endpoint     = "https://example.invalid/v1/chat/completions"
@@ -179,9 +177,8 @@ Attribute names *outside* `defaults` are snake_case in Terraform and camelCase i
 
 ```hcl
 resource "aidial_route" "example" {
-  bucket = data.aidial_bucket.current.bucket
+  bucket = "platform"
   path   = "my-route"
-  name   = "my-route"
 
   methods = ["GET", "POST"]
   paths   = ["/my-route/.*"]
@@ -202,7 +199,7 @@ A route may instead configure `response` (a static `body`/`status` returned with
 
 ```hcl
 data "aidial_role" "existing" {
-  bucket = data.aidial_bucket.current.bucket
+  bucket = "platform"
   path   = "my-role"
 }
 ```
@@ -236,15 +233,14 @@ Import only sets `id`, `bucket`, and `path`; every other attribute, including `n
 
 ### Worked example: importing an existing model
 
-`name` and `type` are `Required` (not `Computed`), so Terraform still needs *some* value for them in your config before it will let you write a resource block at all — even though import itself doesn't read your config values for them. The practical flow is: write a placeholder block, import, inspect what actually came back, then fix the config to match.
+`type` is `Required`, so Terraform still needs *some* value for it in your config before it will let you write a resource block at all — even though import itself doesn't read your config values for it. (`name` is optional and can be left out.) The practical flow is: write a placeholder block, import, inspect what actually came back, then fix the config to match.
 
-1. Write a minimal block for the model you want to bring under management, using whatever bucket/path it actually lives at remotely. The `name`/`type` values here are just placeholders to satisfy the schema — they'll be corrected in step 3:
+1. Write a minimal block for the model you want to bring under management, using whatever bucket/path it actually lives at remotely. The `type` value here is just a placeholder to satisfy the schema — they'll be corrected in step 3:
 
    ```hcl
    resource "aidial_model" "gpt5" {
      bucket = "platform"
      path   = "gpt-5-2025-08-07"
-     name   = "placeholder"
      type   = "CHAT"
    }
    ```
@@ -262,7 +258,7 @@ Import only sets `id`, `bucket`, and `path`; every other attribute, including `n
    terraform state show aidial_model.gpt5
    ```
 
-   Update `name` (and `type`, `endpoint`, etc. if they differ from your placeholders) in the `.tf` file to match what `state show` printed.
+   Update `type` (and `endpoint`, etc. if they differ from your placeholders) in the `.tf` file to match what `state show` printed.
 4. Confirm the config and state now agree:
 
    ```bash
@@ -279,7 +275,6 @@ This same four-step flow applies to `aidial_role`, `aidial_key`, and `aidial_rou
 resource "aidial_model" "gpt-5-6-terra-2026-07-09" {
   bucket = "platform"
   path   = "gpt-5.6-terra-2026-07-09"
-  name   = "placeholder"
   type   = "CHAT"
 }
 ```
@@ -317,7 +312,7 @@ Every request uses the `Api-Key` header. `GET` returns `404` for a missing resou
 
 The provider code, its behavior specs, the local DIAL Core stack and the integration manifests are kept in separate top-level directories on purpose, so each has a single source of truth and a change touches one place:
 
-- Resource behavior is specified once under `openspec/` and implemented once under `internal/`. When a resource's behavior changes, update the spec and the code together; don't describe behavior only in a README or a commit message. System-wide rules that apply to every resource (for example bucket/path defaults) live in their own spec (`openspec/resource-identity-defaults`), not copied into each per-resource spec.
+- Resource behavior is specified once under `openspec/` and implemented once under `internal/`. When a resource's behavior changes, update the spec and the code together; don't describe behavior only in a README or a commit message. System-wide rules that apply to every resource (for example bucket/path defaults) live in their own spec (`openspec/resource-identity`), not copied into each per-resource spec.
 - The disposable DIAL Core stack used by CI and by local runs is defined once under `stub/`. Model configs for it live in `stub/models/`; don't copy them into `examples/` or `tests/`.
 - `tests/integration/` holds manifests that run in CI and locally (`make test-integration`) against an ephemeral DIAL Core defined in `tests/core/`. `stub/models/` holds manifests that run against the local stub. Keep them separate: they have different backends and different expectations.
 - CI and release pipelines live in `.github/workflows/`; release packaging is configured in `.goreleaser.yml`.
@@ -332,7 +327,7 @@ The provider code, its behavior specs, the local DIAL Core stack and the integra
 │   │                           # bucket, file model), shared helpers, and their unit tests.
 │   └── client/                 # DIAL Core HTTP client and its tests.
 ├── openspec/                   # Behavior specs, one directory per capability
-│                               # (e.g. model-schema, role-client, resource-identity-defaults).
+│                               # (e.g. model-schema, role-client, resource-identity).
 ├── openapicore/                # DIAL Core OpenAPI contract the client and specs are checked against
 │                               # (copied from an upstream release tag; see SOURCE.md).
 ├── stub/                       # Local DIAL Core (docker-compose) plus model configs in stub/models/;

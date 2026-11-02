@@ -13,7 +13,7 @@ Implementation SHALL avoid perpetual diffs and unnecessary updates.
 It SHALL:
 
 - re-read remote state after create/update
-- never overwrite the configured, `Required` `name` attribute from an API response once it is known; expose the API's own value only through the `Computed`-only `api_name` attribute
+- never overwrite a known `name` (configured, or already stored after an earlier read) from an API response; expose the API's own value through the `Computed`-only `api_name` attribute, and when `name` is not configured set it from the API response only on create or import, then keep it with `UseStateForUnknown`
 - normalize map/object-like fields to stable Terraform representation
 - handle API omission of optional fields consistently
 - preserve idempotent plan/apply behavior
@@ -37,6 +37,10 @@ It SHALL:
 #### Scenario: API canonicalizes the route name
 - **WHEN** the API returns a `name` that differs from the configured value
 - **THEN** Terraform does not report a provider error (`.name: was ..., but now ...`), because `name` in state is never rewritten from the API response once known
+
+#### Scenario: Omitted name causes no drift
+- **WHEN** `name` is not configured and the resource was applied once
+- **THEN** the next plan shows no changes, and no provider-consistency error is reported for `name`
 
 ## Implementation Notes
 

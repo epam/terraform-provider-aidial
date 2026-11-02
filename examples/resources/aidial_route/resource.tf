@@ -1,9 +1,6 @@
-data "aidial_bucket" "current" {}
-
 resource "aidial_route" "example" {
-  bucket = data.aidial_bucket.current.bucket
+  bucket = "platform"
   path   = "my-route"
-  name   = "my-route"
 
   methods = ["GET", "POST"]
   paths   = ["/my-route/.*"]

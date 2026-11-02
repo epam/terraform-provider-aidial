@@ -39,8 +39,8 @@ Manage DIAL Core catalog schemas (JSON Schema documents under `/v1/catalog_schem
 The provider SHALL expose resource `aidial_catalog_schema` with:
 
 - `id` (computed, `<bucket>/<path>`)
-- `bucket` (optional, computed, default `platform`, replace on change)
-- `path` (required, replace on change; there is no name to default from, as with `aidial_key`)
+- `bucket` (required, must be `platform`, replace on change; see `resource-identity`)
+- `path` (required, non-empty, replace on change; see `resource-identity`)
 - `schema` (required, string containing a JSON object, intended for `jsonencode`)
 - `schema_id` (computed, the `$id` of the schema)
 
@@ -57,6 +57,10 @@ At plan time `schema` MUST be a JSON object with a non-blank string `$id`.
 #### Scenario: Immutable identity
 - **WHEN** `bucket` or `path` changes
 - **THEN** Terraform plans replacement
+
+#### Scenario: Identity attributes required
+- **WHEN** `bucket` or `path` is omitted
+- **THEN** validation fails at plan time
 
 ### Requirement: Catalog schema lifecycle
 
@@ -80,7 +84,7 @@ Create and update SHALL PUT the schema, re-read via GET and write state from the
 
 ### Requirement: aidial_catalog_schema data source
 
-The provider SHALL expose data source `aidial_catalog_schema` with `bucket` (optional, default `platform`), `path` (required), and computed `id`, `schema` (JSON string) and `schema_id`. A missing schema SHALL produce an error diagnostic.
+The provider SHALL expose data source `aidial_catalog_schema` with `bucket` (required, must be `platform`), `path` (required, non-empty), and computed `id`, `schema` (JSON string) and `schema_id`. A missing schema SHALL produce an error diagnostic.
 
 #### Scenario: Existing schema
 - **WHEN** the schema exists
@@ -89,3 +93,7 @@ The provider SHALL expose data source `aidial_catalog_schema` with `bucket` (opt
 #### Scenario: Missing schema
 - **WHEN** the API returns 404
 - **THEN** the data source fails with a not-found diagnostic
+
+#### Scenario: Identity attributes required
+- **WHEN** `bucket` or `path` is omitted
+- **THEN** validation fails at plan time

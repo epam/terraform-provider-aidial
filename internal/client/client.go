@@ -94,7 +94,7 @@ type ShareRule struct {
 }
 
 type Role struct {
-	Name        string                     `json:"name"`
+	Name        string                     `json:"name,omitempty"`
 	Description *string                    `json:"description,omitempty"`
 	DisplayName *string                    `json:"displayName,omitempty"`
 	Limits      map[string]json.RawMessage `json:"limits,omitempty"`
@@ -529,7 +529,7 @@ type ModelUpstream struct {
 // "not set" (nil, omitted from the request) stays distinct from an explicit
 // empty value ("" or []), which Core treats differently.
 type Model struct {
-	Name                 string                    `json:"name"`
+	Name                 string                    `json:"name,omitempty"`
 	Type                 string                    `json:"type"`
 	DisplayName          *string                   `json:"displayName,omitempty"`
 	Description          *string                   `json:"description,omitempty"`
@@ -609,7 +609,7 @@ type RouteAttachmentPath struct {
 }
 
 type Route struct {
-	Name             string               `json:"name"`
+	Name             string               `json:"name,omitempty"`
 	Order            *int64               `json:"order,omitempty"`
 	Methods          []string             `json:"methods,omitempty"`
 	Paths            []string             `json:"paths,omitempty"`

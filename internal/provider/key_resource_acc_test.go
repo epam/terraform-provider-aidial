@@ -11,6 +11,7 @@ func TestAccKey_basic(t *testing.T) {
 	path := accPath(t)
 	cfg := fmt.Sprintf(`%s
 resource "aidial_key" "t" {
+  bucket = "platform"
   path    = %q
   key     = "secret-%s"
   project = "tf-acc"

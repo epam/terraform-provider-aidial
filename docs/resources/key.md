@@ -13,15 +13,13 @@ Manages an API key bound to a role in DIAL Core (`PUT /v1/keys/{bucket}/{path}`)
 ## Example Usage
 
 ```terraform
-data "aidial_bucket" "current" {}
-
 variable "aidial_key_value" {
   type      = string
   sensitive = true
 }
 
 resource "aidial_key" "example" {
-  bucket = data.aidial_bucket.current.bucket
+  bucket = "platform"
   path   = "my-key"
 
   key     = var.aidial_key_value
@@ -37,12 +35,12 @@ resource "aidial_key" "example" {
 
 ### Required
 
+- `bucket` (String) Target DIAL bucket. Must be "platform".
 - `key` (String, Sensitive) DIAL API key value.
 - `path` (String) Key path inside the target bucket.
 
 ### Optional
 
-- `bucket` (String) Target DIAL bucket. Defaults to "platform" when not set.
 - `project` (String) Project associated with the key.
 - `role` (String) Primary role associated with the key.
 - `roles` (Set of String) Roles associated with the key.

@@ -11,59 +11,11 @@ import (
 	"github.com/epam/terraform-provider-aidial/internal/client"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-// defaultBucket is used when a resource omits "bucket".
-const defaultBucket = "platform"
-
-// bucketDefaultsToPlatform is a plan modifier for the optional "bucket" attribute:
-// when bucket is not configured, the plan value becomes "platform".
-type bucketDefaultsToPlatform struct{}
-
-func (bucketDefaultsToPlatform) Description(context.Context) string {
-	return "Defaults to \"platform\" when not set."
-}
-
-func (m bucketDefaultsToPlatform) MarkdownDescription(ctx context.Context) string {
-	return m.Description(ctx)
-}
-
-func (bucketDefaultsToPlatform) PlanModifyString(ctx context.Context, req planmodifier.StringRequest, resp *planmodifier.StringResponse) {
-	if !req.ConfigValue.IsNull() {
-		return
-	}
-	resp.PlanValue = types.StringValue(defaultBucket)
-}
-
-// pathDefaultsToName is a plan modifier for the optional "path" attribute:
-// when path is not configured, the plan value becomes the configured "name".
-// If name itself is not yet known, path stays unknown until it is.
-type pathDefaultsToName struct{}
-
-func (pathDefaultsToName) Description(context.Context) string {
-	return "Defaults to the value of name when not set."
-}
-
-func (m pathDefaultsToName) MarkdownDescription(ctx context.Context) string {
-	return m.Description(ctx)
-}
-
-func (pathDefaultsToName) PlanModifyString(ctx context.Context, req planmodifier.StringRequest, resp *planmodifier.StringResponse) {
-	if !req.ConfigValue.IsNull() {
-		return
-	}
-
-	var name types.String
-	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("name"), &name)...)
-	if resp.Diagnostics.HasError() || name.IsNull() {
-		return
-	}
-
-	resp.PlanValue = name
-}
+// platformBucket is the only bucket DIAL Core accepts for the resources this provider manages.
+const platformBucket = "platform"
 
 // dropServerDefaultLimits removes limit fields that DIAL Core filled in on its
 // own. When a limit object omits some of minute/day/week/month/requestHour/

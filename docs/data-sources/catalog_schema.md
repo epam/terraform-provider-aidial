@@ -14,7 +14,8 @@ Looks up an existing DIAL Core catalog schema without managing it.
 
 ```terraform
 data "aidial_catalog_schema" "model" {
-  path = "model"
+  bucket = "platform"
+  path   = "model"
 }
 ```
 
@@ -23,11 +24,8 @@ data "aidial_catalog_schema" "model" {
 
 ### Required
 
+- `bucket` (String) DIAL bucket. Must be "platform".
 - `path` (String) Catalog schema path inside the bucket.
-
-### Optional
-
-- `bucket` (String) DIAL bucket. Defaults to "platform" when not set.
 
 ### Read-Only
 

@@ -13,12 +13,9 @@ Manages a routing rule in DIAL Core (`PUT /v1/routes/{bucket}/{path}`): methods,
 ## Example Usage
 
 ```terraform
-data "aidial_bucket" "current" {}
-
 resource "aidial_route" "example" {
-  bucket = data.aidial_bucket.current.bucket
+  bucket = "platform"
   path   = "my-route"
-  name   = "my-route"
 
   methods = ["GET", "POST"]
   paths   = ["/my-route/.*"]
@@ -38,16 +35,16 @@ resource "aidial_route" "example" {
 
 ### Required
 
-- `name` (String) Route name stored in the DIAL API request body.
+- `bucket` (String) Target DIAL bucket. Must be "platform".
+- `path` (String) Route path inside the target bucket.
 
 ### Optional
 
 - `attachment_paths` (Attributes) (see [below for nested schema](#nestedatt--attachment_paths))
-- `bucket` (String) Target DIAL bucket. Defaults to "platform" when not set.
 - `max_retry_attempts` (Number)
 - `methods` (Set of String) HTTP methods the route matches.
+- `name` (String) Route name sent in the DIAL API request body. DIAL Core ignores it and derives the name from path, so it can be omitted; then it is read back from the API.
 - `order` (Number) Route matching order.
-- `path` (String) Route path inside the target bucket. Defaults to name when not set.
 - `paths` (Set of String) Path patterns the route matches.
 - `permissions` (Set of String) Resource access types required to use the route, one of READ, WRITE, SHARE.
 - `response` (Attributes) Static response returned by the route instead of forwarding upstream. (see [below for nested schema](#nestedatt--response))

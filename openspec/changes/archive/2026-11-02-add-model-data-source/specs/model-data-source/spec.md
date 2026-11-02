@@ -8,19 +8,19 @@ Lets Terraform configurations read an existing API-managed DIAL Core model witho
 
 ### Requirement: aidial_model data source arguments
 
-The provider SHALL expose data source `aidial_model` with `name` (required), `bucket` (optional, default `platform`) and `path` (optional, default `name`). The model is looked up in resource storage at `<bucket>/<path>`. The data source MUST NOT read file-sourced models; those remain the job of `aidial_file_model`.
+The provider SHALL expose data source `aidial_model` with `bucket` (required, must be `platform`) and `path` (required, non-empty), and `name` (optional, computed; not used for the lookup). The model is looked up in resource storage at `<bucket>/<path>`. The data source MUST NOT read file-sourced models; those remain the job of `aidial_file_model`.
 
 #### Scenario: Data source registration
 - **WHEN** provider data sources are registered
 - **THEN** `aidial_model` is included alongside `aidial_file_model`
 
-#### Scenario: Defaults applied
-- **WHEN** only `name = "gpt-4o"` is configured
-- **THEN** the model is read from bucket `platform` and path `gpt-4o`
+#### Scenario: Lookup without name
+- **WHEN** only `bucket` and `path` are configured
+- **THEN** the model is read from that bucket and path and `name` is populated from the API
 
 #### Scenario: Explicit bucket and path
 - **WHEN** `bucket` and `path` are configured
-- **THEN** the model is read from that bucket and path, regardless of `name`
+- **THEN** the model is read from that bucket and path, regardless of any configured `name`
 
 ### Requirement: aidial_model data source attributes
 

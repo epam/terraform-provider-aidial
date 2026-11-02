@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/epam/terraform-provider-aidial/internal/client"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -13,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
@@ -61,26 +63,28 @@ func (r *roleResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 				},
 			},
 			"bucket": schema.StringAttribute{
-				Optional: true,
-				Computed: true,
+				Required:   true,
+				Validators: []validator.String{stringvalidator.OneOf(platformBucket)},
 				PlanModifiers: []planmodifier.String{
-					bucketDefaultsToPlatform{},
 					stringplanmodifier.RequiresReplace(),
 				},
-				Description: "Target DIAL bucket. Defaults to \"" + defaultBucket + "\" when not set.",
+				Description: "Target DIAL bucket. Must be \"platform\".",
 			},
 			"path": schema.StringAttribute{
+				Required:   true,
+				Validators: []validator.String{stringvalidator.LengthAtLeast(1)},
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+				Description: "Role path inside the target bucket.",
+			},
+			"name": schema.StringAttribute{
 				Optional: true,
 				Computed: true,
 				PlanModifiers: []planmodifier.String{
-					pathDefaultsToName{},
-					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.UseStateForUnknown(),
 				},
-				Description: "Role path inside the target bucket. Defaults to name when not set.",
-			},
-			"name": schema.StringAttribute{
-				Required:    true,
-				Description: "Role name stored in the DIAL API request body.",
+				Description: "Role name sent in the DIAL API request body. DIAL Core ignores it and derives the name from path, so it can be omitted; then it is read back from the API.",
 			},
 			"api_name": schema.StringAttribute{
 				Computed:    true,

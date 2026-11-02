@@ -8,7 +8,7 @@ Define the `Read` behavior of the `aidial_role` resource.
 
 ### Requirement: Read behavior
 
-`Read` SHALL fetch by `(bucket, path)` and refresh full state from API response, without overwriting the previously stored `name`.
+`Read` SHALL fetch by `(bucket, path)` and refresh full state from API response, without overwriting the previously stored `name`; a `name` that is still null or unknown (after import, or when it was omitted from config) is set from the API response.
 
 On `404`, resource SHALL be removed from state.
 
