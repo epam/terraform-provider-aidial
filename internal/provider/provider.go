@@ -53,6 +53,7 @@ func (p *AidialProvider) Resources(_ context.Context) []func() resource.Resource
 		func() resource.Resource { return &modelResource{} },
 		func() resource.Resource { return &routeResource{} },
 		func() resource.Resource { return &catalogSchemaResource{} },
+		func() resource.Resource { return &applicationTypeSchemaResource{} },
 	}
 }
 func (p *AidialProvider) DataSources(_ context.Context) []func() datasource.DataSource {
@@ -62,5 +63,7 @@ func (p *AidialProvider) DataSources(_ context.Context) []func() datasource.Data
 		func() datasource.DataSource { return &fileModelDataSource{} },
 		func() datasource.DataSource { return &modelDataSource{} },
 		func() datasource.DataSource { return &catalogSchemaDataSource{} },
+		func() datasource.DataSource { return &applicationTypeSchemaDataSource{} },
+		func() datasource.DataSource { return &fileApplicationTypeSchemaDataSource{} },
 	}
 }

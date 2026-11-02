@@ -131,7 +131,7 @@ func TestCatalogSchemaResourceSaveAndRead(t *testing.T) {
 }
 
 func TestParseCatalogSchemaReturnsID(t *testing.T) {
-	_, id, err := parseCatalogSchema(catalogSchemaForTest)
+	_, id, err := parseSchemaDocument(catalogSchemaForTest)
 	if err != nil || id != "https://dial.epam.com/catalog-schemas/model" {
 		t.Fatalf("unexpected result %q, %v", id, err)
 	}

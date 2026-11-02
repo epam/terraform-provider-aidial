@@ -4,6 +4,15 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## Unreleased
 
+### Added
+
+- Resource `aidial_application_type_schema` and data source `aidial_application_type_schema` manage and look up DIAL Core custom application type schemas (`/v1/schemas/{bucket}/{path}`), with the same identity rules as the other resources.
+- Data source `aidial_file_application_type_schema` reads an application type schema defined in DIAL Core's static configuration, by name.
+
+### Changed
+
+- The checked-in DIAL Core OpenAPI contract is refreshed to tag 0.49.4.
+
 ## 0.2.2 - 2026-10-28
 
 Version 0.2.1 was published on GitHub but never reached the Terraform Registry, because its `SHA256SUMS` listed the SBOM files and the Registry rejects such releases. This release fixes that and includes everything from 0.2.1, so if you are upgrading from 0.2.0, read the security and behavior notes below.

@@ -64,13 +64,16 @@ provider "aidial" {
 | Resource | `aidial_model` | Create/update/delete a model deployment (endpoint, features, pricing, upstreams, ...). |
 | Resource | `aidial_route` | Create/update/delete a routing rule (methods, paths, permissions, upstreams, static response, ...). |
 | Resource | `aidial_catalog_schema` | Create/update/delete a catalog schema (a JSON Schema that models reference through `catalog_schema_id`). |
+| Resource | `aidial_application_type_schema` | Create/update/delete a custom application type schema (a JSON Schema identified by its `$id`). |
 | Data source | `aidial_bucket` | Look up a bucket's `bucket`/`appdata`. |
 | Data source | `aidial_role` | Look up an existing role without managing it. |
 | Data source | `aidial_model` | Look up an existing API-managed model by `bucket`/`path` without managing it. |
 | Data source | `aidial_file_model` | Look up a file-sourced model (statically configured in DIAL Core, not bucket-scoped, no resource equivalent). |
 | Data source | `aidial_catalog_schema` | Look up an existing catalog schema without managing it. |
+| Data source | `aidial_application_type_schema` | Look up an existing API-managed application type schema by `bucket`/`path` without managing it. |
+| Data source | `aidial_file_application_type_schema` | Look up a file-sourced application type schema (statically configured in DIAL Core, by name only, no resource equivalent). |
 
-All five resources, and the `aidial_role`, `aidial_model` and `aidial_catalog_schema` data sources, share the same identity model: `bucket` and `path` are required, with no defaults. `bucket` must be `platform` (DIAL Core stores these resources only there; the bucket returned by `aidial_bucket` is not accepted) and `path` must be non-empty and may contain `/`. Omitting either fails validation at plan time. Both force replacement on change, and `id` is persisted as `<bucket>/<path>`.
+All six resources, and the `aidial_role`, `aidial_model`, `aidial_catalog_schema` and `aidial_application_type_schema` data sources, share the same identity model: `bucket` and `path` are required, with no defaults. `bucket` must be `platform` (DIAL Core stores these resources only there; the bucket returned by `aidial_bucket` is not accepted) and `path` must be non-empty and may contain `/`. Omitting either fails validation at plan time. Both force replacement on change, and `id` is persisted as `<bucket>/<path>`.
 
 ## Bucket data source
 
