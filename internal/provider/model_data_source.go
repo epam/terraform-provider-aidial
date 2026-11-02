@@ -5,8 +5,10 @@ import (
 	"fmt"
 
 	"github.com/epam/terraform-provider-aidial/internal/client"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -27,18 +29,19 @@ func (d *modelDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{Computed: true, Description: "Resource identifier in the form <bucket>/<path>."},
 			"name": schema.StringAttribute{
-				Required:    true,
-				Description: "Model name to look up.",
+				Optional:    true,
+				Computed:    true,
+				Description: "Model name as returned by the DIAL API. Not used for the lookup, which is by bucket and path.",
 			},
 			"bucket": schema.StringAttribute{
-				Optional:    true,
-				Computed:    true,
-				Description: "DIAL bucket. Defaults to \"" + defaultBucket + "\" when not set.",
+				Required:    true,
+				Validators:  []validator.String{stringvalidator.OneOf(platformBucket)},
+				Description: "DIAL bucket. Must be \"platform\".",
 			},
 			"path": schema.StringAttribute{
-				Optional:    true,
-				Computed:    true,
-				Description: "Path of the model within the bucket. Defaults to name when not set.",
+				Required:    true,
+				Validators:  []validator.String{stringvalidator.LengthAtLeast(1)},
+				Description: "Path of the model within the bucket.",
 			},
 			"api_name": schema.StringAttribute{
 				Computed:    true,
@@ -177,14 +180,7 @@ func (d *modelDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 		return
 	}
 
-	bucket := defaultBucket
-	if !state.Bucket.IsNull() && !state.Bucket.IsUnknown() && state.Bucket.ValueString() != "" {
-		bucket = state.Bucket.ValueString()
-	}
-	path := state.Name.ValueString()
-	if !state.Path.IsNull() && !state.Path.IsUnknown() && state.Path.ValueString() != "" {
-		path = state.Path.ValueString()
-	}
+	bucket, path := state.Bucket.ValueString(), state.Path.ValueString()
 
 	model, err := d.client.GetModel(ctx, bucket, path)
 	if err != nil {
@@ -204,8 +200,6 @@ func (d *modelDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 		return
 	}
 	state.ID = types.StringValue(bucket + "/" + path)
-	state.Bucket = types.StringValue(bucket)
-	state.Path = types.StringValue(path)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }

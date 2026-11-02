@@ -1,6 +1,8 @@
 # Role with cost limits and per-model limits
 resource "aidial_role" "tf_aidial_integration_role_with_limits" {
-  name = "tf-aidial-integration-role-with-limits"
+  bucket = "platform"
+  path   = "tf-aidial-integration-role-with-limits"
+  name   = "tf-aidial-integration-role-with-limits"
 
   cost_limit = {
     week  = 10

@@ -12,6 +12,7 @@ func TestAccRole_basic(t *testing.T) {
 	cfg := func(day int) string {
 		return accProviderConfig() + fmt.Sprintf(`
 resource "aidial_role" "t" {
+  bucket = "platform"
   path = %q
   name = "roles/platform/%s"
   limits = {
@@ -37,6 +38,7 @@ func TestAccRole_deletedOutsideTerraform(t *testing.T) {
 	path := accPath(t)
 	cfg := accProviderConfig() + fmt.Sprintf(`
 resource "aidial_role" "t" {
+  bucket = "platform"
   path = %q
   name = "roles/platform/%s"
 }
@@ -52,6 +54,25 @@ resource "aidial_role" "t" {
 				PlanOnly:           true,
 				ExpectNonEmptyPlan: true,
 			},
+		},
+	})
+}
+
+func TestAccRole_nameOmitted(t *testing.T) {
+	path := accPath(t)
+	cfg := accProviderConfig() + fmt.Sprintf(`
+resource "aidial_role" "t" {
+  bucket = "platform"
+  path   = %q
+}
+`, path)
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { accPreCheck(t) },
+		ProtoV6ProviderFactories: accProviderFactories,
+		Steps: []resource.TestStep{
+			{Config: cfg, Check: resource.TestCheckResourceAttrPair("aidial_role.t", "name", "aidial_role.t", "api_name")},
+			{Config: cfg, PlanOnly: true},
+			{ResourceName: "aidial_role.t", ImportState: true, ImportStateVerify: true},
 		},
 	})
 }

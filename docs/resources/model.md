@@ -13,12 +13,9 @@ Manages a model deployment in DIAL Core (`PUT /v1/models/{bucket}/{path}`).
 ## Example Usage
 
 ```terraform
-data "aidial_bucket" "current" {}
-
 resource "aidial_model" "example" {
-  bucket          = data.aidial_bucket.current.bucket
+  bucket          = "platform"
   path            = "my-model"
-  name            = "my-model"
   type            = "CHAT"
   display_name    = "My Model"
   display_version = "latest"
@@ -79,13 +76,13 @@ resource "aidial_model" "example" {
 
 ### Required
 
-- `name` (String) Model name stored in the DIAL API request body.
+- `bucket` (String) Target DIAL bucket. Must be "platform".
+- `path` (String) Model path inside the target bucket.
 - `type` (String) DIAL model type, for example CHAT.
 
 ### Optional
 
 - `author` (String)
-- `bucket` (String) Target DIAL bucket. Defaults to "platform" when not set.
 - `catalog_properties` (Dynamic) Catalog metadata of the model (free-form object, sent to DIAL as `catalogProperties`), e.g. provider, vendor, license, knowledgeCutoffDate, parameters.
 - `catalog_schema_id` (String) URI (`$id`) of the catalog schema describing `catalog_properties`, e.g. the `schema_id` of an `aidial_catalog_schema`.
 - `default_headers` (Map of String)
@@ -107,8 +104,8 @@ resource "aidial_model" "example" {
 - `limits` (Attributes) (see [below for nested schema](#nestedatt--limits))
 - `max_input_attachments` (Number) Maximum number of attachments in one request (maxInputAttachments in the API).
 - `max_retry_attempts` (Number)
+- `name` (String) Model name sent in the DIAL API request body. DIAL Core ignores it and derives the name from path, so it can be omitted; then it is read back from the API.
 - `override_name` (String)
-- `path` (String) Model path inside the target bucket. Defaults to name when not set.
 - `pricing` (Attributes) (see [below for nested schema](#nestedatt--pricing))
 - `reference` (String)
 - `responses_endpoint` (String)

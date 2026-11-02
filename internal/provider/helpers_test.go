@@ -5,11 +5,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-go/tftypes"
 )
 
 func TestStringPointer(t *testing.T) {
@@ -207,49 +203,5 @@ func TestShareToStateNilIsNullMap(t *testing.T) {
 	got := shareToState(nil)
 	if !got.IsNull() {
 		t.Fatalf("expected null map, got %v", got)
-	}
-}
-
-func TestPathDefaultsToName(t *testing.T) {
-	cfgSchema := schema.Schema{Attributes: map[string]schema.Attribute{
-		"name": schema.StringAttribute{Optional: true},
-		"path": schema.StringAttribute{Optional: true, Computed: true},
-	}}
-	objType := cfgSchema.Type().TerraformType(context.Background())
-
-	run := func(t *testing.T, name, pathCfg tftypes.Value) types.String {
-		t.Helper()
-		cfg := tfsdk.Config{
-			Schema: cfgSchema,
-			Raw: tftypes.NewValue(objType, map[string]tftypes.Value{
-				"name": name,
-				"path": pathCfg,
-			}),
-		}
-		req := planmodifier.StringRequest{Config: cfg, ConfigValue: types.StringNull(), PlanValue: types.StringUnknown()}
-		if !pathCfg.IsNull() {
-			req.ConfigValue = types.StringValue("explicit")
-			req.PlanValue = types.StringValue("explicit")
-		}
-		resp := &planmodifier.StringResponse{PlanValue: req.PlanValue}
-		pathDefaultsToName{}.PlanModifyString(context.Background(), req, resp)
-		if resp.Diagnostics.HasError() {
-			t.Fatalf("diags: %v", resp.Diagnostics)
-		}
-		return resp.PlanValue
-	}
-
-	str := func(s string) tftypes.Value { return tftypes.NewValue(tftypes.String, s) }
-	null := tftypes.NewValue(tftypes.String, nil)
-	unknown := tftypes.NewValue(tftypes.String, tftypes.UnknownValue)
-
-	if got := run(t, str("my-name"), null); got.ValueString() != "my-name" {
-		t.Errorf("unset path = %v, want my-name", got)
-	}
-	if got := run(t, str("my-name"), str("explicit")); got.ValueString() != "explicit" {
-		t.Errorf("explicit path = %v, want explicit", got)
-	}
-	if got := run(t, unknown, null); !got.IsUnknown() {
-		t.Errorf("unknown name should leave path unknown, got %v", got)
 	}
 }

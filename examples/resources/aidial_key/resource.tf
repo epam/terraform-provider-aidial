@@ -1,12 +1,10 @@
-data "aidial_bucket" "current" {}
-
 variable "aidial_key_value" {
   type      = string
   sensitive = true
 }
 
 resource "aidial_key" "example" {
-  bucket = data.aidial_bucket.current.bucket
+  bucket = "platform"
   path   = "my-key"
 
   key     = var.aidial_key_value

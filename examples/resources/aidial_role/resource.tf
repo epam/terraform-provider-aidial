@@ -1,9 +1,6 @@
-data "aidial_bucket" "current" {}
-
 resource "aidial_role" "example" {
-  bucket = data.aidial_bucket.current.bucket
+  bucket = "platform"
   path   = "my-role"
-  name   = "roles/${data.aidial_bucket.current.bucket}/my-role"
 
   description  = "Example role"
   display_name = "Example Role"

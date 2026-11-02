@@ -4,8 +4,10 @@ import (
 	"context"
 
 	"github.com/epam/terraform-provider-aidial/internal/client"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -35,7 +37,7 @@ func (d *roleDataSource) Metadata(_ context.Context, req datasource.MetadataRequ
 }
 func (d *roleDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{MarkdownDescription: "Looks up an existing DIAL Core role without managing it.", Attributes: map[string]schema.Attribute{
-		"bucket": schema.StringAttribute{Required: true}, "path": schema.StringAttribute{Required: true}, "id": schema.StringAttribute{Computed: true}, "name": schema.StringAttribute{Computed: true}, "description": schema.StringAttribute{Computed: true}, "display_name": schema.StringAttribute{Computed: true}, "limits": schema.MapAttribute{Computed: true, ElementType: types.StringType}, "share": schema.MapAttribute{Computed: true, ElementType: types.StringType}, "cost_limit_day": schema.Float64Attribute{Computed: true}, "cost_limit_minute": schema.Float64Attribute{Computed: true}, "cost_limit_month": schema.Float64Attribute{Computed: true}, "cost_limit_week": schema.Float64Attribute{Computed: true}, "topics": schema.SetAttribute{Computed: true, ElementType: types.StringType}, "granted_keys": schema.SetAttribute{Computed: true, ElementType: types.StringType}, "created_at": schema.StringAttribute{Computed: true}, "updated_at": schema.StringAttribute{Computed: true}, "status": schema.StringAttribute{Computed: true}}}
+		"bucket": schema.StringAttribute{Required: true, Validators: []validator.String{stringvalidator.OneOf(platformBucket)}}, "path": schema.StringAttribute{Required: true, Validators: []validator.String{stringvalidator.LengthAtLeast(1)}}, "id": schema.StringAttribute{Computed: true}, "name": schema.StringAttribute{Computed: true}, "description": schema.StringAttribute{Computed: true}, "display_name": schema.StringAttribute{Computed: true}, "limits": schema.MapAttribute{Computed: true, ElementType: types.StringType}, "share": schema.MapAttribute{Computed: true, ElementType: types.StringType}, "cost_limit_day": schema.Float64Attribute{Computed: true}, "cost_limit_minute": schema.Float64Attribute{Computed: true}, "cost_limit_month": schema.Float64Attribute{Computed: true}, "cost_limit_week": schema.Float64Attribute{Computed: true}, "topics": schema.SetAttribute{Computed: true, ElementType: types.StringType}, "granted_keys": schema.SetAttribute{Computed: true, ElementType: types.StringType}, "created_at": schema.StringAttribute{Computed: true}, "updated_at": schema.StringAttribute{Computed: true}, "status": schema.StringAttribute{Computed: true}}}
 }
 func (d *roleDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {

@@ -1,5 +1,6 @@
 resource "aidial_catalog_schema" "model" {
-  path = "model"
+  bucket = "platform"
+  path   = "model"
 
   schema = jsonencode({
     "$id" = "https://dial.epam.com/catalog-schemas/model"

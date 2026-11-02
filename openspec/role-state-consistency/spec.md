@@ -13,7 +13,7 @@ Implementation SHALL avoid perpetual diffs, unnecessary updates, and Terraform p
 It SHALL:
 
 - re-read remote state after create/update
-- never overwrite the configured, `Required` `name` attribute from an API response once it is known; expose the API's own value only through the `Computed`-only `api_name` attribute
+- never overwrite a known `name` (configured, or already stored after an earlier read) from an API response; expose the API's own value through the `Computed`-only `api_name` attribute, and when `name` is not configured set it from the API response only on create or import, then keep it with `UseStateForUnknown`
 - normalize map-like fields (`limits`, `share`) to a stable Terraform representation via JSON-string passthrough
 - keep the configured string for a `limits`/`share` element when the API value decodes to the same JSON (whitespace, key order and number formatting do not matter)
 - keep a configured empty `limits`/`share` map as `{}` and an unset one as null, whether the API returns `{}` or omits the field
@@ -63,6 +63,10 @@ It SHALL:
 #### Scenario: Empty maps
 - **WHEN** `limits` or `share` is configured as `{}`, or left unset, and the API returns `{}` or omits it
 - **THEN** state matches the config (`{}` or null) and the next plan shows no changes
+
+#### Scenario: Omitted name causes no drift
+- **WHEN** `name` is not configured and the resource was applied once
+- **THEN** the next plan shows no changes, and no provider-consistency error is reported for `name`
 
 ## Implementation Notes
 

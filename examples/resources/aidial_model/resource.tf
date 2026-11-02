@@ -1,9 +1,6 @@
-data "aidial_bucket" "current" {}
-
 resource "aidial_model" "example" {
-  bucket          = data.aidial_bucket.current.bucket
+  bucket          = "platform"
   path            = "my-model"
-  name            = "my-model"
   type            = "CHAT"
   display_name    = "My Model"
   display_version = "latest"

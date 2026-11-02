@@ -14,10 +14,12 @@ Reads an existing model stored in DIAL Core resource storage without managing it
 
 ```terraform
 # A model stored in DIAL Core resource storage (for example, one created with
-# the aidial_model resource in another workspace). bucket defaults to
-# "platform" and path defaults to name.
+# the aidial_model resource in another workspace). bucket and path are the
+# identity it was created with.
 data "aidial_model" "gpt4o" {
-  name = "gpt-4o"
+  name   = "gpt-4o"
+  bucket = "platform"
+  path   = "gpt-4o"
 }
 
 output "gpt4o_endpoint" {
@@ -30,12 +32,12 @@ output "gpt4o_endpoint" {
 
 ### Required
 
-- `name` (String) Model name to look up.
+- `bucket` (String) DIAL bucket. Must be "platform".
+- `path` (String) Path of the model within the bucket.
 
 ### Optional
 
-- `bucket` (String) DIAL bucket. Defaults to "platform" when not set.
-- `path` (String) Path of the model within the bucket. Defaults to name when not set.
+- `name` (String) Model name as returned by the DIAL API. Not used for the lookup, which is by bucket and path.
 
 ### Read-Only
 

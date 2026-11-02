@@ -4,8 +4,10 @@ import (
 	"context"
 
 	"github.com/epam/terraform-provider-aidial/internal/client"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -28,8 +30,8 @@ func (d *catalogSchemaDataSource) Schema(_ context.Context, _ datasource.SchemaR
 		MarkdownDescription: "Looks up an existing DIAL Core catalog schema without managing it.",
 		Attributes: map[string]schema.Attribute{
 			"id":     schema.StringAttribute{Computed: true},
-			"bucket": schema.StringAttribute{Optional: true, Computed: true, Description: "DIAL bucket. Defaults to \"" + defaultBucket + "\" when not set."},
-			"path":   schema.StringAttribute{Required: true, Description: "Catalog schema path inside the bucket."},
+			"bucket": schema.StringAttribute{Required: true, Validators: []validator.String{stringvalidator.OneOf(platformBucket)}, Description: "DIAL bucket. Must be \"platform\"."},
+			"path":   schema.StringAttribute{Required: true, Validators: []validator.String{stringvalidator.LengthAtLeast(1)}, Description: "Catalog schema path inside the bucket."},
 			"schema": schema.StringAttribute{Computed: true, Description: "The catalog schema as a JSON object string."},
 			"schema_id": schema.StringAttribute{
 				Computed:    true,
@@ -58,10 +60,7 @@ func (d *catalogSchemaDataSource) Read(ctx context.Context, req datasource.ReadR
 		return
 	}
 
-	bucket := defaultBucket
-	if !state.Bucket.IsNull() && !state.Bucket.IsUnknown() && state.Bucket.ValueString() != "" {
-		bucket = state.Bucket.ValueString()
-	}
+	bucket := state.Bucket.ValueString()
 
 	doc, err := d.client.GetCatalogSchema(ctx, bucket, state.Path.ValueString())
 	if err != nil {
@@ -80,7 +79,6 @@ func (d *catalogSchemaDataSource) Read(ctx context.Context, req datasource.ReadR
 	}
 
 	state.ID = types.StringValue(bucket + "/" + state.Path.ValueString())
-	state.Bucket = types.StringValue(bucket)
 	state.Schema = model.Schema
 	state.SchemaID = model.SchemaID
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
