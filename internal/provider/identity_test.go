@@ -87,11 +87,12 @@ func checkIdentity(t *testing.T, bucket, path identityAttr) {
 
 func TestResourceIdentityRequired(t *testing.T) {
 	cases := map[string]resource.Resource{
-		"aidial_model":          &modelResource{},
-		"aidial_role":           &roleResource{},
-		"aidial_route":          &routeResource{},
-		"aidial_key":            &keyResource{},
-		"aidial_catalog_schema": &catalogSchemaResource{},
+		"aidial_model":                   &modelResource{},
+		"aidial_role":                    &roleResource{},
+		"aidial_route":                   &routeResource{},
+		"aidial_key":                     &keyResource{},
+		"aidial_catalog_schema":          &catalogSchemaResource{},
+		"aidial_application_type_schema": &applicationTypeSchemaResource{},
 	}
 	for name, r := range cases {
 		t.Run(name, func(t *testing.T) {
@@ -106,9 +107,10 @@ func TestResourceIdentityRequired(t *testing.T) {
 
 func TestDataSourceIdentityRequired(t *testing.T) {
 	cases := map[string]datasource.DataSource{
-		"aidial_model":          &modelDataSource{},
-		"aidial_role":           &roleDataSource{},
-		"aidial_catalog_schema": &catalogSchemaDataSource{},
+		"aidial_model":                   &modelDataSource{},
+		"aidial_role":                    &roleDataSource{},
+		"aidial_catalog_schema":          &catalogSchemaDataSource{},
+		"aidial_application_type_schema": &applicationTypeSchemaDataSource{},
 	}
 	for name, d := range cases {
 		t.Run(name, func(t *testing.T) {

@@ -31,9 +31,9 @@ type catalogSchemaResourceModel struct {
 	SchemaID types.String `tfsdk:"schema_id"`
 }
 
-// parseCatalogSchema decodes a catalog schema document and returns it with its
+// parseSchemaDocument decodes a catalog or application type schema document and returns it with its
 // $id. DIAL Core requires $id to be a non-blank string.
-func parseCatalogSchema(raw string) (map[string]any, string, error) {
+func parseSchemaDocument(raw string) (map[string]any, string, error) {
 	decoder := json.NewDecoder(strings.NewReader(raw))
 	decoder.UseNumber()
 	var doc map[string]any
@@ -65,7 +65,7 @@ func (catalogSchemaValidator) ValidateString(_ context.Context, req validator.St
 	if req.ConfigValue.IsNull() || req.ConfigValue.IsUnknown() {
 		return
 	}
-	if _, _, err := parseCatalogSchema(req.ConfigValue.ValueString()); err != nil {
+	if _, _, err := parseSchemaDocument(req.ConfigValue.ValueString()); err != nil {
 		resp.Diagnostics.AddAttributeError(req.Path, "Invalid catalog schema", err.Error())
 	}
 }
@@ -88,7 +88,7 @@ func (schemaIDFromSchema) PlanModifyString(ctx context.Context, req planmodifier
 	if resp.Diagnostics.HasError() || schemaValue.IsNull() || schemaValue.IsUnknown() {
 		return
 	}
-	if _, id, err := parseCatalogSchema(schemaValue.ValueString()); err == nil {
+	if _, id, err := parseSchemaDocument(schemaValue.ValueString()); err == nil {
 		resp.PlanValue = types.StringValue(id)
 	}
 }
@@ -166,7 +166,7 @@ func setCatalogSchemaState(state *catalogSchemaResourceModel, prior types.String
 
 	state.Schema = types.StringValue(string(api))
 	if !prior.IsNull() && !prior.IsUnknown() {
-		if priorDoc, _, err := parseCatalogSchema(prior.ValueString()); err == nil && jsonEqual(priorDoc, apiDoc) {
+		if priorDoc, _, err := parseSchemaDocument(prior.ValueString()); err == nil && jsonEqual(priorDoc, apiDoc) {
 			state.Schema = prior
 		}
 	}

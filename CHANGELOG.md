@@ -4,6 +4,22 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## Unreleased
 
+## 0.2.3 - 2026-11-02
+
+This release adds application type schema support and makes the identity of every resource explicit. **Upgrade note:** `bucket` and `path` are now required on most resources and data sources, so configurations that omitted them fail validation at plan time until they are added. See Changed.
+
+### Added
+
+- Resource `aidial_application_type_schema` and data source `aidial_application_type_schema` manage and look up DIAL Core custom application type schemas (`/v1/schemas/{bucket}/{path}`). `schema` is a JSON object string with a non-blank `$id` (use `jsonencode`), `schema_id` exposes the `$id`, and the configured text is kept when Core returns semantically equal JSON.
+- Data source `aidial_file_application_type_schema` reads an application type schema defined in DIAL Core's static configuration, by `name`, and exposes `schema`, `schema_id` and `status`.
+
+### Changed
+
+- **Breaking:** `bucket` and `path` are required, with no defaults, on the `aidial_model`, `aidial_role`, `aidial_route`, `aidial_key` and `aidial_catalog_schema` resources and on the `aidial_role`, `aidial_model` and `aidial_catalog_schema` data sources. `bucket` must be `platform` (DIAL Core rejects any other bucket, including the one `aidial_bucket` returns) and `path` must be non-empty. Both still force replacement, and `id` is `<bucket>/<path>`. The former `bucket` default and the `path` fallback to `name` are removed, so add `bucket = "platform"` and an explicit `path` to configurations that relied on them.
+- `name` is optional and computed on `aidial_model`, `aidial_role` and `aidial_route`, and on the `aidial_model` data source. DIAL Core derives the name from the path and ignores it in the request body, so an unset `name` is no longer sent. A configured `name` is kept as written, and `api_name` holds the value Core returns.
+- The README and examples no longer pass the `aidial_bucket` result as `bucket`, which Core rejects.
+- The checked-in DIAL Core OpenAPI contract is refreshed to tag 0.49.4.
+
 ## 0.2.2 - 2026-10-28
 
 Version 0.2.1 was published on GitHub but never reached the Terraform Registry, because its `SHA256SUMS` listed the SBOM files and the Registry rejects such releases. This release fixes that and includes everything from 0.2.1, so if you are upgrading from 0.2.0, read the security and behavior notes below.

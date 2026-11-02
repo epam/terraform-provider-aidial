@@ -671,3 +671,64 @@ func (c *Client) SaveCatalogSchema(ctx context.Context, bucket, path string, sch
 func (c *Client) DeleteCatalogSchema(ctx context.Context, bucket, path string) error {
 	return deleteResource(ctx, c, c.catalogSchemaURL(bucket, path))
 }
+
+// ApplicationTypeSchema is a custom application type schema document: a JSON
+// Schema with a required $id plus arbitrary extra keys, so it is kept as an
+// opaque JSON object.
+type ApplicationTypeSchema = json.RawMessage
+
+func (c *Client) applicationTypeSchemaURL(bucket, path string) string {
+	escBucket := escapeSegment(bucket)
+	escPath := escapeSegment(path)
+	return c.baseURL + "/v1/schemas/" + escBucket + "/" + escPath
+}
+
+func (c *Client) fileApplicationTypeSchemaURL(name string) string {
+	return c.baseURL + "/v1/admin/config/file/schemas/" + escapeSegment(name)
+}
+
+// splitSchemaMetadata removes the name and status keys DIAL Core merges into
+// GET responses (EntityMetadata) and returns the remaining document and the
+// status value, which is empty when absent or not a string.
+func splitSchemaMetadata(doc map[string]json.RawMessage) (ApplicationTypeSchema, string, error) {
+	var status string
+	if raw, ok := doc["status"]; ok {
+		_ = json.Unmarshal(raw, &status)
+	}
+	delete(doc, "name")
+	delete(doc, "status")
+	body, err := json.Marshal(doc)
+	return body, status, err
+}
+
+// GetApplicationTypeSchema returns the schema document without the name and
+// status keys, or nil when the schema does not exist.
+func (c *Client) GetApplicationTypeSchema(ctx context.Context, bucket, path string) (ApplicationTypeSchema, error) {
+	doc, err := getResource[map[string]json.RawMessage](ctx, c, c.applicationTypeSchemaURL(bucket, path))
+	if err != nil || doc == nil {
+		return nil, err
+	}
+	body, _, err := splitSchemaMetadata(*doc)
+	return body, err
+}
+
+func (c *Client) SaveApplicationTypeSchema(ctx context.Context, bucket, path string, schema ApplicationTypeSchema) error {
+	return saveResource(ctx, c, c.applicationTypeSchemaURL(bucket, path), schema)
+}
+
+func (c *Client) DeleteApplicationTypeSchema(ctx context.Context, bucket, path string) error {
+	return deleteResource(ctx, c, c.applicationTypeSchemaURL(bucket, path))
+}
+
+// GetFileApplicationTypeSchema reads a file-sourced schema: one defined in
+// DIAL Core's static configuration. It returns the document without the name
+// and status keys together with the status value ("" when Core sends none),
+// or a nil document when the schema does not exist. The endpoint is
+// read-only, so there is no Save/Delete.
+func (c *Client) GetFileApplicationTypeSchema(ctx context.Context, name string) (ApplicationTypeSchema, string, error) {
+	doc, err := getResource[map[string]json.RawMessage](ctx, c, c.fileApplicationTypeSchemaURL(name))
+	if err != nil || doc == nil {
+		return nil, "", err
+	}
+	return splitSchemaMetadata(*doc)
+}
