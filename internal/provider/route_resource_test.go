@@ -208,3 +208,34 @@ func TestRouteUpstreamExtraDataIsMap(t *testing.T) {
 		t.Fatalf("expected extra_data to round-trip through state as a map, got: %v", gotExtraData)
 	}
 }
+
+func TestRouteUpstreamBaseURLAndAuthTypeRoundTrip(t *testing.T) {
+	ctx := context.Background()
+	baseURL, authType := "https://upstream.example", "BEARER"
+	route := &client.Route{
+		Name:      "r",
+		Upstreams: []client.ModelUpstream{{BaseURL: &baseURL, AuthType: &authType}},
+	}
+
+	state := routeResourceModel{Name: types.StringValue("r")}
+	if err := setRouteState(ctx, &state, route); err != nil {
+		t.Fatalf("setRouteState: %v", err)
+	}
+
+	var upstreams []modelUpstreamModel
+	if diags := state.Upstreams.ElementsAs(ctx, &upstreams, false); diags.HasError() {
+		t.Fatalf("ElementsAs: %v", diags)
+	}
+	if upstreams[0].BaseURL.ValueString() != baseURL || upstreams[0].AuthType.ValueString() != authType {
+		t.Fatalf("unexpected upstream base_url/auth_type: %+v", upstreams[0])
+	}
+
+	plan := routeResourceModel{Name: types.StringValue("r"), Upstreams: state.Upstreams}
+	got, err := routeFromPlan(ctx, plan)
+	if err != nil {
+		t.Fatalf("routeFromPlan: %v", err)
+	}
+	if got.Upstreams[0].BaseURL == nil || *got.Upstreams[0].BaseURL != baseURL || got.Upstreams[0].AuthType == nil || *got.Upstreams[0].AuthType != authType {
+		t.Fatalf("expected base_url/auth_type to be sent, got %+v", got.Upstreams[0])
+	}
+}

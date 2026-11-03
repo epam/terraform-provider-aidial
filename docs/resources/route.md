@@ -87,6 +87,8 @@ Required:
 
 Optional:
 
+- `auth_type` (String)
+- `base_url` (String)
 - `extra_data` (Map of String)
 - `id` (String)
 - `key` (String, Sensitive)

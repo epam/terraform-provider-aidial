@@ -339,3 +339,33 @@ func shareToState(value map[string]client.ShareRule) types.Map {
 	}
 	return types.MapValueMust(types.StringType, result)
 }
+
+// optionalStringMap converts an optional map(string) attribute into the value
+// sent to DIAL Core; null or unknown becomes nil (omitted).
+func optionalStringMap(ctx context.Context, value types.Map, name string) (map[string]string, error) {
+	if value.IsNull() || value.IsUnknown() {
+		return nil, nil
+	}
+	result := make(map[string]string, len(value.Elements()))
+	if diags := value.ElementsAs(ctx, &result, false); diags.HasError() {
+		return nil, fmt.Errorf("invalid %s", name)
+	}
+	return result, nil
+}
+
+// optionalStringMapToState maps an optional map(string) returned by DIAL Core
+// (which omits empty maps) back to state: absent is null, except that an
+// explicitly empty prior value is kept so the plan stays consistent.
+func optionalStringMapToState(ctx context.Context, prior types.Map, api map[string]string) types.Map {
+	if len(api) == 0 {
+		if !prior.IsNull() && !prior.IsUnknown() && len(prior.Elements()) == 0 {
+			return prior
+		}
+		return types.MapNull(types.StringType)
+	}
+	value, diags := types.MapValueFrom(ctx, types.StringType, api)
+	if diags.HasError() {
+		return types.MapNull(types.StringType)
+	}
+	return value
+}

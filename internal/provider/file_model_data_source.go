@@ -49,10 +49,15 @@ type fileModelDataSourceModel struct {
 	Interceptors         types.Set `tfsdk:"interceptors"`
 	FieldsHashingOrder   types.Set `tfsdk:"fields_hashing_order"`
 
-	OverrideName   types.String  `tfsdk:"override_name"`
-	Interfaces     types.Map     `tfsdk:"interfaces"`
-	DefaultHeaders types.Map     `tfsdk:"default_headers"`
-	Defaults       types.Dynamic `tfsdk:"defaults"`
+	OverrideName        types.String  `tfsdk:"override_name"`
+	BaseURL             types.String  `tfsdk:"base_url"`
+	EmbeddingDimensions types.Int64   `tfsdk:"embedding_dimensions"`
+	CreatedAt           types.Int64   `tfsdk:"created_at"`
+	UpdatedAt           types.Int64   `tfsdk:"updated_at"`
+	ResponsesDefaults   types.Dynamic `tfsdk:"responses_defaults"`
+	Interfaces          types.Map     `tfsdk:"interfaces"`
+	DefaultHeaders      types.Map     `tfsdk:"default_headers"`
+	Defaults            types.Dynamic `tfsdk:"defaults"`
 
 	CatalogSchemaID   types.String  `tfsdk:"catalog_schema_id"`
 	CatalogProperties types.Dynamic `tfsdk:"catalog_properties"`
@@ -150,6 +155,8 @@ func (d *fileModelDataSource) Schema(_ context.Context, _ datasource.SchemaReque
 						"secret_extra_data":  schema.MapAttribute{Computed: true, Sensitive: true, ElementType: types.StringType},
 						"tier":               schema.Int64Attribute{Computed: true},
 						"weight":             schema.Int64Attribute{Computed: true},
+						"base_url":           schema.StringAttribute{Computed: true},
+						"auth_type":          schema.StringAttribute{Computed: true},
 					},
 				},
 			},
@@ -159,14 +166,25 @@ func (d *fileModelDataSource) Schema(_ context.Context, _ datasource.SchemaReque
 			"interceptors":           schema.SetAttribute{Computed: true, ElementType: types.StringType},
 			"fields_hashing_order":   schema.SetAttribute{Computed: true, ElementType: types.StringType, Description: "Field paths used to compute a stable hash of the request body, for example for caching."},
 			"override_name":          schema.StringAttribute{Computed: true, Description: "Overrides the model name presented to clients."},
+			"base_url":               schema.StringAttribute{Computed: true, Description: "Model-level base URL used by `interfaces` entries that declare no `base_url`."},
+			"embedding_dimensions":   schema.Int64Attribute{Computed: true, Description: "Number of dimensions of the embeddings returned by an embedding model."},
+			"responses_defaults": schema.DynamicAttribute{
+				Computed:    true,
+				Description: "Default request parameters merged into every Responses API request to the model (free-form object).",
+			},
+			"created_at": schema.Int64Attribute{Computed: true, Description: "Creation time of the model (Unix epoch, as reported by DIAL Core)."},
+			"updated_at": schema.Int64Attribute{Computed: true, Description: "Last update time of the model (Unix epoch, as reported by DIAL Core)."},
 			"interfaces": schema.MapNestedAttribute{
 				Computed: true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						"base_url": schema.StringAttribute{Computed: true},
+						"base_url":        schema.StringAttribute{Computed: true},
+						"mode":            schema.StringAttribute{Computed: true},
+						"override_paths":  schema.MapAttribute{Computed: true, ElementType: types.StringType},
+						"default_headers": schema.MapAttribute{Computed: true, ElementType: types.StringType},
 					},
 				},
-				Description: "Per-interface deployment configuration, keyed by interface name. Only base_url is modeled.",
+				Description: "Per-interface deployment configuration, keyed by DIAL Core interface type (`openaiChatCompletions`, `openaiEmbeddings`, `openaiResponses`, `anthropicMessages`). `translator`, `defaults` and `features` are not modeled.",
 			},
 			"default_headers": schema.MapAttribute{
 				Computed:    true,
@@ -255,6 +273,11 @@ func (d *fileModelDataSource) Read(ctx context.Context, req datasource.ReadReque
 	config.Interceptors = full.Interceptors
 	config.FieldsHashingOrder = full.FieldsHashingOrder
 	config.OverrideName = full.OverrideName
+	config.BaseURL = full.BaseURL
+	config.EmbeddingDimensions = full.EmbeddingDimensions
+	config.CreatedAt = full.CreatedAt
+	config.UpdatedAt = full.UpdatedAt
+	config.ResponsesDefaults = full.ResponsesDefaults
 	config.Interfaces = full.Interfaces
 	config.DefaultHeaders = full.DefaultHeaders
 	config.Defaults = full.Defaults

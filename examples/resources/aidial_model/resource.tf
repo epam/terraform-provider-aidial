@@ -6,6 +6,7 @@ resource "aidial_model" "example" {
   display_version = "latest"
   description     = "Example chat model served through an OpenAI-compatible adapter."
   override_name   = "gpt-example"
+  base_url        = "https://adapter.example.com"
 
   catalog_schema_id = "https://dial.epam.com/catalog-schemas/model"
   catalog_properties = {

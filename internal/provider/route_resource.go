@@ -73,6 +73,8 @@ var routeUpstreamAttrTypes = map[string]attr.Type{
 	"secret_extra_data":  types.MapType{ElemType: types.StringType},
 	"tier":               types.Int64Type,
 	"weight":             types.Int64Type,
+	"base_url":           types.StringType,
+	"auth_type":          types.StringType,
 }
 
 func (r *routeResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -192,6 +194,12 @@ func (r *routeResource) Schema(_ context.Context, _ resource.SchemaRequest, resp
 						"secret_extra_data":  schema.MapAttribute{ElementType: types.StringType, Optional: true, Sensitive: true},
 						"tier":               schema.Int64Attribute{Required: true},
 						"weight":             schema.Int64Attribute{Required: true},
+						"base_url":           schema.StringAttribute{Optional: true, Computed: true},
+						"auth_type": schema.StringAttribute{
+							Optional:   true,
+							Computed:   true,
+							Validators: []validator.String{stringvalidator.OneOf("API_KEY", "BEARER")},
+						},
 					},
 				},
 			},
@@ -364,6 +372,8 @@ func routeFromPlan(ctx context.Context, plan routeResourceModel) (*client.Route,
 				SecretExtraData:   secretExtraData,
 				Tier:              tier,
 				Weight:            weight,
+				BaseURL:           stringPointer(u.BaseURL),
+				AuthType:          stringPointer(u.AuthType),
 			})
 		}
 	}
@@ -477,6 +487,8 @@ func setRouteState(ctx context.Context, state *routeResourceModel, route *client
 				"secret_extra_data":  secretMap,
 				"tier":               tierVal,
 				"weight":             weightVal,
+				"base_url":           stringValue(u.BaseURL),
+				"auth_type":          stringValue(u.AuthType),
 			}
 			uObj, diags := types.ObjectValue(routeUpstreamAttrTypes, uValues)
 			if !diags.HasError() {

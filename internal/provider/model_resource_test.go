@@ -8,8 +8,10 @@ import (
 
 	"github.com/epam/terraform-provider-aidial/internal/client"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
@@ -80,15 +82,17 @@ func TestModelFromPlanNewFieldsRoundTrip(t *testing.T) {
 
 	plan.Interfaces, _ = types.MapValueFrom(
 		ctx,
-		types.ObjectType{AttrTypes: map[string]attr.Type{
-			"base_url": types.StringType,
-		}},
+		types.ObjectType{AttrTypes: modelInterfaceAttrTypes},
 		map[string]modelInterfaceModel{
 			"anthropicMessages": {
-				BaseURL: types.StringValue("http://bedrock-adapter.example"),
+				BaseURL:        types.StringValue("http://bedrock-adapter.example"),
+				Mode:           types.StringValue("passthrough"),
+				OverridePaths:  types.MapValueMust(types.StringType, map[string]attr.Value{"/v1/messages": types.StringValue("/messages")}),
+				DefaultHeaders: types.MapNull(types.StringType),
 			},
 		},
 	)
+	plan.EmbeddingDimensions = types.Int64Value(1536)
 
 	plan.DefaultHeaders, _ = types.MapValueFrom(
 		ctx,
@@ -116,6 +120,14 @@ func TestModelFromPlanNewFieldsRoundTrip(t *testing.T) {
 		t.Fatalf("unexpected interface base_url: %v", got)
 	}
 
+	iface := model.Interfaces["anthropicMessages"]
+	if iface.Mode == nil || *iface.Mode != "passthrough" || iface.OverridePaths["/v1/messages"] != "/messages" || iface.DefaultHeaders != nil {
+		t.Fatalf("unexpected interface mode/override_paths/default_headers: %+v", iface)
+	}
+	if model.EmbeddingDimensions == nil || *model.EmbeddingDimensions != 1536 {
+		t.Fatalf("unexpected embedding_dimensions: %v", model.EmbeddingDimensions)
+	}
+
 	if model.DefaultHeaders == nil {
 		t.Fatal("expected default_headers to be an empty map, got nil")
 	}
@@ -130,14 +142,25 @@ func TestSetModelStateNewFieldsRoundTrip(t *testing.T) {
 
 	overrideName := "anthropic.claude-v3-haiku"
 	baseURL := "http://bedrock-adapter.example"
+	mode := "passthrough"
+	var embeddingDimensions, createdAt, updatedAt int64 = 1536, 1700000000, 1700000100
+	upstreamAuth := "BEARER"
 
 	model := &client.Model{
-		Name:         "m",
-		Type:         "CHAT",
-		OverrideName: &overrideName,
+		EmbeddingDimensions: &embeddingDimensions,
+		CreatedAt:           &createdAt,
+		UpdatedAt:           &updatedAt,
+		ResponsesDefaults:   []byte(`{"max_output_tokens":10}`),
+		Upstreams:           []client.ModelUpstream{{BaseURL: &baseURL, AuthType: &upstreamAuth}},
+		Name:                "m",
+		Type:                "CHAT",
+		OverrideName:        &overrideName,
+		BaseURL:             &baseURL,
 		Interfaces: map[string]client.ModelInterface{
 			"anthropicMessages": {
-				BaseURL: &baseURL,
+				BaseURL:       &baseURL,
+				Mode:          &mode,
+				OverridePaths: map[string]string{"/v1/messages": "/messages"},
 			},
 		},
 		DefaultHeaders:     map[string]string{},
@@ -150,6 +173,26 @@ func TestSetModelStateNewFieldsRoundTrip(t *testing.T) {
 
 	if got := state.OverrideName.ValueString(); got != overrideName {
 		t.Fatalf("expected override_name %q, got %q", overrideName, got)
+	}
+	if state.EmbeddingDimensions.ValueInt64() != embeddingDimensions || state.CreatedAt.ValueInt64() != createdAt || state.UpdatedAt.ValueInt64() != updatedAt {
+		t.Fatalf("unexpected embedding_dimensions/created_at/updated_at: %v %v %v", state.EmbeddingDimensions, state.CreatedAt, state.UpdatedAt)
+	}
+	if state.ResponsesDefaults.IsNull() {
+		t.Fatal("expected responses_defaults to be set")
+	}
+	var ifaces map[string]modelInterfaceModel
+	if diags := state.Interfaces.ElementsAs(ctx, &ifaces, false); diags.HasError() {
+		t.Fatalf("interfaces ElementsAs: %v", diags)
+	}
+	if got := ifaces["anthropicMessages"]; got.Mode.ValueString() != mode || got.OverridePaths.Elements()["/v1/messages"].String() != `"/messages"` || !got.DefaultHeaders.IsNull() {
+		t.Fatalf("unexpected interface state: %+v", got)
+	}
+	var upstreams []modelUpstreamModel
+	if diags := state.Upstreams.ElementsAs(ctx, &upstreams, false); diags.HasError() || len(upstreams) != 1 || upstreams[0].BaseURL.ValueString() != baseURL || upstreams[0].AuthType.ValueString() != upstreamAuth {
+		t.Fatalf("unexpected upstream base_url/auth_type: %v %v", upstreams, diags)
+	}
+	if got := state.BaseURL.ValueString(); got != baseURL {
+		t.Fatalf("expected base_url %q, got %q", baseURL, got)
 	}
 
 	var fieldsHashingOrder []string
@@ -488,6 +531,7 @@ func TestSetModelStateKeepsWriteOnlyUpstreamFields(t *testing.T) {
 			"endpoint": types.StringValue(endpoint), "responses_endpoint": types.StringNull(), "id": types.StringNull(),
 			"extra_data": types.MapNull(types.StringType), "key": key, "secret_extra_data": secret,
 			"tier": types.Int64Null(), "weight": types.Int64Null(),
+			"base_url": types.StringNull(), "auth_type": types.StringNull(),
 		})
 	}
 	planned := types.ListValueMust(upstreamType, []attr.Value{
@@ -570,5 +614,42 @@ func TestModelMaxInputAttachmentsRoundTrip(t *testing.T) {
 	}
 	if !unset.MaxInputAttachments.IsNull() {
 		t.Fatalf("max_input_attachments must be null when the API omits it, got %v", unset.MaxInputAttachments)
+	}
+}
+
+func TestModelInterfacesKeysAreValidated(t *testing.T) {
+	ctx := context.Background()
+	schemaResp := &resource.SchemaResponse{}
+	(&modelResource{}).Schema(ctx, resource.SchemaRequest{}, schemaResp)
+	interfacesAttr := schemaResp.Schema.Attributes["interfaces"].(schema.MapNestedAttribute)
+
+	validate := func(key string) bool {
+		value, diags := types.MapValueFrom(ctx, types.ObjectType{AttrTypes: modelInterfaceAttrTypes}, map[string]modelInterfaceModel{
+			key: {
+				BaseURL:        types.StringNull(),
+				Mode:           types.StringNull(),
+				OverridePaths:  types.MapNull(types.StringType),
+				DefaultHeaders: types.MapNull(types.StringType),
+			},
+		})
+		if diags.HasError() {
+			t.Fatalf("MapValueFrom: %v", diags)
+		}
+		resp := &validator.MapResponse{}
+		for _, v := range interfacesAttr.Validators {
+			v.ValidateMap(ctx, validator.MapRequest{ConfigValue: value, Path: path.Root("interfaces")}, resp)
+		}
+		return !resp.Diagnostics.HasError()
+	}
+
+	for _, key := range modelInterfaceTypes {
+		if !validate(key) {
+			t.Errorf("%s must be accepted", key)
+		}
+	}
+	for _, key := range []string{"openai_responses", "anthropic_messages", "openaiResponse", ""} {
+		if validate(key) {
+			t.Errorf("%q must be rejected", key)
+		}
 	}
 }
