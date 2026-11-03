@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -117,5 +118,18 @@ func TestDeleteResourceServerError(t *testing.T) {
 
 	if err := deleteResource(context.Background(), c, c.baseURL+"/v1/roles/b/p"); err == nil {
 		t.Fatal("expected error on 500, got nil")
+	}
+}
+
+// Core serves allowedIpAddressRanges as an object, so a key that has it set
+// must still decode.
+func TestKeyDecodesAllowedIPAddressRanges(t *testing.T) {
+	var key Key
+	body := `{"role":"r","allowedIpAddressRanges":{"ranges":[{"mask":"////AA==","maskedBaseIp":"xjNkAA=="}]}}`
+	if err := json.Unmarshal([]byte(body), &key); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if key.Role != "r" {
+		t.Fatalf("unexpected key: %+v", key)
 	}
 }

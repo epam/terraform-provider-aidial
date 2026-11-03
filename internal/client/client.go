@@ -381,19 +381,18 @@ func (c *Client) DeleteRole(ctx context.Context, bucket, path string) error {
 	return deleteResource(ctx, c, c.roleURL(bucket, path))
 }
 
-type AllowedIPAddressRanges struct {
-	Ranges []string `json:"ranges,omitempty"`
-}
-
 type Key struct {
-	AllowedIPAddressRanges *AllowedIPAddressRanges `json:"allowedIpAddressRanges,omitempty"`
-	Key                    string                  `json:"key,omitempty"`
-	Project                string                  `json:"project,omitempty"`
-	Role                   string                  `json:"role,omitempty"`
-	Roles                  []string                `json:"roles,omitempty"`
-	Secured                *bool                   `json:"secured,omitempty"`
-	Name                   string                  `json:"name,omitempty"`
-	Status                 string                  `json:"status,omitempty"`
+	// AllowedIPAddressRanges is not managed by the provider: Core serves it as an
+	// IpAddressRanges object it cannot reload after a PUT (see key-state-consistency),
+	// so it is kept raw only to let keys that have it set be read.
+	AllowedIPAddressRanges json.RawMessage `json:"allowedIpAddressRanges,omitempty"`
+	Key                    string          `json:"key,omitempty"`
+	Project                string          `json:"project,omitempty"`
+	Role                   string          `json:"role,omitempty"`
+	Roles                  []string        `json:"roles,omitempty"`
+	Secured                *bool           `json:"secured,omitempty"`
+	Name                   string          `json:"name,omitempty"`
+	Status                 string          `json:"status,omitempty"`
 }
 
 func (c *Client) keyURL(bucket, path string) string {

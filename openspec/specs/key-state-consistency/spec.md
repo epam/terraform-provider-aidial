@@ -28,3 +28,7 @@ When DIAL Core returns a key without `project` or `role`, the `aidial_key` resou
 #### Scenario: Value returned
 - **WHEN** Core returns `role = "basic"`
 - **THEN** state holds `"basic"`
+
+### Known gap: allowedIpAddressRanges is not exposed
+The `aidial_key` resource SHALL NOT expose DIAL Core's `allowedIpAddressRanges` while Core cannot round-trip it through the API. Core accepts a JSON array of CIDR strings on `PUT /v1/keys` but persists and serves the `IpAddressRanges` object (`ranges[]` of base64 `mask` and `maskedBaseIp`), which its own deserializer rejects on reload. Verified against Core 0.49.3: a key created with ranges reads back as valid until Core drops its in-memory snapshot, then reports `status: "invalid"` with a validation warning, and `DELETE` fails with HTTP 500 ("Stored key entity is unreadable"). Exposing the field would let Terraform create keys it can no longer read or delete. Revisit when Core fixes the round trip.
+
