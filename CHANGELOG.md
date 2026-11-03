@@ -4,6 +4,26 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## Unreleased
 
+## 0.2.4 - 2026-11-03
+
+This release brings `aidial_model` and `aidial_route` in line with the DIAL Core OpenAPI contract. Every new attribute is optional or read-only, so existing configurations plan without changes.
+
+### Added
+
+- `aidial_model` gains the model-level `base_url` (sent as `baseUrl`), which completes `interfaces` entries that declare no `base_url` of their own and on its own serves only the interface types you declare. It also gains `embedding_dimensions`, `responses_defaults` (a free-form object handled like `defaults`) and the read-only `created_at` and `updated_at` timestamps.
+- Each `aidial_model` `interfaces` entry accepts `mode` (`passthrough` or `translator`), `override_paths` and `default_headers`, next to `base_url`.
+- Each `upstreams` entry on `aidial_model` and `aidial_route` accepts `base_url` and `auth_type` (`API_KEY` or `BEARER`).
+- The `aidial_model` and `aidial_file_model` data sources expose the new model attributes, including the new interface fields.
+
+### Fixed
+
+- Reading an `aidial_key` that has `allowedIpAddressRanges` set in DIAL Core no longer fails. Core returns it as an object, and the client expected a list of strings.
+
+### Notes
+
+- `aidial_key` does not expose `allowedIpAddressRanges`. With Core 0.49.3, a key created with ranges through the API cannot be reloaded by Core later: it reports the key as `invalid` and fails to delete it with HTTP 500.
+- Not yet modeled: interface `translator`, `defaults` and `features`; per-upstream `interfaces`; localized `display_name` and `intro`; and `PricingRate` objects for `pricing`.
+
 ## 0.2.3 - 2026-11-02
 
 This release adds application type schema support and makes the identity of every resource explicit. **Upgrade note:** `bucket` and `path` are now required on most resources and data sources, so configurations that omitted them fail validation at plan time until they are added. See Changed.
