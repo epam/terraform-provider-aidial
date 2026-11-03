@@ -49,7 +49,7 @@ data "aidial_file_model" "gpt5" {
 - `icon_url` (String)
 - `input_attachment_types` (Set of String)
 - `interceptors` (Set of String)
-- `interfaces` (Attributes Map) Per-interface deployment configuration, keyed by interface name. `translator`, `defaults` and `features` are not modeled. (see [below for nested schema](#nestedatt--interfaces))
+- `interfaces` (Attributes Map) Per-interface deployment configuration, keyed by DIAL Core interface type (`openaiChatCompletions`, `openaiEmbeddings`, `openaiResponses`, `anthropicMessages`). `translator`, `defaults` and `features` are not modeled. (see [below for nested schema](#nestedatt--interfaces))
 - `intro` (String)
 - `limits` (Attributes) (see [below for nested schema](#nestedatt--limits))
 - `max_input_attachments` (Number)

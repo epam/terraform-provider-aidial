@@ -13,6 +13,7 @@ This release brings `aidial_model` and `aidial_route` in line with the DIAL Core
 - `aidial_model` gains the model-level `base_url` (sent as `baseUrl`), which completes `interfaces` entries that declare no `base_url` of their own and on its own serves only the interface types you declare. It also gains `embedding_dimensions`, `responses_defaults` (a free-form object handled like `defaults`) and the read-only `created_at` and `updated_at` timestamps.
 - Each `aidial_model` `interfaces` entry accepts `mode` (`passthrough` or `translator`), `override_paths` and `default_headers`, next to `base_url`.
 - Each `upstreams` entry on `aidial_model` and `aidial_route` accepts `base_url` and `auth_type` (`API_KEY` or `BEARER`).
+- `interfaces` keys are validated at plan time: only `openaiChatCompletions`, `openaiEmbeddings`, `openaiResponses` and `anthropicMessages` are accepted, so a typo or snake_case spelling fails early instead of reaching Core.
 - The `aidial_model` and `aidial_file_model` data sources expose the new model attributes, including the new interface fields.
 
 ### Fixed

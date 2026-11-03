@@ -8,8 +8,10 @@ import (
 
 	"github.com/epam/terraform-provider-aidial/internal/client"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
@@ -612,5 +614,42 @@ func TestModelMaxInputAttachmentsRoundTrip(t *testing.T) {
 	}
 	if !unset.MaxInputAttachments.IsNull() {
 		t.Fatalf("max_input_attachments must be null when the API omits it, got %v", unset.MaxInputAttachments)
+	}
+}
+
+func TestModelInterfacesKeysAreValidated(t *testing.T) {
+	ctx := context.Background()
+	schemaResp := &resource.SchemaResponse{}
+	(&modelResource{}).Schema(ctx, resource.SchemaRequest{}, schemaResp)
+	interfacesAttr := schemaResp.Schema.Attributes["interfaces"].(schema.MapNestedAttribute)
+
+	validate := func(key string) bool {
+		value, diags := types.MapValueFrom(ctx, types.ObjectType{AttrTypes: modelInterfaceAttrTypes}, map[string]modelInterfaceModel{
+			key: {
+				BaseURL:        types.StringNull(),
+				Mode:           types.StringNull(),
+				OverridePaths:  types.MapNull(types.StringType),
+				DefaultHeaders: types.MapNull(types.StringType),
+			},
+		})
+		if diags.HasError() {
+			t.Fatalf("MapValueFrom: %v", diags)
+		}
+		resp := &validator.MapResponse{}
+		for _, v := range interfacesAttr.Validators {
+			v.ValidateMap(ctx, validator.MapRequest{ConfigValue: value, Path: path.Root("interfaces")}, resp)
+		}
+		return !resp.Diagnostics.HasError()
+	}
+
+	for _, key := range modelInterfaceTypes {
+		if !validate(key) {
+			t.Errorf("%s must be accepted", key)
+		}
+	}
+	for _, key := range []string{"openai_responses", "anthropic_messages", "openaiResponse", ""} {
+		if validate(key) {
+			t.Errorf("%q must be rejected", key)
+		}
 	}
 }

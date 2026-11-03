@@ -151,7 +151,7 @@ func (d *modelDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, 
 						"default_headers": schema.MapAttribute{Computed: true, ElementType: types.StringType},
 					},
 				},
-				Description: "Per-interface deployment configuration, keyed by interface name. `translator`, `defaults` and `features` are not modeled.",
+				Description: "Per-interface deployment configuration, keyed by DIAL Core interface type (`openaiChatCompletions`, `openaiEmbeddings`, `openaiResponses`, `anthropicMessages`). `translator`, `defaults` and `features` are not modeled.",
 			},
 			"default_headers": schema.MapAttribute{
 				Computed:    true,

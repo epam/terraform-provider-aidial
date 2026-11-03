@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/epam/terraform-provider-aidial/internal/client"
+	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -72,6 +73,10 @@ type modelResourceModel struct {
 	CatalogSchemaID   types.String  `tfsdk:"catalog_schema_id"`
 	CatalogProperties types.Dynamic `tfsdk:"catalog_properties"`
 }
+
+// modelInterfaceTypes are the keys DIAL Core accepts in a model's interfaces
+// (the InterfaceType enum of the OpenAPI contract).
+var modelInterfaceTypes = []string{"openaiChatCompletions", "openaiEmbeddings", "openaiResponses", "anthropicMessages"}
 
 type modelInterfaceModel struct {
 	BaseURL        types.String `tfsdk:"base_url"`
@@ -241,8 +246,10 @@ func (r *modelResource) Schema(_ context.Context, _ resource.SchemaRequest, resp
 				Description: "Model-level base URL (sent to DIAL as `baseUrl`). Completes `interfaces` entries that declare no `base_url`; on its own it serves only the interface types declared in `interfaces`.",
 			},
 			"interfaces": schema.MapNestedAttribute{
-				Optional: true,
-				Computed: true,
+				Optional:    true,
+				Computed:    true,
+				Description: "Per-interface deployment configuration, keyed by DIAL Core interface type: `" + strings.Join(modelInterfaceTypes, "`, `") + "`. The keys are Core's camelCase names and are sent as written; the attributes inside each entry use snake_case.",
+				Validators:  []validator.Map{mapvalidator.KeysAre(stringvalidator.OneOf(modelInterfaceTypes...))},
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"base_url": schema.StringAttribute{

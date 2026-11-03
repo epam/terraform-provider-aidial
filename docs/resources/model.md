@@ -102,7 +102,7 @@ resource "aidial_model" "example" {
 - `icon_url` (String)
 - `input_attachment_types` (Set of String)
 - `interceptors` (Set of String)
-- `interfaces` (Attributes Map) (see [below for nested schema](#nestedatt--interfaces))
+- `interfaces` (Attributes Map) Per-interface deployment configuration, keyed by DIAL Core interface type: `openaiChatCompletions`, `openaiEmbeddings`, `openaiResponses`, `anthropicMessages`. The keys are Core's camelCase names and are sent as written; the attributes inside each entry use snake_case. (see [below for nested schema](#nestedatt--interfaces))
 - `intro` (String)
 - `limits` (Attributes) (see [below for nested schema](#nestedatt--limits))
 - `max_input_attachments` (Number) Maximum number of attachments in one request (maxInputAttachments in the API).
