@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## Unreleased
 
+## 0.2.5 - 2026-11-03
+
+### Fixed
+
+- Creating or reading an `aidial_model` or `aidial_route` no longer fails with `json: cannot unmarshal object into Go struct field ... authType of type string` when DIAL Core returns an upstream's `authType` as a JSON object instead of the documented string. An object carrying a string `name`, `type` or `value` is unwrapped, and any other object (including `{}`) is treated as unset, so `auth_type` stays null in state.
+
 ## 0.2.4 - 2026-11-03
 
 This release brings `aidial_model` and `aidial_route` in line with the DIAL Core OpenAPI contract. Every new attribute is optional or read-only, so existing configurations plan without changes.
