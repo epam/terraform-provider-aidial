@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -33,6 +34,11 @@ type modelResourceModel struct {
 	Description  types.String `tfsdk:"description"`
 	Endpoint     types.String `tfsdk:"endpoint"`
 	OverrideName types.String `tfsdk:"override_name"`
+	BaseURL      types.String `tfsdk:"base_url"`
+
+	EmbeddingDimensions types.Int64 `tfsdk:"embedding_dimensions"`
+	CreatedAt           types.Int64 `tfsdk:"created_at"`
+	UpdatedAt           types.Int64 `tfsdk:"updated_at"`
 
 	UserRoles           types.Set    `tfsdk:"user_roles"`
 	ResponsesEndpoint   types.String `tfsdk:"responses_endpoint"`
@@ -58,16 +64,20 @@ type modelResourceModel struct {
 	Interceptors         types.Set `tfsdk:"interceptors"`
 	FieldsHashingOrder   types.Set `tfsdk:"fields_hashing_order"`
 
-	Interfaces     types.Map     `tfsdk:"interfaces"`
-	DefaultHeaders types.Map     `tfsdk:"default_headers"`
-	Defaults       types.Dynamic `tfsdk:"defaults"`
+	Interfaces        types.Map     `tfsdk:"interfaces"`
+	DefaultHeaders    types.Map     `tfsdk:"default_headers"`
+	Defaults          types.Dynamic `tfsdk:"defaults"`
+	ResponsesDefaults types.Dynamic `tfsdk:"responses_defaults"`
 
 	CatalogSchemaID   types.String  `tfsdk:"catalog_schema_id"`
 	CatalogProperties types.Dynamic `tfsdk:"catalog_properties"`
 }
 
 type modelInterfaceModel struct {
-	BaseURL types.String `tfsdk:"base_url"`
+	BaseURL        types.String `tfsdk:"base_url"`
+	Mode           types.String `tfsdk:"mode"`
+	OverridePaths  types.Map    `tfsdk:"override_paths"`
+	DefaultHeaders types.Map    `tfsdk:"default_headers"`
 }
 
 type modelFeaturesModel struct {
@@ -120,10 +130,15 @@ type modelUpstreamModel struct {
 	SecretExtraData   types.Map    `tfsdk:"secret_extra_data"`
 	Tier              types.Int64  `tfsdk:"tier"`
 	Weight            types.Int64  `tfsdk:"weight"`
+	BaseURL           types.String `tfsdk:"base_url"`
+	AuthType          types.String `tfsdk:"auth_type"`
 }
 
 var modelInterfaceAttrTypes = map[string]attr.Type{
-	"base_url": types.StringType,
+	"base_url":        types.StringType,
+	"mode":            types.StringType,
+	"override_paths":  types.MapType{ElemType: types.StringType},
+	"default_headers": types.MapType{ElemType: types.StringType},
 }
 
 var modelFeaturesAttrTypes = map[string]attr.Type{
@@ -176,6 +191,8 @@ var modelUpstreamAttrTypes = map[string]attr.Type{
 	"secret_extra_data":  types.MapType{ElemType: types.StringType},
 	"tier":               types.Int64Type,
 	"weight":             types.Int64Type,
+	"base_url":           types.StringType,
+	"auth_type":          types.StringType,
 }
 
 func (r *modelResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -202,6 +219,27 @@ func (r *modelResource) Schema(_ context.Context, _ resource.SchemaRequest, resp
 			"override_name": schema.StringAttribute{
 				Optional: true,
 			},
+			"embedding_dimensions": schema.Int64Attribute{
+				Optional:    true,
+				Description: "Number of dimensions of the embeddings returned by an embedding model.",
+			},
+			"responses_defaults": schema.DynamicAttribute{
+				Optional:    true,
+				Description: "Default request parameters merged into every Responses API request to the model (free-form object, sent to DIAL as `responsesDefaults`).",
+			},
+			"created_at": schema.Int64Attribute{
+				Computed:      true,
+				Description:   "Creation time of the model (Unix epoch, as reported by DIAL Core).",
+				PlanModifiers: []planmodifier.Int64{int64planmodifier.UseStateForUnknown()},
+			},
+			"updated_at": schema.Int64Attribute{
+				Computed:    true,
+				Description: "Last update time of the model (Unix epoch, as reported by DIAL Core).",
+			},
+			"base_url": schema.StringAttribute{
+				Optional:    true,
+				Description: "Model-level base URL (sent to DIAL as `baseUrl`). Completes `interfaces` entries that declare no `base_url`; on its own it serves only the interface types declared in `interfaces`.",
+			},
 			"interfaces": schema.MapNestedAttribute{
 				Optional: true,
 				Computed: true,
@@ -210,6 +248,21 @@ func (r *modelResource) Schema(_ context.Context, _ resource.SchemaRequest, resp
 						"base_url": schema.StringAttribute{
 							Optional: true,
 							Computed: true,
+						},
+						"mode": schema.StringAttribute{
+							Optional:    true,
+							Description: "`passthrough` (default) or `translator`.",
+							Validators:  []validator.String{stringvalidator.OneOf("passthrough", "translator")},
+						},
+						"override_paths": schema.MapAttribute{
+							Optional:    true,
+							ElementType: types.StringType,
+							Description: "Overrides of the paths appended to the interface base URL.",
+						},
+						"default_headers": schema.MapAttribute{
+							Optional:    true,
+							ElementType: types.StringType,
+							Description: "Additional headers sent with every request served by this interface.",
 						},
 					},
 				},
@@ -377,6 +430,12 @@ func (r *modelResource) Schema(_ context.Context, _ resource.SchemaRequest, resp
 						"secret_extra_data":  schema.MapAttribute{ElementType: types.StringType, Optional: true, Sensitive: true},
 						"tier":               schema.Int64Attribute{Optional: true, Computed: true},
 						"weight":             schema.Int64Attribute{Optional: true, Computed: true},
+						"base_url":           schema.StringAttribute{Optional: true, Computed: true},
+						"auth_type": schema.StringAttribute{
+							Optional:   true,
+							Computed:   true,
+							Validators: []validator.String{stringvalidator.OneOf("API_KEY", "BEARER")},
+						},
 					},
 				},
 			},
@@ -425,12 +484,14 @@ func (r *modelResource) Configure(_ context.Context, req resource.ConfigureReque
 
 func modelFromPlan(ctx context.Context, plan modelResourceModel) (*client.Model, error) {
 	result := &client.Model{
-		Name:         plan.Name.ValueString(),
-		Type:         plan.Type.ValueString(),
-		DisplayName:  stringPointer(plan.DisplayName),
-		Description:  stringPointer(plan.Description),
-		Endpoint:     stringPointer(plan.Endpoint),
-		OverrideName: stringPointer(plan.OverrideName),
+		Name:                plan.Name.ValueString(),
+		Type:                plan.Type.ValueString(),
+		DisplayName:         stringPointer(plan.DisplayName),
+		Description:         stringPointer(plan.Description),
+		Endpoint:            stringPointer(plan.Endpoint),
+		OverrideName:        stringPointer(plan.OverrideName),
+		BaseURL:             stringPointer(plan.BaseURL),
+		EmbeddingDimensions: int64Pointer(plan.EmbeddingDimensions),
 	}
 
 	for _, list := range []struct {
@@ -604,6 +665,8 @@ func modelFromPlan(ctx context.Context, plan modelResourceModel) (*client.Model,
 					SecretExtraData:   secretExtraData,
 					Tier:              tier,
 					Weight:            weight,
+					BaseURL:           stringPointer(u.BaseURL),
+					AuthType:          stringPointer(u.AuthType),
 				})
 			}
 		}
@@ -624,8 +687,20 @@ func modelFromPlan(ctx context.Context, plan modelResourceModel) (*client.Model,
 				baseURL = &value
 			}
 
+			overridePaths, err := optionalStringMap(ctx, iface.OverridePaths, "interfaces."+name+".override_paths")
+			if err != nil {
+				return nil, err
+			}
+			defaultHeaders, err := optionalStringMap(ctx, iface.DefaultHeaders, "interfaces."+name+".default_headers")
+			if err != nil {
+				return nil, err
+			}
+
 			result.Interfaces[name] = client.ModelInterface{
-				BaseURL: baseURL,
+				BaseURL:        baseURL,
+				Mode:           stringPointer(iface.Mode),
+				OverridePaths:  overridePaths,
+				DefaultHeaders: defaultHeaders,
 			}
 		}
 	}
@@ -644,6 +719,12 @@ func modelFromPlan(ctx context.Context, plan modelResourceModel) (*client.Model,
 		return nil, err
 	}
 	result.Defaults = defaults
+
+	responsesDefaults, err := freeFormObjectFromPlan("responses_defaults", plan.ResponsesDefaults)
+	if err != nil {
+		return nil, err
+	}
+	result.ResponsesDefaults = responsesDefaults
 
 	catalogProperties, err := freeFormObjectFromPlan("catalog_properties", plan.CatalogProperties)
 	if err != nil {
@@ -677,6 +758,10 @@ func setModelState(ctx context.Context, state *modelResourceModel, model *client
 	state.Author = stringValue(model.Author)
 	state.Status = types.StringValue(model.Status)
 	state.OverrideName = stringValue(model.OverrideName)
+	state.BaseURL = stringValue(model.BaseURL)
+	state.EmbeddingDimensions = int64Value(model.EmbeddingDimensions)
+	state.CreatedAt = int64Value(model.CreatedAt)
+	state.UpdatedAt = int64Value(model.UpdatedAt)
 
 	for _, list := range []struct {
 		name   string
@@ -781,6 +866,12 @@ func setModelState(ctx context.Context, state *modelResourceModel, model *client
 	}
 	state.Defaults = defaults
 
+	responsesDefaults, err := freeFormObjectToState(state.ResponsesDefaults, model.ResponsesDefaults)
+	if err != nil {
+		return fmt.Errorf("failed to set responses_defaults: %w", err)
+	}
+	state.ResponsesDefaults = responsesDefaults
+
 	catalogProperties, err := freeFormObjectToState(state.CatalogProperties, model.CatalogProperties)
 	if err != nil {
 		return fmt.Errorf("failed to set catalog_properties: %w", err)
@@ -818,6 +909,8 @@ func setModelState(ctx context.Context, state *modelResourceModel, model *client
 				weightVal = types.Int64Value(int64(*u.Weight))
 			}
 			uValues := map[string]attr.Value{
+				"base_url":           stringValue(u.BaseURL),
+				"auth_type":          stringValue(u.AuthType),
 				"endpoint":           stringValue(u.Endpoint),
 				"responses_endpoint": responsesEndpointVal,
 				"id":                 idVal,
@@ -868,8 +961,12 @@ func setModelState(ctx context.Context, state *modelResourceModel, model *client
 			baseURL = existing.BaseURL
 		}
 
+		existing := interfaces[name]
 		interfaces[name] = modelInterfaceModel{
-			BaseURL: baseURL,
+			BaseURL:        baseURL,
+			Mode:           stringValue(iface.Mode),
+			OverridePaths:  optionalStringMapToState(ctx, existing.OverridePaths, iface.OverridePaths),
+			DefaultHeaders: optionalStringMapToState(ctx, existing.DefaultHeaders, iface.DefaultHeaders),
 		}
 	}
 

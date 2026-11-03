@@ -118,7 +118,7 @@ func TestModelSchemaNullDefaultFieldsAreNotComputed(t *testing.T) {
 		return false
 	}
 	// DIAL Core leaves these null when unset: unset in config must mean null.
-	for _, name := range []string{"description", "display_name", "endpoint", "responses_endpoint", "override_name", "display_version", "icon_url", "intro", "reference", "tokenizer_model", "max_input_attachments", "user_roles", "input_attachment_types", "features", "limits", "pricing"} {
+	for _, name := range []string{"description", "display_name", "endpoint", "responses_endpoint", "override_name", "base_url", "embedding_dimensions", "display_version", "icon_url", "intro", "reference", "tokenizer_model", "max_input_attachments", "user_roles", "input_attachment_types", "features", "limits", "pricing"} {
 		if computed(name) {
 			t.Errorf("%s must not be computed", name)
 		}

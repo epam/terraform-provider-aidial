@@ -64,6 +64,19 @@ var routeAttachmentPathsAttrTypes = map[string]attr.Type{
 	"response_body": types.SetType{ElemType: types.StringType},
 }
 
+// routeUpstreamModel is the route's upstream object; it mirrors the model's
+// without the model-only base_url and auth_type attributes.
+type routeUpstreamModel struct {
+	Endpoint          types.String `tfsdk:"endpoint"`
+	ResponsesEndpoint types.String `tfsdk:"responses_endpoint"`
+	ID                types.String `tfsdk:"id"`
+	ExtraData         types.Map    `tfsdk:"extra_data"`
+	Key               types.String `tfsdk:"key"`
+	SecretExtraData   types.Map    `tfsdk:"secret_extra_data"`
+	Tier              types.Int64  `tfsdk:"tier"`
+	Weight            types.Int64  `tfsdk:"weight"`
+}
+
 var routeUpstreamAttrTypes = map[string]attr.Type{
 	"endpoint":           types.StringType,
 	"responses_endpoint": types.StringType,
@@ -307,7 +320,7 @@ func routeFromPlan(ctx context.Context, plan routeResourceModel) (*client.Route,
 	}
 
 	if !plan.Upstreams.IsNull() && !plan.Upstreams.IsUnknown() {
-		var upstreams []modelUpstreamModel
+		var upstreams []routeUpstreamModel
 		diags := plan.Upstreams.ElementsAs(ctx, &upstreams, false)
 		if diags.HasError() {
 			return nil, fmt.Errorf("invalid upstreams")

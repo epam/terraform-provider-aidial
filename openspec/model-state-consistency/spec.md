@@ -47,7 +47,7 @@ It SHALL:
 
 DIAL Core treats a missing value (`null`) and an empty one (`""`, `[]`) as different settings. The provider SHALL keep them apart in both directions.
 
-- Attributes that DIAL Core leaves `null` when they are not sent are optional and **not computed**: `description`, `display_name`, `endpoint`, `responses_endpoint`, `override_name`, `display_version`, `icon_url`, `intro`, `reference`, `tokenizer_model`, `max_input_attachments`, `user_roles`, `input_attachment_types`, `features`, `limits`, `pricing`. Leaving one unset means "null in DIAL Core".
+- Attributes that DIAL Core leaves `null` when they are not sent are optional and **not computed**: `description`, `display_name`, `endpoint`, `responses_endpoint`, `override_name`, `base_url`, `embedding_dimensions`, `display_version`, `icon_url`, `intro`, `reference`, `tokenizer_model`, `max_input_attachments`, `user_roles`, `input_attachment_types`, `features`, `limits`, `pricing`. Leaving one unset means "null in DIAL Core".
 - Attributes that DIAL Core fills with a default stay optional and computed, so the default is accepted: `forward_auth_token` (`false`), `max_retry_attempts` (`5`), `defaults` (`{}`), `interceptors`, `description_keywords`, `dependencies`, `upstreams` (`[]`), `fields_hashing_order` (`["prefix.body.tools", "prefix.body.messages"]`).
 - Lists: a configured `[]` is sent as `[]`; an unset list is not sent. On read, `null` stays null and `[]` stays an empty set.
 - Strings: `""` is sent and read back as `""`; an unset string is not sent and reads back as null.

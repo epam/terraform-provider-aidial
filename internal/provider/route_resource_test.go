@@ -25,7 +25,7 @@ func newRoutePlan(t *testing.T) routeResourceModel {
 		t.Fatalf("failed to build response object: %v", diags)
 	}
 
-	upstreams, diags := types.ListValueFrom(context.Background(), types.ObjectType{AttrTypes: routeUpstreamAttrTypes}, []modelUpstreamModel{
+	upstreams, diags := types.ListValueFrom(context.Background(), types.ObjectType{AttrTypes: routeUpstreamAttrTypes}, []routeUpstreamModel{
 		{
 			Endpoint:          types.StringValue("https://example.invalid/v1"),
 			ResponsesEndpoint: types.StringNull(),
@@ -164,7 +164,7 @@ func TestRouteUpstreamExtraDataIsMap(t *testing.T) {
 		t.Fatalf("failed to build extra_data map: %v", diags)
 	}
 
-	upstreamsList, diags := types.ListValueFrom(ctx, types.ObjectType{AttrTypes: routeUpstreamAttrTypes}, []modelUpstreamModel{
+	upstreamsList, diags := types.ListValueFrom(ctx, types.ObjectType{AttrTypes: routeUpstreamAttrTypes}, []routeUpstreamModel{
 		{
 			Endpoint:          types.StringValue("https://example.invalid/v1"),
 			ResponsesEndpoint: types.StringNull(),
@@ -196,7 +196,7 @@ func TestRouteUpstreamExtraDataIsMap(t *testing.T) {
 		t.Fatalf("setRouteState: %v", err)
 	}
 
-	var upstreams []modelUpstreamModel
+	var upstreams []routeUpstreamModel
 	if diags := state.Upstreams.ElementsAs(ctx, &upstreams, false); diags.HasError() {
 		t.Fatalf("ElementsAs: %v", diags)
 	}

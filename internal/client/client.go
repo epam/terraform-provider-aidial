@@ -458,7 +458,10 @@ type ModelPricing struct {
 }
 
 type ModelInterface struct {
-	BaseURL *string `json:"base_url,omitempty"`
+	BaseURL        *string           `json:"base_url,omitempty"`
+	Mode           *string           `json:"mode,omitempty"`
+	OverridePaths  map[string]string `json:"overridePaths,omitempty"`
+	DefaultHeaders map[string]string `json:"defaultHeaders,omitempty"`
 }
 
 // FlexibleStringMap is sent as a JSON object but decodes from either an
@@ -523,6 +526,8 @@ type ModelUpstream struct {
 	SecretExtraData   FlexibleStringMap `json:"secretExtraData,omitempty"`
 	Tier              *int              `json:"tier,omitempty"`
 	Weight            *int              `json:"weight,omitempty"`
+	BaseURL           *string           `json:"baseUrl,omitempty"`
+	AuthType          *string           `json:"authType,omitempty"`
 }
 
 // Model mirrors DIAL Core's Model. Optional fields are pointers so that
@@ -556,10 +561,16 @@ type Model struct {
 	Interceptors         *[]string                 `json:"interceptors,omitempty"`
 	FieldsHashingOrder   *[]string                 `json:"fieldsHashingOrder,omitempty"`
 	OverrideName         *string                   `json:"overrideName,omitempty"`
+	BaseURL              *string                   `json:"baseUrl,omitempty"`
+	EmbeddingDimensions  *int64                    `json:"embeddingDimensions,omitempty"`
+	CreatedAt            *int64                    `json:"createdAt,omitempty"`
+	UpdatedAt            *int64                    `json:"updatedAt,omitempty"`
 	Interfaces           map[string]ModelInterface `json:"interfaces,omitempty"`
 	DefaultHeaders       map[string]string         `json:"defaultHeaders,omitempty"`
 	// Defaults is a free-form object (MapStringObject in the API), passed through as-is.
 	Defaults json.RawMessage `json:"defaults,omitempty"`
+	// ResponsesDefaults is a free-form object like Defaults, applied to Responses API requests.
+	ResponsesDefaults json.RawMessage `json:"responsesDefaults,omitempty"`
 	// CatalogSchemaID references a catalog schema (see CatalogSchema) by its $id.
 	CatalogSchemaID *string `json:"catalogSchemaId,omitempty"`
 	// CatalogProperties is a free-form object (MapStringObject in the API), passed through as-is.

@@ -21,6 +21,7 @@ resource "aidial_model" "example" {
   display_version = "latest"
   description     = "Example chat model served through an OpenAI-compatible adapter."
   override_name   = "gpt-example"
+  base_url        = "https://adapter.example.com"
 
   catalog_schema_id = "https://dial.epam.com/catalog-schemas/model"
   catalog_properties = {
@@ -83,6 +84,7 @@ resource "aidial_model" "example" {
 ### Optional
 
 - `author` (String)
+- `base_url` (String) Model-level base URL (sent to DIAL as `baseUrl`). Completes `interfaces` entries that declare no `base_url`; on its own it serves only the interface types declared in `interfaces`.
 - `catalog_properties` (Dynamic) Catalog metadata of the model (free-form object, sent to DIAL as `catalogProperties`), e.g. provider, vendor, license, knowledgeCutoffDate, parameters.
 - `catalog_schema_id` (String) URI (`$id`) of the catalog schema describing `catalog_properties`, e.g. the `schema_id` of an `aidial_catalog_schema`.
 - `default_headers` (Map of String)
@@ -92,6 +94,7 @@ resource "aidial_model" "example" {
 - `description_keywords` (Set of String)
 - `display_name` (String) Human-readable model name.
 - `display_version` (String)
+- `embedding_dimensions` (Number) Number of dimensions of the embeddings returned by an embedding model.
 - `endpoint` (String) Model API endpoint.
 - `features` (Attributes) (see [below for nested schema](#nestedatt--features))
 - `fields_hashing_order` (Set of String) Field paths used to compute a stable hash of the request body, for example for caching.
@@ -108,6 +111,7 @@ resource "aidial_model" "example" {
 - `override_name` (String)
 - `pricing` (Attributes) (see [below for nested schema](#nestedatt--pricing))
 - `reference` (String)
+- `responses_defaults` (Dynamic) Default request parameters merged into every Responses API request to the model (free-form object, sent to DIAL as `responsesDefaults`).
 - `responses_endpoint` (String)
 - `tokenizer_model` (String) Model whose tokenizer DIAL Core uses to count tokens for this model (tokenizerModel in the API), e.g. gpt-4-0314.
 - `upstreams` (Attributes List) (see [below for nested schema](#nestedatt--upstreams))
@@ -116,8 +120,10 @@ resource "aidial_model" "example" {
 ### Read-Only
 
 - `api_name` (String) Canonical model name returned by the DIAL API.
+- `created_at` (Number) Creation time of the model (Unix epoch, as reported by DIAL Core).
 - `id` (String) The ID of this resource.
 - `status` (String) Model status returned by the DIAL API.
+- `updated_at` (Number) Last update time of the model (Unix epoch, as reported by DIAL Core).
 
 <a id="nestedatt--features"></a>
 ### Nested Schema for `features`
@@ -156,6 +162,9 @@ Optional:
 Optional:
 
 - `base_url` (String)
+- `default_headers` (Map of String) Additional headers sent with every request served by this interface.
+- `mode` (String) `passthrough` (default) or `translator`.
+- `override_paths` (Map of String) Overrides of the paths appended to the interface base URL.
 
 
 <a id="nestedatt--limits"></a>
@@ -185,6 +194,8 @@ Optional:
 
 Optional:
 
+- `auth_type` (String)
+- `base_url` (String)
 - `endpoint` (String)
 - `extra_data` (Map of String)
 - `id` (String)

@@ -43,8 +43,10 @@ output "gpt4o_endpoint" {
 
 - `api_name` (String) Canonical model name returned by the DIAL API.
 - `author` (String)
+- `base_url` (String) Model-level base URL used by `interfaces` entries that declare no `base_url`.
 - `catalog_properties` (Dynamic) Catalog metadata of the model (free-form object).
 - `catalog_schema_id` (String) URI of the catalog schema describing catalog_properties.
+- `created_at` (Number) Creation time of the model (Unix epoch, as reported by DIAL Core).
 - `default_headers` (Map of String) Additional headers sent with every request to the model's endpoint.
 - `defaults` (Dynamic) Default request parameters merged into every request to the model (free-form object).
 - `dependencies` (Set of String)
@@ -52,6 +54,7 @@ output "gpt4o_endpoint" {
 - `description_keywords` (Set of String)
 - `display_name` (String) Human-readable model name.
 - `display_version` (String)
+- `embedding_dimensions` (Number) Number of dimensions of the embeddings returned by an embedding model.
 - `endpoint` (String) Model API endpoint.
 - `features` (Attributes) (see [below for nested schema](#nestedatt--features))
 - `fields_hashing_order` (Set of String) Field paths used to compute a stable hash of the request body, for example for caching.
@@ -60,7 +63,7 @@ output "gpt4o_endpoint" {
 - `id` (String) Resource identifier in the form <bucket>/<path>.
 - `input_attachment_types` (Set of String)
 - `interceptors` (Set of String)
-- `interfaces` (Attributes Map) Per-interface deployment configuration, keyed by interface name. Only base_url is modeled. (see [below for nested schema](#nestedatt--interfaces))
+- `interfaces` (Attributes Map) Per-interface deployment configuration, keyed by interface name. `translator`, `defaults` and `features` are not modeled. (see [below for nested schema](#nestedatt--interfaces))
 - `intro` (String)
 - `limits` (Attributes) (see [below for nested schema](#nestedatt--limits))
 - `max_input_attachments` (Number)
@@ -68,10 +71,12 @@ output "gpt4o_endpoint" {
 - `override_name` (String) Overrides the model name presented to clients.
 - `pricing` (Attributes) (see [below for nested schema](#nestedatt--pricing))
 - `reference` (String)
+- `responses_defaults` (Dynamic) Default request parameters merged into every Responses API request to the model (free-form object).
 - `responses_endpoint` (String)
 - `status` (String) Model status returned by the DIAL API.
 - `tokenizer_model` (String)
 - `type` (String) DIAL model type, for example CHAT.
+- `updated_at` (Number) Last update time of the model (Unix epoch, as reported by DIAL Core).
 - `upstreams` (Attributes List) (see [below for nested schema](#nestedatt--upstreams))
 - `user_roles` (Set of String) Roles allowed to use the model.
 
@@ -112,6 +117,9 @@ Read-Only:
 Read-Only:
 
 - `base_url` (String)
+- `default_headers` (Map of String)
+- `mode` (String)
+- `override_paths` (Map of String)
 
 
 <a id="nestedatt--limits"></a>
@@ -141,6 +149,8 @@ Read-Only:
 
 Read-Only:
 
+- `auth_type` (String)
+- `base_url` (String)
 - `endpoint` (String)
 - `extra_data` (Map of String)
 - `id` (String)
