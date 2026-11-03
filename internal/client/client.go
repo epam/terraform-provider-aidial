@@ -381,6 +381,10 @@ func (c *Client) DeleteRole(ctx context.Context, bucket, path string) error {
 	return deleteResource(ctx, c, c.roleURL(bucket, path))
 }
 
+type AllowedIPAddressRanges struct {
+	Ranges []string `json:"ranges,omitempty"`
+}
+
 type Key struct {
 	AllowedIPAddressRanges *AllowedIPAddressRanges `json:"allowedIpAddressRanges,omitempty"`
 	Key                    string                  `json:"key,omitempty"`
