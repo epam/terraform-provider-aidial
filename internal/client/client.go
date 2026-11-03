@@ -529,6 +529,46 @@ type ModelUpstream struct {
 	AuthType          *string           `json:"authType,omitempty"`
 }
 
+// UnmarshalJSON tolerates DIAL Core returning authType as a JSON object
+// instead of the documented enum string: an object carrying a string under
+// "name", "type" or "value" is unwrapped, any other object (including {}) is
+// treated as unset.
+func (u *ModelUpstream) UnmarshalJSON(data []byte) error {
+	type plain ModelUpstream
+	aux := struct {
+		*plain
+		AuthType json.RawMessage `json:"authType,omitempty"`
+	}{plain: (*plain)(u)}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+	u.AuthType = nil
+	raw := bytes.TrimSpace(aux.AuthType)
+	if len(raw) == 0 || bytes.Equal(raw, []byte("null")) {
+		return nil
+	}
+	if raw[0] == '"' {
+		var text string
+		if err := json.Unmarshal(raw, &text); err != nil {
+			return err
+		}
+		u.AuthType = &text
+		return nil
+	}
+	var obj map[string]json.RawMessage
+	if err := json.Unmarshal(raw, &obj); err != nil {
+		return fmt.Errorf("authType: expected a string or object: %w", err)
+	}
+	for _, key := range []string{"name", "type", "value"} {
+		var text string
+		if v, ok := obj[key]; ok && json.Unmarshal(v, &text) == nil && text != "" {
+			u.AuthType = &text
+			return nil
+		}
+	}
+	return nil
+}
+
 // Model mirrors DIAL Core's Model. Optional fields are pointers so that
 // "not set" (nil, omitted from the request) stays distinct from an explicit
 // empty value ("" or []), which Core treats differently.
