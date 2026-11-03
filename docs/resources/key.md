@@ -41,6 +41,7 @@ resource "aidial_key" "example" {
 
 ### Optional
 
+- `allowed_ip_address_ranges` (Set of String) Client IP ranges (CIDR, IPv4 or IPv6) allowed to use the key. Unset allows any client; an empty set allows no client. DIAL Core stores each range with its host bits cleared (`198.51.100.14/24` becomes `198.51.100.0/24`); the configured spelling is kept in state while it is equivalent.
 - `project` (String) Project associated with the key.
 - `role` (String) Primary role associated with the key.
 - `roles` (Set of String) Roles associated with the key.

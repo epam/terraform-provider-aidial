@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/epam/terraform-provider-aidial/internal/client"
+	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -31,6 +32,8 @@ type keyResourceModel struct {
 	Secured types.Bool   `tfsdk:"secured"`
 	Name    types.String `tfsdk:"name"`
 	Status  types.String `tfsdk:"status"`
+
+	AllowedIPAddressRanges types.Set `tfsdk:"allowed_ip_address_ranges"`
 }
 
 func (r *keyResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -89,6 +92,12 @@ func (r *keyResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *
 				Computed:    true,
 				Description: "Whether the key is secured.",
 			},
+			"allowed_ip_address_ranges": schema.SetAttribute{
+				Optional:    true,
+				ElementType: types.StringType,
+				Validators:  []validator.Set{setvalidator.ValueStringsAre(cidrValidator{})},
+				Description: "Client IP ranges (CIDR, IPv4 or IPv6) allowed to use the key. Unset allows any client; an empty set allows no client. DIAL Core stores each range with its host bits cleared (`198.51.100.14/24` becomes `198.51.100.0/24`); the configured spelling is kept in state while it is equivalent.",
+			},
 			"name": schema.StringAttribute{
 				Computed:    true,
 				Description: "Key name returned by the DIAL API.",
@@ -138,7 +147,59 @@ func keyFromPlan(ctx context.Context, plan keyResourceModel) (*client.Key, error
 		result.Roles = roles
 	}
 
+	if !plan.AllowedIPAddressRanges.IsNull() && !plan.AllowedIPAddressRanges.IsUnknown() {
+		cidrs := []string{}
+		if diags := plan.AllowedIPAddressRanges.ElementsAs(ctx, &cidrs, false); diags.HasError() {
+			return nil, fmt.Errorf("invalid allowed_ip_address_ranges")
+		}
+		result.AllowedIPAddressRanges = &client.AllowedIPAddressRanges{CIDRs: cidrs}
+	}
+
 	return result, nil
+}
+
+// allowedIPRangesToState maps the ranges returned by DIAL Core to state. Core
+// normalizes CIDRs, so the prior (planned or stored) set is kept whenever it
+// is equivalent; that also covers ranges Core returns in an encoding the
+// client cannot decode. Absent ranges are null.
+func allowedIPRangesToState(ctx context.Context, prior types.Set, api *client.AllowedIPAddressRanges) (types.Set, error) {
+	priorKnown := !prior.IsNull() && !prior.IsUnknown()
+	if api == nil {
+		return types.SetNull(types.StringType), nil
+	}
+	if api.Undecodable {
+		if priorKnown {
+			return prior, nil
+		}
+		return types.SetNull(types.StringType), nil
+	}
+
+	if priorKnown {
+		var priorCIDRs []string
+		if diags := prior.ElementsAs(ctx, &priorCIDRs, false); !diags.HasError() {
+			normalized := make(map[string]struct{}, len(priorCIDRs))
+			for _, cidr := range priorCIDRs {
+				if n, err := client.NormalizeCIDR(cidr); err == nil {
+					normalized[n] = struct{}{}
+				}
+			}
+			same := len(normalized) == len(api.CIDRs)
+			for _, cidr := range api.CIDRs {
+				if _, ok := normalized[cidr]; !ok {
+					same = false
+				}
+			}
+			if same {
+				return prior, nil
+			}
+		}
+	}
+
+	value, diags := types.SetValueFrom(ctx, types.StringType, api.CIDRs)
+	if diags.HasError() {
+		return types.SetNull(types.StringType), fmt.Errorf("failed to set allowed_ip_address_ranges: %s", diags.Errors()[0].Summary())
+	}
+	return value, nil
 }
 
 // optionalString maps an optional API string to state. DIAL Core omits empty
@@ -171,6 +232,12 @@ func setKeyState(ctx context.Context, state *keyResourceModel, key *client.Key) 
 	state.Roles = roles
 	state.Name = types.StringValue(key.Name)
 	state.Status = types.StringValue(key.Status)
+
+	ranges, err := allowedIPRangesToState(ctx, state.AllowedIPAddressRanges, key.AllowedIPAddressRanges)
+	if err != nil {
+		return err
+	}
+	state.AllowedIPAddressRanges = ranges
 
 	if key.Secured == nil {
 		state.Secured = types.BoolNull()
@@ -313,4 +380,23 @@ func (r *keyResource) ImportState(ctx context.Context, req resource.ImportStateR
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("bucket"), parts[0])...)
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("path"), parts[1])...)
+}
+
+// cidrValidator accepts CIDR notation (IPv4 or IPv6), the only form DIAL Core
+// accepts for allowedIpAddressRanges.
+type cidrValidator struct{}
+
+func (cidrValidator) Description(context.Context) string {
+	return "value must be a CIDR such as 198.51.100.0/24 or 2001:db8::/32"
+}
+
+func (v cidrValidator) MarkdownDescription(ctx context.Context) string { return v.Description(ctx) }
+
+func (v cidrValidator) ValidateString(ctx context.Context, req validator.StringRequest, resp *validator.StringResponse) {
+	if req.ConfigValue.IsNull() || req.ConfigValue.IsUnknown() {
+		return
+	}
+	if _, err := client.NormalizeCIDR(req.ConfigValue.ValueString()); err != nil {
+		resp.Diagnostics.AddAttributeError(req.Path, "Invalid CIDR", v.Description(ctx))
+	}
 }

@@ -11,4 +11,6 @@ resource "aidial_key" "tf_aidial_integration_key" {
   roles   = ["developer"]
   secured = true
 
+  # Core stores the range with host bits cleared (198.51.100.0/24); the plan must stay clean.
+  allowed_ip_address_ranges = ["198.51.100.14/24"]
 }

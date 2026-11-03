@@ -132,3 +132,58 @@ func TestSetKeyStateProjectRoleNullVsEmpty(t *testing.T) {
 		})
 	}
 }
+
+// allowed_ip_address_ranges: unset means any client (null), an empty set means
+// no client, and Core's CIDR normalization must not cause a diff.
+func TestKeyAllowedIPAddressRanges(t *testing.T) {
+	ctx := context.Background()
+	set := func(values ...string) types.Set {
+		v, diags := types.SetValueFrom(ctx, types.StringType, append([]string{}, values...))
+		if diags.HasError() {
+			t.Fatalf("SetValueFrom: %v", diags)
+		}
+		return v
+	}
+	api := func(cidrs ...string) *client.AllowedIPAddressRanges {
+		if cidrs == nil {
+			cidrs = []string{}
+		}
+		return &client.AllowedIPAddressRanges{CIDRs: cidrs}
+	}
+
+	cases := []struct {
+		name  string
+		prior types.Set
+		api   *client.AllowedIPAddressRanges
+		want  types.Set
+	}{
+		{"omitted by API", types.SetNull(types.StringType), nil, types.SetNull(types.StringType)},
+		{"empty set", set(), api(), set()},
+		{"normalized spelling kept", set("198.51.100.14/24"), api("198.51.100.0/24"), set("198.51.100.14/24")},
+		{"changed outside Terraform", set("10.0.0.0/8"), api("192.0.2.0/24"), set("192.0.2.0/24")},
+		{"undecodable keeps prior", set("10.0.0.0/8"), &client.AllowedIPAddressRanges{Undecodable: true}, set("10.0.0.0/8")},
+		{"import", types.SetNull(types.StringType), api("192.0.2.0/24"), set("192.0.2.0/24")},
+	}
+	for _, tc := range cases {
+		got, err := allowedIPRangesToState(ctx, tc.prior, tc.api)
+		if err != nil {
+			t.Fatalf("%s: %v", tc.name, err)
+		}
+		if !got.Equal(tc.want) {
+			t.Errorf("%s: got %v, want %v", tc.name, got, tc.want)
+		}
+	}
+
+	plan := keyResourceModel{Key: types.StringValue("k"), AllowedIPAddressRanges: set("198.51.100.14/24")}
+	key, err := keyFromPlan(ctx, plan)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if key.AllowedIPAddressRanges == nil || len(key.AllowedIPAddressRanges.CIDRs) != 1 {
+		t.Fatalf("expected the configured CIDRs to be sent, got %+v", key.AllowedIPAddressRanges)
+	}
+	key, _ = keyFromPlan(ctx, keyResourceModel{Key: types.StringValue("k"), AllowedIPAddressRanges: types.SetNull(types.StringType)})
+	if key.AllowedIPAddressRanges != nil {
+		t.Fatal("an unset allowed_ip_address_ranges must be omitted")
+	}
+}
