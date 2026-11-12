@@ -39,3 +39,4 @@ coverage.out
 *.log
 # Built provider binary
 /terraform-provider-aidial
+terraform.tfvars.json

@@ -81,7 +81,7 @@ func modelDataSourceServer(t *testing.T, handler func(w http.ResponseWriter, r *
 	t.Helper()
 	srv := httptest.NewServer(http.HandlerFunc(handler))
 	t.Cleanup(srv.Close)
-	c, err := client.NewClient(srv.URL, "k")
+	c, err := client.NewClient(srv.URL, client.APIKeyCredentials("k"))
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -35,7 +35,7 @@ configs:
   core_settings:
     content: |
       {"config":{"files":["/opt/core/config.json"]},
-       "identityProviders":{"ci":{"jwksUrl":"http://localhost/jwks","rolePath":"roles","issuerPattern":".*"}},
+       "identityProviders":{"github":{"jwksUrl":"https://token.actions.githubusercontent.com/.well-known/jwks","issuerPattern":"^https://token\\.actions\\.githubusercontent\\.com$$","rolePath":"repository","rolesDelimiter":" ","audience":"aidial-ci"}},
        "encryption":{"secret":"ci-secret","key":"ci-key"},
        "redis":{"singleServerConfig":{"address":"redis://valkey:6379"}},
-       "access":{"admin":{"rules":[{"function":"EQUAL","source":"roles","targets":["admin"]}]}}}
+       "access":{"admin":{"rules":[{"function":"EQUAL","source":"roles","targets":["admin","epam/terraform-provider-aidial"]}]}}}

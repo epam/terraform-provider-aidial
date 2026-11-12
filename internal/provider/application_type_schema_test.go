@@ -131,7 +131,7 @@ func TestApplicationTypeSchemaResourceSaveAndRead(t *testing.T) {
 		}
 	}))
 	defer srv.Close()
-	c, err := client.NewClient(srv.URL, "k")
+	c, err := client.NewClient(srv.URL, client.APIKeyCredentials("k"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -170,7 +170,7 @@ func TestApplicationTypeSchemaResourceSaveFailsWhenMissingAfterPut(t *testing.T)
 		w.WriteHeader(http.StatusNotFound)
 	}))
 	defer srv.Close()
-	c, _ := client.NewClient(srv.URL, "k")
+	c, _ := client.NewClient(srv.URL, client.APIKeyCredentials("k"))
 	r := &applicationTypeSchemaResource{client: c}
 
 	plan := applicationTypeSchemaResourceModel{
