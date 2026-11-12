@@ -17,7 +17,30 @@ import (
 type Client struct {
 	httpClient *http.Client
 	baseURL    string
-	apiKey     string
+	creds      Credentials
+}
+
+// Credentials is the single credential the client sends to DIAL Core:
+// either an API key (Api-Key header) or an OIDC ID token (Authorization:
+// Bearer header). Exactly one field must be set.
+type Credentials struct {
+	APIKey  string
+	IDToken string
+}
+
+// APIKeyCredentials returns Credentials that authenticate with an API key.
+func APIKeyCredentials(key string) Credentials { return Credentials{APIKey: key} }
+
+// IDTokenCredentials returns Credentials that authenticate with an ID token.
+func IDTokenCredentials(token string) Credentials { return Credentials{IDToken: token} }
+
+// kind names the credential for logs and errors; it never includes the value.
+func (c Credentials) kind() string {
+	if c.IDToken != "" {
+		return "id_token"
+	}
+
+	return "api_key"
 }
 
 // FlexibleFloat64 decodes a JSON number that the DIAL API may encode either
@@ -113,15 +136,18 @@ type Bucket struct {
 	AppData string `json:"appdata"`
 }
 
-func NewClient(baseURL, apiKey string) (*Client, error) {
+func NewClient(baseURL string, creds Credentials) (*Client, error) {
 	baseURL = strings.TrimRight(strings.TrimSpace(baseURL), "/")
 
 	if baseURL == "" {
 		return nil, fmt.Errorf("base_url is required")
 	}
 
-	if apiKey == "" {
-		return nil, fmt.Errorf("api_key is required")
+	switch {
+	case creds.APIKey != "" && creds.IDToken != "":
+		return nil, fmt.Errorf("set either api_key or id_token, not both")
+	case creds.APIKey == "" && creds.IDToken == "":
+		return nil, fmt.Errorf("api_key or id_token is required")
 	}
 
 	u, err := url.Parse(baseURL)
@@ -140,7 +166,7 @@ func NewClient(baseURL, apiKey string) (*Client, error) {
 	return &Client{
 		httpClient: &http.Client{Timeout: 30 * time.Second},
 		baseURL:    baseURL,
-		apiKey:     apiKey,
+		creds:      creds,
 	}, nil
 }
 
@@ -166,7 +192,12 @@ func (c *Client) newRequest(
 		return nil, err
 	}
 
-	req.Header.Set("Api-Key", c.apiKey)
+	if c.creds.IDToken != "" {
+		req.Header.Set("Authorization", "Bearer "+c.creds.IDToken)
+	} else {
+		req.Header.Set("Api-Key", c.creds.APIKey)
+	}
+
 	req.Header.Set("Accept", "application/json")
 
 	if body != nil {
@@ -282,10 +313,11 @@ func saveResource(ctx context.Context, c *Client, url string, body any) error {
 	}
 
 	log.Printf(
-		"DIAL request method=%s url=%s api_key_present=%t content_type=%q body=%s",
+		"DIAL request method=%s url=%s credential=%s present=%t content_type=%q body=%s",
 		req.Method,
 		req.URL.String(),
-		req.Header.Get("Api-Key") != "",
+		c.creds.kind(),
+		req.Header.Get("Api-Key") != "" || req.Header.Get("Authorization") != "",
 		req.Header.Get("Content-Type"),
 		string(redactSensitiveJSON(payload)),
 	)

@@ -134,7 +134,7 @@ jobs:
           }
           EOF
           export TF_CLI_CONFIG_FILE="$RUNNER_TEMP/terraformrc"
-          for dir in tests/integration stub/models; do
+          for dir in tests/integration tests/integration-jwt stub/models; do
             (cd "$dir" && terraform validate)
           done
 
@@ -165,3 +165,49 @@ jobs:
       - name: Remove credentials file
         if: always()
         run: rm -f tests/integration/terraform.tfvars.json
+
+  # Same ephemeral Core as `integration`, but authenticating only with this run's GitHub
+  # Actions OIDC token (Core trusts it via the `github` identity provider in tests/core).
+  # It is a separate job so that `id-token: write` is not granted to the long API-key job.
+  # Fork and Dependabot pull requests get no OIDC token, so the job is skipped for them.
+  integration-jwt:
+    needs: [validate, test]
+    if: >-
+      github.actor != 'dependabot[bot]' &&
+      (github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          check-latest: true
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+      - name: JWT integration run (OIDC token, Core, apply, destroy)
+        env:
+          CORE_VERSION: latest # release tag, intentionally unpinned
+          # Must match `audience` in tests/core/docker-compose.yml.
+          OIDC_AUDIENCE: aidial-ci
+        run: |
+          set -euo pipefail
+          response="$(curl -sSf -H "Authorization: Bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=${OIDC_AUDIENCE}")"
+          token="$(printf '%s' "$response" | jq -r '.value')"
+          if [ -z "$token" ] || [ "$token" = "null" ]; then
+            echo "Could not obtain a GitHub OIDC token" >&2
+            exit 1
+          fi
+          echo "::add-mask::${token}"
+          AIDIAL_ID_TOKEN="$token" scripts/test-integration-jwt.sh
+      - name: Remove credentials file
+        if: always()
+        run: rm -f tests/integration-jwt/terraform.tfvars.json

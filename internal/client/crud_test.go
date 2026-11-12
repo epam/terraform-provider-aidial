@@ -11,7 +11,7 @@ import (
 func testClient(t *testing.T, srv *httptest.Server) *Client {
 	t.Cleanup(srv.Close)
 
-	c, err := NewClient(srv.URL, "test-api-key")
+	c, err := NewClient(srv.URL, APIKeyCredentials("test-api-key"))
 	if err != nil {
 		t.Fatalf("NewClient: %v", err)
 	}
