@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## Unreleased
 
+## 0.2.6 - 2026-11-12
+
+This release lets CI/CD pipelines authenticate to DIAL Core with an OIDC ID token instead of a static API key. Existing configurations that set `api_key` keep working unchanged.
+
 ### Added
 
 - The provider accepts an OIDC ID token (JWT) as an alternative to `api_key`, through the new sensitive `id_token` attribute or the `AIDIAL_ID_TOKEN` environment variable, and sends it as `Authorization: Bearer <token>`. This lets GitLab CI, GitHub Actions and other CI/CD systems authenticate without a static key. The provider only checks that the value looks like a JWT; DIAL Core validates it, and the provider does not refresh it.
@@ -14,6 +18,7 @@ All notable changes to this project are documented here. The format follows [Kee
 ### Changed
 
 - `api_key` is now optional in the provider block. Existing configurations that set it behave as before, but a configuration with no credential at all now fails when the provider is configured, with an error naming `api_key`, `id_token` and both environment variables, instead of failing schema validation.
+- GitHub Actions dependencies were updated (two grouped updates).
 
 ## 0.2.5 - 2026-11-03
 
