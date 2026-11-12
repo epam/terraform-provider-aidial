@@ -17,9 +17,9 @@
 ## 3. Ephemeral Core and CI
 
 - [x] 3.1 Look up whether Core's identity provider config supports an audience setting, and GitHub's JWKS URL and issuer. If audience is unsupported, update the `ci-integration-core` and `local-ephemeral-core` delta specs and `design.md` to drop it. Verify the specs still pass `openspec validate add-id-token-auth --strict`.
-- [ ] 3.2 Replace the placeholder `ci` provider in `tests/core/docker-compose.yml` with the GitHub Actions one (pinned `jwksUrl` and `issuerPattern`, `rolePath: repository`, admin rule for `epam/terraform-provider-aidial`, audience if supported), keeping the fixed API key. Verify that `scripts/core.sh up` still starts a healthy Core and the existing `make test-integration` passes with the API key.
+- [x] 3.2 Replace the placeholder `ci` provider in `tests/core/docker-compose.yml` with the GitHub Actions one (pinned `jwksUrl` and `issuerPattern`, `rolePath: repository`, admin rule for `epam/terraform-provider-aidial`, audience if supported), keeping the fixed API key. Verify that `scripts/core.sh up` still starts a healthy Core and the existing `make test-integration` passes with the API key.
 - [x] 3.3 Add `tests/integration-jwt/` (provider with `id_token` from a variable, one `aidial_role`, one data source read) and `scripts/test-integration-jwt.sh` (start Core, take the token from `AIDIAL_ID_TOKEN`, unset `AIDIAL_API_KEY`, pass the Core URL explicitly, validate, apply, destroy, clean up). Verify with `terraform fmt -check -recursive` and by running the script locally against a Core with a locally signed test token if feasible, otherwise by `terraform validate` only.
-- [ ] 3.4 Add the `integration-jwt` job to `.github/workflows/ci.yml`: same `needs`, `permissions: contents: read, id-token: write`, fork-PR `if`, pinned action SHAs, `persist-credentials: false`, a step that fetches the token with `ACTIONS_ID_TOKEN_REQUEST_URL` and the audience, masks it with `::add-mask::`, and runs the script. Verify with zizmor and `actionlint` if available, then on the pull request that the job runs, passes, and is skipped on a fork.
+- [x] 3.4 Add the `integration-jwt` job to `.github/workflows/ci.yml`: same `needs`, `permissions: contents: read, id-token: write`, fork-PR `if`, pinned action SHAs, `persist-credentials: false`, a step that fetches the token with `ACTIONS_ID_TOKEN_REQUEST_URL` and the audience, masks it with `::add-mask::`, and runs the script. Verify with zizmor and `actionlint` if available, then on the pull request that the job runs, passes, and is skipped on a fork.
 - [x] 3.5 Update `.github/workflows/ci.yml` `validate` loop to include `tests/integration-jwt`. Verify that the validate job passes.
 
 ## 4. Documentation and release notes
@@ -30,7 +30,7 @@
 ## 5. Integration checks
 
 - [x] 5.1 Run `go test ./... -count=1 -race`, `go vet ./...`, `test -z "$(gofmt -l .)"`, `make lint`, `terraform fmt -check -recursive` and `openspec validate add-id-token-auth --strict`; all must pass.
-- [ ] 5.2 Confirm on the pull request that both integration jobs pass and the workflow log shows the ID token only masked.
+- [x] 5.2 Confirm on the pull request that both integration jobs pass and the workflow log shows the ID token only masked.
 
 ## Workflow follow-up
 
