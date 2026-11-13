@@ -95,3 +95,15 @@ For `aidial_toolset` and its data source, `bucket` SHALL be required and non-emp
 - Unit: `TestResourceIdentityRequired` and `TestDataSourceIdentityRequired` (schema shape, `platform`-only and non-empty validators, replace-on-change).
 - Acceptance: `TestAccModel_nameChangeUpdatesInPlace` (a `name` change alone is an in-place update); every other `TestAcc*` sets `bucket` and `path` explicitly.
 - Observed Core behavior behind the `platform`-only rule: `PUT /v1/{models,roles,keys,routes,catalog_schemas}/<bucket>/<path>` returns 200 for `platform` and 404 for any other bucket, including the caller's own bucket from `GET /v1/bucket`. This is not stated in `openapicore/open_api_core.yaml`.
+
+### Requirement: Application identity follows the toolset rule
+
+`aidial_application` and the data source `aidial_application` SHALL require `bucket` and `path` with no defaults. `bucket` SHALL be any non-empty string, like toolsets, because Core accepts `public` as well as `platform` for applications. `path` SHALL be non-empty and MAY contain `/`. Both SHALL force replacement on change, `id` SHALL be `<bucket>/<path>`, and import SHALL take `<bucket>/<path>`, splitting at the first `/`.
+
+#### Scenario: Application in the public bucket
+- **WHEN** an `aidial_application` sets `bucket = "public"`
+- **THEN** validation passes
+
+#### Scenario: Application bucket or path omitted or empty
+- **WHEN** `bucket` or `path` is omitted or an empty string
+- **THEN** validation fails at plan time
