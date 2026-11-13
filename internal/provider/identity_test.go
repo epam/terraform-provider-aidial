@@ -111,6 +111,7 @@ func TestResourceIdentityRequired(t *testing.T) {
 		"aidial_catalog_schema":          &catalogSchemaResource{},
 		"aidial_application_type_schema": &applicationTypeSchemaResource{},
 		"aidial_interceptor":             &interceptorResource{},
+		"aidial_translator":              &translatorResource{},
 		"aidial_alias":                   &aliasResource{},
 	}
 	for name, r := range cases {
@@ -131,6 +132,7 @@ func TestDataSourceIdentityRequired(t *testing.T) {
 		"aidial_catalog_schema":          &catalogSchemaDataSource{},
 		"aidial_application_type_schema": &applicationTypeSchemaDataSource{},
 		"aidial_interceptor":             &interceptorDataSource{},
+		"aidial_translator":              &translatorDataSource{},
 		"aidial_alias":                   &aliasDataSource{},
 	}
 	for name, d := range cases {
