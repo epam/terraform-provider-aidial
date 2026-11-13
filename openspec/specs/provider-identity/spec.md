@@ -41,3 +41,11 @@ Renaming SHALL NOT change attribute schemas, API semantics, identity (`<bucket>/
 #### Scenario: Existing tests
 - **WHEN** the unit and integration suites run with the renamed types
 - **THEN** they pass with no assertion changed other than type and address names
+
+### Requirement: Interceptor types are registered
+
+The provider SHALL register the resource `aidial_interceptor` and the data sources `aidial_interceptor` and `aidial_file_interceptor`, in addition to the types listed in "Provider type name".
+
+#### Scenario: Interceptor types
+- **WHEN** the provider schema is exported
+- **THEN** it contains the resource `aidial_interceptor` and the data sources `aidial_interceptor` and `aidial_file_interceptor`

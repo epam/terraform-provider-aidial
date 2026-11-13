@@ -31,7 +31,7 @@
 - [x] 6.2 Run `make docs`; verify `git diff --exit-code docs` is clean afterwards and the new pages exist under `docs/resources` and `docs/data-sources`
 - [x] 6.3 Update the README (resource and data source tables, an Interceptor section noting the unexposed fields and that models reference interceptors by name through their `interceptors` list, import section, spec pointers), add a `CHANGELOG.md` entry under `Unreleased`, and update the `AGENTS.md` architecture and identity bullets; verify `make lint-md` passes
 - [x] 6.4 Run `go test ./... -count=1 -race`, `test -z "$(gofmt -l .)"`, `go vet ./...`, `make lint` and `openspec validate add-interceptor-resource --strict`; verify all pass
-- [ ] 6.5 Create branch `feat/add-interceptor-resource` off `main` (the toolset change is already merged there) and commit with semantic messages (for example `feat: add aidial_interceptor resource and data sources`); verify `git status` is clean
+- [x] 6.5 Create branch `feat/add-interceptor-resource` off `main` (the toolset change is already merged there) and commit with semantic messages (for example `feat: add aidial_interceptor resource and data sources`); verify `git status` is clean
 
 ## Workflow follow-up
 

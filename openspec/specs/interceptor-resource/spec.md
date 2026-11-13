@@ -4,11 +4,11 @@
 
 Manage DIAL Core interceptors (`/v1/interceptors/{bucket}/{path}`) through the `aidial_interceptor` resource and data source, so they can be created, imported and looked up from Terraform.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: Interceptor client methods
 
-`internal/client/interceptor.go` SHALL provide `GetInterceptor(ctx, bucket, path)`, `SaveInterceptor(ctx, bucket, path, interceptor)` and `DeleteInterceptor(ctx, bucket, path)` against `/v1/interceptors/{bucket}/{path}`, following the existing client conventions (`getResource`, `saveResource`, `deleteResource`). The body SHALL use the camelCase JSON keys of the OpenAPI `Interceptor` schema (`displayName`, `forwardAuthToken`, `maxRetryAttempts`, `userRoles`, `catalogSchemaId`, `defaultHeaders`) and omit unset fields.
+`internal/client/interceptor.go` SHALL provide `GetInterceptor(ctx, bucket, path)`, `SaveInterceptor(ctx, bucket, path, interceptor)` and `DeleteInterceptor(ctx, bucket, path)` against `/v1/interceptors/{bucket}/{path}`, following the existing client conventions. The body SHALL use the camelCase JSON keys of the OpenAPI `Interceptor` schema and omit unset fields.
 
 #### Scenario: Request conventions
 - **WHEN** any interceptor method calls the API
@@ -64,7 +64,7 @@ The provider SHALL expose resource `aidial_interceptor` with `id` (computed, `<b
 
 ### Requirement: aidial_interceptor attributes
 
-The resource SHALL expose `endpoint` (required string) and the optional attributes `description`, `display_name`, `display_version`, `icon_url` and `catalog_schema_id` (strings), `forward_auth_token` (bool), `max_retry_attempts` (int), `user_roles` (set of strings), `default_headers` (map of strings), `features` and `interfaces` (same shape and validation as on `aidial_model`), and the free-form objects `defaults` and `catalog_properties` as Terraform dynamic attributes. `display_name` is a plain string; the locale-map form is unsupported.
+The resource SHALL expose `endpoint` (required) and the optional attributes `description`, `display_name`, `display_version`, `icon_url`, `catalog_schema_id`, `forward_auth_token`, `max_retry_attempts`, `user_roles`, `default_headers`, `features`, `interfaces`, `defaults` and `catalog_properties`. `features` and `interfaces` have the same shape as on `aidial_model`, and the free-form objects are dynamic attributes.
 
 #### Scenario: Minimal interceptor
 - **WHEN** a config sets only `bucket`, `path` and `endpoint`
