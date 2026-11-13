@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aidial = {
       source  = "epam/aidial"
-      version = "~> 0.2"
+      version = "~> 0.3"
     }
   }
 }

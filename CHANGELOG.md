@@ -4,6 +4,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## Unreleased
 
+## 0.3.0 - 2026-11-13
+
 ### Added
 
 - `aidial_translator` resource and data source, and the `aidial_file_translator` data source, manage and read DIAL Core translators: `base_url`, `in` and `out`, all required, with `in` and `out` limited to `openaiChatCompletions`, `openaiEmbeddings`, `openaiResponses` and `anthropicMessages`. `bucket` must be `platform`, the `path` cannot contain `/` (Core rejects it), and import uses `<bucket>/<path>`. Only the listed attributes are managed: DIAL Core replaces the whole translator on save.
@@ -17,6 +19,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - **Breaking:** `aidial_model.pricing.prompt`, `completion`, `cache_read` and `cache_write` are now objects instead of strings, so DIAL Core's conditional prices can be expressed: `rate` for a flat price, or `test` (`field`, `operator`, `value`) with `if_true` and `if_false`. Configurations that set a price as a string fail validation until they are rewritten, for example `prompt = "0.000002"` becomes `prompt = { rate = "0.000002" }`. State from earlier versions is not compatible. The data sources `aidial_model` and `aidial_file_model` expose the same shape. `if_true` and `if_false` are either a flat price string or an object with the same attributes as the rate, so conditions nest to any depth, as in Core. A flat rate is still sent to Core as a plain string.
 - The `features` and `interfaces` schema and mapping of `aidial_model` moved into shared code that `aidial_toolset` reuses. Behavior of `aidial_model` is unchanged.
+- The README is shorter: per-resource sections now live in the generated docs and in two new guides under `docs/guides/` (CI/CD authentication and resource behavior notes), and the developer sections moved to `CONTRIBUTING.md`. The example provider block pins `~> 0.3`.
 - The checked-in DIAL Core OpenAPI contract is refreshed to tag 0.50.1, and the local and CI integration Core now defaults to that tag instead of `latest`.
 
 ### Known gaps
