@@ -140,6 +140,29 @@ resource "aidial_model" "t" {
     }`),
 				Check: resource.TestCheckResourceAttr("aidial_model.t", "pricing.prompt.if_true", "0.0000005"),
 			},
+			// Conditions nest to any depth; a branch may be written as { rate = ... }.
+			{
+				Config: cfg(`{
+      test = { field = "promptTokens", operator = ">", value = "100000" }
+      if_true = {
+        test     = { field = "promptTokens", operator = "<=", value = "500000" }
+        if_true  = "0.0000004"
+        if_false = { rate = "0.0000003" }
+      }
+      if_false = { rate = "0.0000001" }
+    }`),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("aidial_model.t", "pricing.prompt.if_true.test.operator", "<="),
+					resource.TestCheckResourceAttr("aidial_model.t", "pricing.prompt.if_true.if_true", "0.0000004"),
+					resource.TestCheckResourceAttr("aidial_model.t", "pricing.prompt.if_true.if_false.rate", "0.0000003"),
+					resource.TestCheckResourceAttr("aidial_model.t", "pricing.prompt.if_false.rate", "0.0000001"),
+				),
+			},
+			// After import there is no configured form to keep, so { rate = ... } comes back as a plain price.
+			{
+				ResourceName: "aidial_model.t", ImportState: true, ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{"pricing.prompt.if_false", "pricing.prompt.if_true.if_false"},
+			},
 		},
 	})
 }

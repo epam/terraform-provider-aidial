@@ -148,8 +148,8 @@ Read-Only:
 
 Read-Only:
 
-- `if_false` (String)
-- `if_true` (String)
+- `if_false` (Dynamic) Price used when `test` holds (`if_false`: when it does not). Either a flat price string, or an object with the same attributes as this rate (`rate`, or `test` with `if_true` and `if_false`) for nested conditions.
+- `if_true` (Dynamic) Price used when `test` holds (`if_false`: when it does not). Either a flat price string, or an object with the same attributes as this rate (`rate`, or `test` with `if_true` and `if_false`) for nested conditions.
 - `rate` (String)
 - `test` (Attributes) (see [below for nested schema](#nestedatt--pricing--cache_read--test))
 
@@ -169,8 +169,8 @@ Read-Only:
 
 Read-Only:
 
-- `if_false` (String)
-- `if_true` (String)
+- `if_false` (Dynamic) Price used when `test` holds (`if_false`: when it does not). Either a flat price string, or an object with the same attributes as this rate (`rate`, or `test` with `if_true` and `if_false`) for nested conditions.
+- `if_true` (Dynamic) Price used when `test` holds (`if_false`: when it does not). Either a flat price string, or an object with the same attributes as this rate (`rate`, or `test` with `if_true` and `if_false`) for nested conditions.
 - `rate` (String)
 - `test` (Attributes) (see [below for nested schema](#nestedatt--pricing--cache_write--test))
 
@@ -190,8 +190,8 @@ Read-Only:
 
 Read-Only:
 
-- `if_false` (String)
-- `if_true` (String)
+- `if_false` (Dynamic) Price used when `test` holds (`if_false`: when it does not). Either a flat price string, or an object with the same attributes as this rate (`rate`, or `test` with `if_true` and `if_false`) for nested conditions.
+- `if_true` (Dynamic) Price used when `test` holds (`if_false`: when it does not). Either a flat price string, or an object with the same attributes as this rate (`rate`, or `test` with `if_true` and `if_false`) for nested conditions.
 - `rate` (String)
 - `test` (Attributes) (see [below for nested schema](#nestedatt--pricing--completion--test))
 
@@ -211,8 +211,8 @@ Read-Only:
 
 Read-Only:
 
-- `if_false` (String)
-- `if_true` (String)
+- `if_false` (Dynamic) Price used when `test` holds (`if_false`: when it does not). Either a flat price string, or an object with the same attributes as this rate (`rate`, or `test` with `if_true` and `if_false`) for nested conditions.
+- `if_true` (Dynamic) Price used when `test` holds (`if_false`: when it does not). Either a flat price string, or an object with the same attributes as this rate (`rate`, or `test` with `if_true` and `if_false`) for nested conditions.
 - `rate` (String)
 - `test` (Attributes) (see [below for nested schema](#nestedatt--pricing--prompt--test))
 

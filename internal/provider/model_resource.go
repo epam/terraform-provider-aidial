@@ -719,7 +719,7 @@ func setModelState(ctx context.Context, state *modelResourceModel, model *client
 			"cache_read":  model.Pricing.CacheRead,
 			"cache_write": model.Pricing.CacheWrite,
 		} {
-			value, err := pricingRateToState(name, rate)
+			value, err := pricingRateToState(name, rate, priorPricingRate(state.Pricing, name))
 			if err != nil {
 				return err
 			}
@@ -961,4 +961,16 @@ func (r *modelResource) ImportState(ctx context.Context, req resource.ImportStat
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("bucket"), parts[0])...)
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("path"), parts[1])...)
+}
+
+// priorPricingRate returns the planned or previous pricing entry called name.
+func priorPricingRate(pricing types.Object, name string) types.Object {
+	if pricing.IsNull() || pricing.IsUnknown() {
+		return types.ObjectNull(pricingRateAttrTypes)
+	}
+	if obj, ok := pricing.Attributes()[name].(types.Object); ok {
+		return obj
+	}
+
+	return types.ObjectNull(pricingRateAttrTypes)
 }

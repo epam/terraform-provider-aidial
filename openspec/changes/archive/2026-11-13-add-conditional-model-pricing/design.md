@@ -1,6 +1,6 @@
 # Design
 
-**Object per rate, one level deep.** DIAL Core's `PricingRate` nests recursively, which a Terraform schema cannot express. The schema models `rate` or `test` plus flat `if_true` and `if_false`, which covers tiered pricing. Deeper nesting is rejected on read rather than silently lost.
+**Object per rate, dynamic branches.** DIAL Core's `PricingRate` nests recursively, which a typed Terraform schema cannot express. The schema models `rate` or `test` with `if_true` and `if_false`, and types the two branches dynamically: a price string, or an object with the same attributes, to any depth. Plan-time validation checks the shape of nested objects. On read, the prior value is kept when it converts to the same rate as Core's answer, so `"1"` versus `{ rate = "1" }` does not cause drift; after import the canonical form is used.
 
 **Wire format.** Core accepts the legacy plain-string form for a flat rate, so it is kept for writes, and branches use it too. Verified against Core 0.50.1 by `TestAccModel_conditionalPricing` (create, import, update, empty plan after apply). Reads accept a string or an object, and a number for `rate` or `test.value`.
 

@@ -9,7 +9,7 @@
 - **BREAKING:** each pricing rate becomes a nested object: `rate`, or `test` (`field`, `operator`, `value`) with `if_true` and `if_false`. String prices are no longer accepted.
 - Plan-time validation: `rate` conflicts with the conditional attributes, the conditional attributes require each other, and `operator` is one of `==`, `!=`, `>`, `<`, `>=`, `<=`.
 - The client reads a rate from either a JSON string or an object. A flat rate is written as a plain string, conditional branches are plain strings, and a numeric `test.value` is written as a JSON number.
-- Terraform cannot nest recursively, so a condition inside `if_true` or `if_false` is not modeled; reading one fails with an error.
+- Terraform cannot nest recursively, so `if_true` and `if_false` are dynamically typed: a flat price string, or an object with the same attributes as the rate, to any depth. State keeps the configured form of a branch.
 - The `aidial_model` and `aidial_file_model` data sources expose the same shape. Examples, stub models, the integration manifest, docs, README and CHANGELOG are updated.
 
 ## Capabilities

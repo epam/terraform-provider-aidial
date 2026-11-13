@@ -60,6 +60,17 @@ resource "aidial_model" "example" {
       if_true  = "0.000001"
       if_false = "0.0000005"
     }
+
+    # Conditions nest: if_true and if_false can be objects with their own test.
+    cache_write = {
+      test = { field = "promptTokens", operator = ">", value = "100000" }
+      if_true = {
+        test     = { field = "promptTokens", operator = "<=", value = "500000" }
+        if_true  = "0.0000015"
+        if_false = "0.000002"
+      }
+      if_false = "0.000001"
+    }
   }
 
   upstreams = [
@@ -200,8 +211,8 @@ Optional:
 
 Optional:
 
-- `if_false` (String) Flat price used when `test` does not hold.
-- `if_true` (String) Flat price used when `test` holds.
+- `if_false` (Dynamic) Price used when `test` holds (`if_false`: when it does not). Either a flat price string, or an object with the same attributes as this rate (`rate`, or `test` with `if_true` and `if_false`) for nested conditions.
+- `if_true` (Dynamic) Price used when `test` holds (`if_false`: when it does not). Either a flat price string, or an object with the same attributes as this rate (`rate`, or `test` with `if_true` and `if_false`) for nested conditions.
 - `rate` (String) Flat price per unit, as a decimal string, for example `0.000002`.
 - `test` (Attributes) Condition that selects `if_true` or `if_false`. Requires both. (see [below for nested schema](#nestedatt--pricing--cache_read--test))
 
@@ -221,8 +232,8 @@ Required:
 
 Optional:
 
-- `if_false` (String) Flat price used when `test` does not hold.
-- `if_true` (String) Flat price used when `test` holds.
+- `if_false` (Dynamic) Price used when `test` holds (`if_false`: when it does not). Either a flat price string, or an object with the same attributes as this rate (`rate`, or `test` with `if_true` and `if_false`) for nested conditions.
+- `if_true` (Dynamic) Price used when `test` holds (`if_false`: when it does not). Either a flat price string, or an object with the same attributes as this rate (`rate`, or `test` with `if_true` and `if_false`) for nested conditions.
 - `rate` (String) Flat price per unit, as a decimal string, for example `0.000002`.
 - `test` (Attributes) Condition that selects `if_true` or `if_false`. Requires both. (see [below for nested schema](#nestedatt--pricing--cache_write--test))
 
@@ -242,8 +253,8 @@ Required:
 
 Optional:
 
-- `if_false` (String) Flat price used when `test` does not hold.
-- `if_true` (String) Flat price used when `test` holds.
+- `if_false` (Dynamic) Price used when `test` holds (`if_false`: when it does not). Either a flat price string, or an object with the same attributes as this rate (`rate`, or `test` with `if_true` and `if_false`) for nested conditions.
+- `if_true` (Dynamic) Price used when `test` holds (`if_false`: when it does not). Either a flat price string, or an object with the same attributes as this rate (`rate`, or `test` with `if_true` and `if_false`) for nested conditions.
 - `rate` (String) Flat price per unit, as a decimal string, for example `0.000002`.
 - `test` (Attributes) Condition that selects `if_true` or `if_false`. Requires both. (see [below for nested schema](#nestedatt--pricing--completion--test))
 
@@ -263,8 +274,8 @@ Required:
 
 Optional:
 
-- `if_false` (String) Flat price used when `test` does not hold.
-- `if_true` (String) Flat price used when `test` holds.
+- `if_false` (Dynamic) Price used when `test` holds (`if_false`: when it does not). Either a flat price string, or an object with the same attributes as this rate (`rate`, or `test` with `if_true` and `if_false`) for nested conditions.
+- `if_true` (Dynamic) Price used when `test` holds (`if_false`: when it does not). Either a flat price string, or an object with the same attributes as this rate (`rate`, or `test` with `if_true` and `if_false`) for nested conditions.
 - `rate` (String) Flat price per unit, as a decimal string, for example `0.000002`.
 - `test` (Attributes) Condition that selects `if_true` or `if_false`. Requires both. (see [below for nested schema](#nestedatt--pricing--prompt--test))
 

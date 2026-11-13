@@ -45,6 +45,17 @@ resource "aidial_model" "example" {
       if_true  = "0.000001"
       if_false = "0.0000005"
     }
+
+    # Conditions nest: if_true and if_false can be objects with their own test.
+    cache_write = {
+      test = { field = "promptTokens", operator = ">", value = "100000" }
+      if_true = {
+        test     = { field = "promptTokens", operator = "<=", value = "500000" }
+        if_true  = "0.0000015"
+        if_false = "0.000002"
+      }
+      if_false = "0.000001"
+    }
   }
 
   upstreams = [
