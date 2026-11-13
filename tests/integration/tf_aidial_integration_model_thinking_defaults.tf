@@ -44,11 +44,11 @@ resource "aidial_model" "tf_aidial_integration_model_thinking_defaults" {
     max_total_tokens = 200000
   }
   pricing = {
-    unit       = "token"
-    prompt     = "0.0000008"
-    completion = "0.000004"
-    cacheRead  = "0.0000001"
-    cacheWrite = "0.00000125"
+    unit        = "token"
+    prompt      = { rate = "0.0000008" }
+    completion  = { rate = "0.000004" }
+    cache_read  = { rate = "0.0000001" }
+    cache_write = { rate = "0.00000125" }
   }
   endpoint           = "https://example.invalid/v1/chat/completions"
   responses_endpoint = ""

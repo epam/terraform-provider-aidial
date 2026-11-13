@@ -41,10 +41,10 @@
         },
         "pricing": {
           "unit": "token",
-          "prompt": "0.000002",
-          "completion": "0.00001",
-          "cacheRead": "0.0000002",
-          "cacheWrite": "0.0000025"
+          "prompt": { "rate": "0.000002" },
+          "completion": { "rate": "0.00001" },
+          "cache_read": { "rate": "0.0000002" },
+          "cache_write": { "rate": "0.0000025" }
         },
         "endpoint": "http://bedrock-adapter.example/openai/deployments/global.anthropic.claude-sonnet-5/chat/completions",
         "responses_endpoint": "",

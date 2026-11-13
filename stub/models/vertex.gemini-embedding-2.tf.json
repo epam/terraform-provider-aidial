@@ -15,7 +15,7 @@
         },
         "pricing": {
           "unit": "token",
-          "prompt": "0.0000002"
+          "prompt": { "rate": "0.0000002" }
         },
         "endpoint": "http://vertexai-adapter.example/openai/deployments/gemini-embedding-2/embeddings",
         "responses_endpoint": "",

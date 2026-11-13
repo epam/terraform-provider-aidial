@@ -51,8 +51,26 @@ resource "aidial_model" "example" {
 
   pricing = {
     unit       = "token"
-    prompt     = "0.000002"
-    completion = "0.000008"
+    prompt     = { rate = "0.000002" }
+    completion = { rate = "0.000008" }
+
+    # Tiered price: a different cache_read rate above 100000 prompt tokens.
+    cache_read = {
+      test     = { field = "promptTokens", operator = ">", value = "100000" }
+      if_true  = "0.000001"
+      if_false = "0.0000005"
+    }
+
+    # Conditions nest: if_true and if_false can be objects with their own test.
+    cache_write = {
+      test = { field = "promptTokens", operator = ">", value = "100000" }
+      if_true = {
+        test     = { field = "promptTokens", operator = "<=", value = "500000" }
+        if_true  = "0.0000015"
+        if_false = "0.000002"
+      }
+      if_false = "0.000001"
+    }
   }
 
   upstreams = [
@@ -182,11 +200,95 @@ Optional:
 
 Optional:
 
-- `cache_read` (String)
-- `cache_write` (String)
-- `completion` (String)
-- `prompt` (String)
+- `cache_read` (Attributes) A flat `rate`, or a conditional price: `test` selects `if_true` or `if_false`. `rate` cannot be combined with the other attributes. (see [below for nested schema](#nestedatt--pricing--cache_read))
+- `cache_write` (Attributes) A flat `rate`, or a conditional price: `test` selects `if_true` or `if_false`. `rate` cannot be combined with the other attributes. (see [below for nested schema](#nestedatt--pricing--cache_write))
+- `completion` (Attributes) A flat `rate`, or a conditional price: `test` selects `if_true` or `if_false`. `rate` cannot be combined with the other attributes. (see [below for nested schema](#nestedatt--pricing--completion))
+- `prompt` (Attributes) A flat `rate`, or a conditional price: `test` selects `if_true` or `if_false`. `rate` cannot be combined with the other attributes. (see [below for nested schema](#nestedatt--pricing--prompt))
 - `unit` (String)
+
+<a id="nestedatt--pricing--cache_read"></a>
+### Nested Schema for `pricing.cache_read`
+
+Optional:
+
+- `if_false` (Dynamic) Price used when `test` holds (`if_false`: when it does not). Either a flat price string, or an object with the same attributes as this rate (`rate`, or `test` with `if_true` and `if_false`) for nested conditions.
+- `if_true` (Dynamic) Price used when `test` holds (`if_false`: when it does not). Either a flat price string, or an object with the same attributes as this rate (`rate`, or `test` with `if_true` and `if_false`) for nested conditions.
+- `rate` (String) Flat price per unit, as a decimal string, for example `0.000002`.
+- `test` (Attributes) Condition that selects `if_true` or `if_false`. Requires both. (see [below for nested schema](#nestedatt--pricing--cache_read--test))
+
+<a id="nestedatt--pricing--cache_read--test"></a>
+### Nested Schema for `pricing.cache_read.test`
+
+Required:
+
+- `field` (String) Request field to compare, for example `promptTokens`.
+- `operator` (String) One of `==`, `!=`, `>`, `<`, `>=`, `<=`.
+- `value` (String) Value to compare with. A number is sent to DIAL Core as a number.
+
+
+
+<a id="nestedatt--pricing--cache_write"></a>
+### Nested Schema for `pricing.cache_write`
+
+Optional:
+
+- `if_false` (Dynamic) Price used when `test` holds (`if_false`: when it does not). Either a flat price string, or an object with the same attributes as this rate (`rate`, or `test` with `if_true` and `if_false`) for nested conditions.
+- `if_true` (Dynamic) Price used when `test` holds (`if_false`: when it does not). Either a flat price string, or an object with the same attributes as this rate (`rate`, or `test` with `if_true` and `if_false`) for nested conditions.
+- `rate` (String) Flat price per unit, as a decimal string, for example `0.000002`.
+- `test` (Attributes) Condition that selects `if_true` or `if_false`. Requires both. (see [below for nested schema](#nestedatt--pricing--cache_write--test))
+
+<a id="nestedatt--pricing--cache_write--test"></a>
+### Nested Schema for `pricing.cache_write.test`
+
+Required:
+
+- `field` (String) Request field to compare, for example `promptTokens`.
+- `operator` (String) One of `==`, `!=`, `>`, `<`, `>=`, `<=`.
+- `value` (String) Value to compare with. A number is sent to DIAL Core as a number.
+
+
+
+<a id="nestedatt--pricing--completion"></a>
+### Nested Schema for `pricing.completion`
+
+Optional:
+
+- `if_false` (Dynamic) Price used when `test` holds (`if_false`: when it does not). Either a flat price string, or an object with the same attributes as this rate (`rate`, or `test` with `if_true` and `if_false`) for nested conditions.
+- `if_true` (Dynamic) Price used when `test` holds (`if_false`: when it does not). Either a flat price string, or an object with the same attributes as this rate (`rate`, or `test` with `if_true` and `if_false`) for nested conditions.
+- `rate` (String) Flat price per unit, as a decimal string, for example `0.000002`.
+- `test` (Attributes) Condition that selects `if_true` or `if_false`. Requires both. (see [below for nested schema](#nestedatt--pricing--completion--test))
+
+<a id="nestedatt--pricing--completion--test"></a>
+### Nested Schema for `pricing.completion.test`
+
+Required:
+
+- `field` (String) Request field to compare, for example `promptTokens`.
+- `operator` (String) One of `==`, `!=`, `>`, `<`, `>=`, `<=`.
+- `value` (String) Value to compare with. A number is sent to DIAL Core as a number.
+
+
+
+<a id="nestedatt--pricing--prompt"></a>
+### Nested Schema for `pricing.prompt`
+
+Optional:
+
+- `if_false` (Dynamic) Price used when `test` holds (`if_false`: when it does not). Either a flat price string, or an object with the same attributes as this rate (`rate`, or `test` with `if_true` and `if_false`) for nested conditions.
+- `if_true` (Dynamic) Price used when `test` holds (`if_false`: when it does not). Either a flat price string, or an object with the same attributes as this rate (`rate`, or `test` with `if_true` and `if_false`) for nested conditions.
+- `rate` (String) Flat price per unit, as a decimal string, for example `0.000002`.
+- `test` (Attributes) Condition that selects `if_true` or `if_false`. Requires both. (see [below for nested schema](#nestedatt--pricing--prompt--test))
+
+<a id="nestedatt--pricing--prompt--test"></a>
+### Nested Schema for `pricing.prompt.test`
+
+Required:
+
+- `field` (String) Request field to compare, for example `promptTokens`.
+- `operator` (String) One of `==`, `!=`, `>`, `<`, `>=`, `<=`.
+- `value` (String) Value to compare with. A number is sent to DIAL Core as a number.
+
+
 
 
 <a id="nestedatt--upstreams"></a>

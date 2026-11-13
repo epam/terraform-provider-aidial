@@ -13,6 +13,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Changed
 
+- **Breaking:** `aidial_model.pricing.prompt`, `completion`, `cache_read` and `cache_write` are now objects instead of strings, so DIAL Core's conditional prices can be expressed: `rate` for a flat price, or `test` (`field`, `operator`, `value`) with `if_true` and `if_false`. Configurations that set a price as a string fail validation until they are rewritten, for example `prompt = "0.000002"` becomes `prompt = { rate = "0.000002" }`. State from earlier versions is not compatible. The data sources `aidial_model` and `aidial_file_model` expose the same shape. `if_true` and `if_false` are either a flat price string or an object with the same attributes as the rate, so conditions nest to any depth, as in Core. A flat rate is still sent to Core as a plain string.
 - The `features` and `interfaces` schema and mapping of `aidial_model` moved into shared code that `aidial_toolset` reuses. Behavior of `aidial_model` is unchanged.
 - The checked-in DIAL Core OpenAPI contract is refreshed to tag 0.50.1, and the local and CI integration Core now defaults to that tag instead of `latest`.
 
@@ -64,7 +65,7 @@ This release brings `aidial_model` and `aidial_route` in line with the DIAL Core
 ### Notes
 
 - `aidial_key` does not expose `allowedIpAddressRanges`. With Core 0.49.3, a key created with ranges through the API cannot be reloaded by Core later: it reports the key as `invalid` and fails to delete it with HTTP 500.
-- Not yet modeled: interface `translator`, `defaults` and `features`; per-upstream `interfaces`; localized `display_name` and `intro`; and `PricingRate` objects for `pricing`.
+- Not yet modeled: interface `translator`, `defaults` and `features`; per-upstream `interfaces`; localized `display_name` and `intro`.
 
 ## 0.2.3 - 2026-11-02
 

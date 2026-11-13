@@ -20,8 +20,8 @@
         ],
         "pricing": {
           "unit": "token",
-          "prompt": "0.000005",
-          "completion": "0.00003"
+          "prompt": { "rate": "0.000005" },
+          "completion": { "rate": "0.00003" }
         },
         "endpoint": "http://openai-adapter.example/openai/deployments/gpt-image-2-2026-04-21/images/generations",
         "responses_endpoint": "http://openai-adapter.example/openai/v1/responses",

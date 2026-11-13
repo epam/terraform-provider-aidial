@@ -25,8 +25,8 @@
         },
         "pricing": {
           "unit": "token",
-          "prompt": "0.000001",
-          "completion": "0.0000032"
+          "prompt": { "rate": "0.000001" },
+          "completion": { "rate": "0.0000032" }
         },
         "endpoint": "http://bedrock-adapter.example/openai/deployments/zai.glm-5/chat/completions",
         "responses_endpoint": "",

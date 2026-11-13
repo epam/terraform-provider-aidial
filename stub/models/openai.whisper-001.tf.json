@@ -23,8 +23,8 @@
         },
         "pricing": {
           "unit": "token",
-          "prompt": "0.0001",
-          "completion": "0"
+          "prompt": { "rate": "0.0001" },
+          "completion": { "rate": "0" }
         },
         "endpoint": "http://openai-adapter.example/openai/deployments/whisper-001/chat/completions",
         "responses_endpoint": "http://openai-adapter.example/openai/v1/responses",

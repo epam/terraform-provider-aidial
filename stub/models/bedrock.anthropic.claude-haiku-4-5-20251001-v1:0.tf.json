@@ -40,10 +40,10 @@
         },
         "pricing": {
           "unit": "token",
-          "prompt": "0.0000008",
-          "completion": "0.000004",
-          "cacheRead": "0.0000001",
-          "cacheWrite": "0.00000125"
+          "prompt": { "rate": "0.0000008" },
+          "completion": { "rate": "0.000004" },
+          "cache_read": { "rate": "0.0000001" },
+          "cache_write": { "rate": "0.00000125" }
         },
         "endpoint": "http://bedrock-adapter.example/openai/deployments/us.anthropic.claude-haiku-4-5-20251001-v1:0/chat/completions",
         "responses_endpoint": "",

@@ -36,9 +36,9 @@
         },
         "pricing": {
           "unit": "token",
-          "prompt": "0.000002",
-          "completion": "0.000006",
-          "cacheRead": "0.0000005"
+          "prompt": { "rate": "0.000002" },
+          "completion": { "rate": "0.000006" },
+          "cache_read": { "rate": "0.0000005" }
         },
         "endpoint": "http://bedrock-adapter.example/openai/deployments/global.xai.grok-4.6/chat/completions",
         "responses_endpoint": "",

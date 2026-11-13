@@ -483,11 +483,11 @@ type ModelLimits struct {
 }
 
 type ModelPricing struct {
-	Unit       string  `json:"unit"`
-	Prompt     *string `json:"prompt,omitempty"`
-	Completion *string `json:"completion,omitempty"`
-	CacheRead  *string `json:"cacheRead,omitempty"`
-	CacheWrite *string `json:"cacheWrite,omitempty"`
+	Unit       string       `json:"unit"`
+	Prompt     *PricingRate `json:"prompt,omitempty"`
+	Completion *PricingRate `json:"completion,omitempty"`
+	CacheRead  *PricingRate `json:"cacheRead,omitempty"`
+	CacheWrite *PricingRate `json:"cacheWrite,omitempty"`
 }
 
 type ModelInterface struct {

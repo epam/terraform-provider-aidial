@@ -26,8 +26,8 @@
         },
         "pricing": {
           "unit": "token",
-          "prompt": "0.00000062",
-          "completion": "0.00000185"
+          "prompt": { "rate": "0.00000062" },
+          "completion": { "rate": "0.00000185" }
         },
         "endpoint": "http://bedrock-adapter.example/openai/deployments/deepseek.v3.2/chat/completions",
         "responses_endpoint": "",

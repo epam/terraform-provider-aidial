@@ -33,8 +33,8 @@
         },
         "pricing": {
           "unit": "token",
-          "prompt": "0.00000075",
-          "completion": "0.00000375"
+          "prompt": { "rate": "0.00000075" },
+          "completion": { "rate": "0.00000375" }
         },
         "endpoint": "http://vertexai-adapter.example/openai/deployments/gemini-3.8-flash/chat/completions",
         "responses_endpoint": "",

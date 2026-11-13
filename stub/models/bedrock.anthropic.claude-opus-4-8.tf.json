@@ -40,8 +40,8 @@
         },
         "pricing": {
           "unit": "token",
-          "prompt": "0.000005",
-          "completion": "0.000025"
+          "prompt": { "rate": "0.000005" },
+          "completion": { "rate": "0.000025" }
         },
         "endpoint": "http://bedrock-adapter.example/openai/deployments/global.anthropic.claude-opus-4-8/chat/completions",
         "responses_endpoint": "",

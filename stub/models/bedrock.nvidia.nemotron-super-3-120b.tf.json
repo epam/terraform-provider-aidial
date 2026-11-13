@@ -25,8 +25,8 @@
         },
         "pricing": {
           "unit": "token",
-          "prompt": "0.00000015",
-          "completion": "0.00000065"
+          "prompt": { "rate": "0.00000015" },
+          "completion": { "rate": "0.00000065" }
         },
         "endpoint": "http://bedrock-adapter.example/openai/deployments/nvidia.nemotron-super-3-120b/chat/completions",
         "responses_endpoint": "",

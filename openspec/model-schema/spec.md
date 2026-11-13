@@ -28,7 +28,7 @@ The schema SHALL include:
 - `status` (computed, when returned by API)
 - `features` (optional, computed, nested object mapping DIAL model feature flags and endpoints)
 - `limits` (optional, computed, nested object: `max_prompt_tokens`, `max_completion_tokens`, `max_total_tokens`)
-- `pricing` (optional, computed, nested object: `unit`, `prompt`, `completion`, `cache_read`, `cache_write`; `cache_read`/`cache_write` are DIAL Core `PricingRate` objects (`rate`, `if_true`, `if_false`, `test`), not plain strings)
+- `pricing` (optional, computed, nested object: `unit` and the rates `prompt`, `completion`, `cache_read`, `cache_write`). Each rate is an optional, computed nested object mapping DIAL Core's `PricingRate`: `rate` (flat price string), or `test` (`field`, `operator` one of `==`, `!=`, `>`, `<`, `>=`, `<=`, `value`, all required) with `if_true` and `if_false`. `if_true`/`if_false` are dynamically typed because Terraform schemas cannot nest recursively: each is a flat price string, or an object with the same attributes as the rate (`rate`, or `test` with `if_true` and `if_false`), to any depth. `rate` conflicts with `test`/`if_true`/`if_false`; `test`, `if_true` and `if_false` require each other, and the shape of nested objects is validated at plan time. State keeps the configured form of a branch (`"1"` versus `{ rate = "1" }`) while it describes the same price as Core's answer; otherwise, and after import, a flat price is a string and a condition an object holding only the attributes that are set. Plain strings are no longer accepted for a rate itself (breaking change; write `prompt = { rate = "0.000002" }`).
 - `upstreams` (optional, computed, list of nested objects: `endpoint`, `responses_endpoint`, `id`, `extra_data`, `key`, `secret_extra_data`, `tier`, `weight`, `base_url`, `auth_type` (`API_KEY`, `BEARER` or `CUSTOM_HEADER`), `auth_header_name` (required with `CUSTOM_HEADER`, not allowed otherwise)); `secret_extra_data` is a write-only string per DIAL Core `Upstream`, not a map; `extra_data` is likewise documented as a write-only string in the spec but is modeled here as a map (see Implementation Notes — verified against real API behavior, not just the spec text); per-upstream `interfaces` is a field in DIAL Core's `Upstream` schema and is not implemented (distinct from the model-level `interfaces` below); `key` and `secret_extra_data` are optional, sensitive and not computed: DIAL Core never returns them (`writeOnly`), so state keeps the configured values by list position (an upstream without `key` plans as unset, not "(known after apply)"); after import they are null; `extra_data` is decoded from either an object (DIAL Core 0.48.1) or a string holding a JSON object (newer Core, matching the OpenAPI `string` type); it is always sent as an object, and non-string values are kept as their JSON text.
 - `dependencies`, `description_keywords`, `input_attachment_types`, `interceptors`, `fields_hashing_order` (optional, computed, sets of strings)
 - `override_name` (optional, computed, string override of the model name presented to clients)
@@ -76,6 +76,22 @@ Name handling: DIAL Core addresses a model only by `bucket` and `path` and ignor
 - **WHEN** `name` is added to, changed in or removed from a config with `bucket` and `path` unchanged
 - **THEN** the plan updates in place or shows no change, and never plans replacement
 
+#### Scenario: Flat pricing rate
+- **WHEN** a config sets `pricing.prompt = { rate = "0.000002" }`
+- **THEN** the rate is sent to DIAL Core as the plain string `"0.000002"` and read back as `rate` with `test`, `if_true` and `if_false` null
+
+#### Scenario: Conditional pricing rate
+- **WHEN** a config sets a rate with `test = { field = "promptTokens", operator = ">", value = "100000" }`, `if_true` and `if_false`
+- **THEN** DIAL Core receives an object with `test` (a numeric `value` as a JSON number), `ifTrue` and `ifFalse`, and the next plan shows no change
+
+#### Scenario: Invalid pricing rate
+- **WHEN** a rate sets `rate` together with `test`, `if_true` or `if_false`, sets `test` without both branches, or sets a branch without `test`, uses an unknown `operator`, or nests an object that is not a valid rate
+- **THEN** validation fails at plan time
+
+#### Scenario: Nested pricing condition
+- **WHEN** a config sets `if_true` to an object with its own `test`, `if_true` and `if_false`, to any depth
+- **THEN** the nested condition is sent to DIAL Core and kept in state as configured, and the next plan shows no change
+
 ## Implementation Notes
 
 - Optional-only versus optional+computed attributes follow DIAL Core's defaults; see the "Null and empty values stay distinct" requirement in `model-state-consistency`.
@@ -83,7 +99,7 @@ Name handling: DIAL Core addresses a model only by `bucket` and `path` and ignor
 - Nested attributes (`features`, `limits`, `pricing`, `upstreams`) are represented as Terraform object/list types built and unpacked via `types.ObjectValue`/`types.ListValue` helpers to keep plan/state conversions consistent.
 - Schema verified against the DIAL Core OpenAPI spec (`openapicore/open_api_core.yaml`, `Models` tag / `Model`, `Features`, `Pricing`, `PricingRate`, `Upstream` schemas). Current known gaps in `model_resource.go` / `client.go` versus that contract:
   - `display_name` and `intro` are modeled as plain strings; the API allows a locale map (`LocalizedValue`) as well.
-  - `pricing.cache_read` / `pricing.cache_write` are modeled as plain strings; the API defines them as conditional `PricingRate` objects. As of the 0.49.3 contract `pricing.completion` / `pricing.prompt` are `PricingRate` objects too, but are still modeled as plain strings.
+  - `pricing` rates: a flat rate is written to Core as a plain JSON string (the legacy form); a conditional rate as an object with `test`, `ifTrue`, `ifFalse`, where a branch is a plain string or, for nested conditions, an object; a numeric `test.value` is sent as a JSON number. Core's response may use either form. Verified against Core 0.50.1 by `TestAccModel_conditionalPricing`, including nested conditions.
   - `upstreams[].secret_extra_data` is modeled as a map; the API defines it as a single write-only string.
   - `upstreams[].extra_data` is modeled as a map (`map[string]string`), but the checked-in OpenAPI spec types `Upstream.extraData` as a plain write-only string — this was deliberately changed based on observed real API behavior, the same category of spec/reality drift as `role-client`'s `FlexibleFloat64` cost-limit handling.
   - Per-upstream `interfaces` is not implemented. `upstreams[].base_url`, `upstreams[].auth_type` and `upstreams[].auth_header_name` are implemented.

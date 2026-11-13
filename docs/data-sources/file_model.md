@@ -123,11 +123,95 @@ Read-Only:
 
 Read-Only:
 
-- `cache_read` (String)
-- `cache_write` (String)
-- `completion` (String)
-- `prompt` (String)
+- `cache_read` (Attributes) A flat `rate`, or a conditional price: `test` selects `if_true` or `if_false`. `rate` cannot be combined with the other attributes. (see [below for nested schema](#nestedatt--pricing--cache_read))
+- `cache_write` (Attributes) A flat `rate`, or a conditional price: `test` selects `if_true` or `if_false`. `rate` cannot be combined with the other attributes. (see [below for nested schema](#nestedatt--pricing--cache_write))
+- `completion` (Attributes) A flat `rate`, or a conditional price: `test` selects `if_true` or `if_false`. `rate` cannot be combined with the other attributes. (see [below for nested schema](#nestedatt--pricing--completion))
+- `prompt` (Attributes) A flat `rate`, or a conditional price: `test` selects `if_true` or `if_false`. `rate` cannot be combined with the other attributes. (see [below for nested schema](#nestedatt--pricing--prompt))
 - `unit` (String)
+
+<a id="nestedatt--pricing--cache_read"></a>
+### Nested Schema for `pricing.cache_read`
+
+Read-Only:
+
+- `if_false` (Dynamic) Price used when `test` holds (`if_false`: when it does not). Either a flat price string, or an object with the same attributes as this rate (`rate`, or `test` with `if_true` and `if_false`) for nested conditions.
+- `if_true` (Dynamic) Price used when `test` holds (`if_false`: when it does not). Either a flat price string, or an object with the same attributes as this rate (`rate`, or `test` with `if_true` and `if_false`) for nested conditions.
+- `rate` (String)
+- `test` (Attributes) (see [below for nested schema](#nestedatt--pricing--cache_read--test))
+
+<a id="nestedatt--pricing--cache_read--test"></a>
+### Nested Schema for `pricing.cache_read.test`
+
+Read-Only:
+
+- `field` (String)
+- `operator` (String)
+- `value` (String)
+
+
+
+<a id="nestedatt--pricing--cache_write"></a>
+### Nested Schema for `pricing.cache_write`
+
+Read-Only:
+
+- `if_false` (Dynamic) Price used when `test` holds (`if_false`: when it does not). Either a flat price string, or an object with the same attributes as this rate (`rate`, or `test` with `if_true` and `if_false`) for nested conditions.
+- `if_true` (Dynamic) Price used when `test` holds (`if_false`: when it does not). Either a flat price string, or an object with the same attributes as this rate (`rate`, or `test` with `if_true` and `if_false`) for nested conditions.
+- `rate` (String)
+- `test` (Attributes) (see [below for nested schema](#nestedatt--pricing--cache_write--test))
+
+<a id="nestedatt--pricing--cache_write--test"></a>
+### Nested Schema for `pricing.cache_write.test`
+
+Read-Only:
+
+- `field` (String)
+- `operator` (String)
+- `value` (String)
+
+
+
+<a id="nestedatt--pricing--completion"></a>
+### Nested Schema for `pricing.completion`
+
+Read-Only:
+
+- `if_false` (Dynamic) Price used when `test` holds (`if_false`: when it does not). Either a flat price string, or an object with the same attributes as this rate (`rate`, or `test` with `if_true` and `if_false`) for nested conditions.
+- `if_true` (Dynamic) Price used when `test` holds (`if_false`: when it does not). Either a flat price string, or an object with the same attributes as this rate (`rate`, or `test` with `if_true` and `if_false`) for nested conditions.
+- `rate` (String)
+- `test` (Attributes) (see [below for nested schema](#nestedatt--pricing--completion--test))
+
+<a id="nestedatt--pricing--completion--test"></a>
+### Nested Schema for `pricing.completion.test`
+
+Read-Only:
+
+- `field` (String)
+- `operator` (String)
+- `value` (String)
+
+
+
+<a id="nestedatt--pricing--prompt"></a>
+### Nested Schema for `pricing.prompt`
+
+Read-Only:
+
+- `if_false` (Dynamic) Price used when `test` holds (`if_false`: when it does not). Either a flat price string, or an object with the same attributes as this rate (`rate`, or `test` with `if_true` and `if_false`) for nested conditions.
+- `if_true` (Dynamic) Price used when `test` holds (`if_false`: when it does not). Either a flat price string, or an object with the same attributes as this rate (`rate`, or `test` with `if_true` and `if_false`) for nested conditions.
+- `rate` (String)
+- `test` (Attributes) (see [below for nested schema](#nestedatt--pricing--prompt--test))
+
+<a id="nestedatt--pricing--prompt--test"></a>
+### Nested Schema for `pricing.prompt.test`
+
+Read-Only:
+
+- `field` (String)
+- `operator` (String)
+- `value` (String)
+
+
 
 
 <a id="nestedatt--upstreams"></a>

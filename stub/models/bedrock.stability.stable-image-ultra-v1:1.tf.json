@@ -22,8 +22,8 @@
         },
         "pricing": {
           "unit": "token",
-          "prompt": "0",
-          "completion": "0.14"
+          "prompt": { "rate": "0" },
+          "completion": { "rate": "0.14" }
         },
         "endpoint": "http://bedrock-adapter.example/openai/deployments/stability.stable-image-ultra-v1:1/chat/completions",
         "responses_endpoint": "",
