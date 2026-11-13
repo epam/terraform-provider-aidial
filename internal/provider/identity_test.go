@@ -93,6 +93,7 @@ func TestResourceIdentityRequired(t *testing.T) {
 		"aidial_key":                     &keyResource{},
 		"aidial_catalog_schema":          &catalogSchemaResource{},
 		"aidial_application_type_schema": &applicationTypeSchemaResource{},
+		"aidial_interceptor":             &interceptorResource{},
 	}
 	for name, r := range cases {
 		t.Run(name, func(t *testing.T) {
@@ -111,6 +112,7 @@ func TestDataSourceIdentityRequired(t *testing.T) {
 		"aidial_role":                    &roleDataSource{},
 		"aidial_catalog_schema":          &catalogSchemaDataSource{},
 		"aidial_application_type_schema": &applicationTypeSchemaDataSource{},
+		"aidial_interceptor":             &interceptorDataSource{},
 	}
 	for name, d := range cases {
 		t.Run(name, func(t *testing.T) {
