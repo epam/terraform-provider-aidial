@@ -1,0 +1,26 @@
+name: Auto-assign
+
+# CODEOWNERS only requests reviews, and GitHub skips that when the author is the
+# owner. This assigns every new pull request to the maintainer instead.
+# pull_request_target runs with a write token even for fork PRs, so the job must
+# never check out or run code from the pull request. It only calls the GitHub API.
+
+on:
+  pull_request_target:
+    types: [opened, reopened, ready_for_review]
+
+permissions: {}
+
+jobs:
+  assign:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Assign the maintainer
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          ASSIGNEE: alexey-ban # keep in step with .github/CODEOWNERS
+        run: gh pr edit "$PR_NUMBER" --add-assignee "$ASSIGNEE"
