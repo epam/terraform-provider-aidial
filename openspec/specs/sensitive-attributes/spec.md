@@ -7,7 +7,7 @@ Defines which provider attributes carry secrets and requires them to be marked s
 ## Requirements
 
 ### Requirement: Secret attributes are sensitive in every schema
-The attributes `api_key` and `id_token` (provider), `key` (`aidial_key`), and the upstream `key` and `secret_extra_data` (`aidial_model`, `aidial_route`, and the `aidial_model` and `aidial_file_model` data sources) SHALL be marked sensitive in every schema that exposes them, including read-only data sources.
+The attributes `api_key` and `id_token` (provider), `key` (`aidial_key`), the upstream `key` and `secret_extra_data` (`aidial_model`, `aidial_route`, and the `aidial_model` and `aidial_file_model` data sources) and `auth_settings.client_secret` (`aidial_toolset`) SHALL be marked sensitive in every schema that exposes them, including read-only data sources. The `aidial_toolset` and `aidial_file_toolset` data sources do not expose `client_secret`.
 
 #### Scenario: Data source upstream secrets redacted
 - **WHEN** a plan reads an `aidial_model` or `aidial_file_model` data source whose model has upstreams with `key` or `secret_extra_data`
@@ -20,6 +20,10 @@ The attributes `api_key` and `id_token` (provider), `key` (`aidial_key`), and th
 #### Scenario: Provider credentials
 - **WHEN** `terraform providers schema -json` is run
 - **THEN** the provider's `api_key` and `id_token` are reported with `"sensitive": true`
+
+#### Scenario: Toolset client secret
+- **WHEN** `terraform providers schema -json` is run
+- **THEN** `auth_settings.client_secret` of `aidial_toolset` is reported with `"sensitive": true`, and the toolset data sources have no such attribute
 
 #### Scenario: Non-secret siblings stay visible
 - **WHEN** the same upstream is shown in plan output

@@ -81,6 +81,7 @@ func (p *AidialProvider) Resources(_ context.Context) []func() resource.Resource
 		func() resource.Resource { return &routeResource{} },
 		func() resource.Resource { return &catalogSchemaResource{} },
 		func() resource.Resource { return &applicationTypeSchemaResource{} },
+		func() resource.Resource { return &toolsetResource{} },
 	}
 }
 func (p *AidialProvider) DataSources(_ context.Context) []func() datasource.DataSource {
@@ -92,5 +93,7 @@ func (p *AidialProvider) DataSources(_ context.Context) []func() datasource.Data
 		func() datasource.DataSource { return &catalogSchemaDataSource{} },
 		func() datasource.DataSource { return &applicationTypeSchemaDataSource{} },
 		func() datasource.DataSource { return &fileApplicationTypeSchemaDataSource{} },
+		func() datasource.DataSource { return &toolsetDataSource{} },
+		func() datasource.DataSource { return &fileToolsetDataSource{} },
 	}
 }

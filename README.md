@@ -175,6 +175,7 @@ The repository's own CI uses this setup against a throwaway Core (`tests/core/do
 | Resource | `aidial_route` | Create/update/delete a routing rule (methods, paths, permissions, upstreams, static response, ...). |
 | Resource | `aidial_catalog_schema` | Create/update/delete a catalog schema (a JSON Schema that models reference through `catalog_schema_id`). |
 | Resource | `aidial_application_type_schema` | Create/update/delete a custom application type schema (a JSON Schema identified by its `$id`). |
+| Resource | `aidial_toolset` | Create/update/delete a toolset (an MCP tool server: endpoint, transport, allowed tools, upstream authentication, ...). |
 | Data source | `aidial_bucket` | Look up a bucket's `bucket`/`appdata`. |
 | Data source | `aidial_role` | Look up an existing role without managing it. |
 | Data source | `aidial_model` | Look up an existing API-managed model by `bucket`/`path` without managing it. |
@@ -182,8 +183,10 @@ The repository's own CI uses this setup against a throwaway Core (`tests/core/do
 | Data source | `aidial_catalog_schema` | Look up an existing catalog schema without managing it. |
 | Data source | `aidial_application_type_schema` | Look up an existing API-managed application type schema by `bucket`/`path` without managing it. |
 | Data source | `aidial_file_application_type_schema` | Look up a file-sourced application type schema (statically configured in DIAL Core, by name only, no resource equivalent). |
+| Data source | `aidial_toolset` | Look up an existing API-managed toolset by `bucket`/`path` without managing it. |
+| Data source | `aidial_file_toolset` | Look up a file-sourced toolset (statically configured in DIAL Core, by name only, no resource equivalent). |
 
-All six resources, and the `aidial_role`, `aidial_model`, `aidial_catalog_schema` and `aidial_application_type_schema` data sources, share the same identity model: `bucket` and `path` are required, with no defaults. `bucket` must be `platform` (DIAL Core stores these resources only there; the bucket returned by `aidial_bucket` is not accepted) and `path` must be non-empty and may contain `/`. Omitting either fails validation at plan time. Both force replacement on change, and `id` is persisted as `<bucket>/<path>`.
+All seven resources, and the `aidial_role`, `aidial_model`, `aidial_catalog_schema`, `aidial_application_type_schema` and `aidial_toolset` data sources, share the same identity model: `bucket` and `path` are required, with no defaults. `path` must be non-empty and may contain `/`. Omitting either fails validation at plan time. Both force replacement on change, and `id` is persisted as `<bucket>/<path>`. `bucket` must be `platform` for every type except toolsets (DIAL Core stores those resources only there; the bucket returned by `aidial_bucket` is not accepted). Toolsets accept any non-empty bucket, for example `public`, and leave it to DIAL Core to reject the ones it does not allow.
 
 ## Bucket data source
 
@@ -308,6 +311,34 @@ resource "aidial_route" "example" {
 
 A route may instead configure `response` (a static `body`/`status` returned without forwarding upstream) in place of `upstreams`. See `openspec/route-schema` for the full attribute list.
 
+## Toolset resource
+
+```hcl
+resource "aidial_toolset" "example" {
+  bucket      = "platform"
+  path        = "my-toolset"
+  description = "Search and fetch tools served over MCP"
+  endpoint    = "https://mcp.example.invalid/mcp"
+  transport   = "HTTP"
+
+  allowed_tools = ["search", "fetch"]
+
+  auth_settings = {
+    authentication_type = "API_KEY"
+    api_key_header      = "X-Api-Key"
+  }
+}
+```
+
+Attribute names are snake_case in Terraform (and in DIAL Core's toolset JSON). `provider_name` is the API's `provider`, which Terraform reserves as an attribute name. A few notes:
+
+- DIAL Core fills in values you leave out: `reference` (a generated identifier), `transport` (`HTTP`), `forward_auth_token`, `forward_per_request_key` (`false`), `max_retry_attempts` (`1`), empty `allowed_tools`, `dependencies`, `description_keywords` and `interceptors`, and `auth_settings` of type `NONE`. They are read back into state, so deleting such a line from the configuration does not reset it; set it explicitly instead. `author` is set by DIAL Core from the caller (for toolsets outside the `platform` bucket).
+- `auth_settings.client_secret` is sensitive and never returned by DIAL Core. State keeps the configured value, and it is null after import. DIAL Core derives `code_challenge` itself, and the sign-in status fields and `code_verifier` are session state, so none of them are attributes. For OAuth, set the full block, as in `examples/resources/aidial_toolset`: DIAL Core probes the endpoints when it saves OAuth settings in the `platform` bucket, or incomplete OAuth settings in other buckets.
+- `features` and `interfaces` have the same shape as on `aidial_model`. `defaults`, `responses_defaults` and `catalog_properties` are free-form objects.
+- `display_name` and `intro` are plain strings. The locale-map form DIAL Core allows is not supported, and neither are `created_at`/`updated_at`.
+
+`aidial_toolset` (data source) reads one by `bucket` and `path`, and `aidial_file_toolset` reads a toolset from DIAL Core's static configuration by `name`. Neither exposes `client_secret`. See `openspec/specs/toolset-resource` for the full behavior.
+
 ## Role data source
 
 ```hcl
@@ -333,13 +364,14 @@ It returns the same computed attributes as `aidial_model` (`type`, `features`, `
 
 ## Import
 
-All four resources support import using `<bucket>/<path>`:
+All five resources support import using `<bucket>/<path>`:
 
 ```bash
 terraform import aidial_role.example '<bucket>/<path>'
 terraform import aidial_key.example '<bucket>/<path>'
 terraform import aidial_model.example '<bucket>/<path>'
 terraform import aidial_route.example '<bucket>/<path>'
+terraform import aidial_toolset.example '<bucket>/<path>'
 ```
 
 Import only sets `id`, `bucket`, and `path`; every other attribute, including `name`, is populated by the subsequent refresh.
@@ -416,6 +448,8 @@ The provider uses these endpoints:
 - `GET|PUT|DELETE /v1/keys/{bucket}/{path}` for `aidial_key`.
 - `GET|PUT|DELETE /v1/models/{bucket}/{path}` for `aidial_model`.
 - `GET|PUT|DELETE /v1/routes/{bucket}/{path}` for `aidial_route`.
+- `GET|PUT|DELETE /v1/toolsets/{bucket}/{path}` for `aidial_toolset`. DIAL Core 0.50.1 reads and writes toolsets with snake_case keys and expects `/` in the path to stay a `/`, which differs from the OpenAPI document, so the client follows what Core does.
+- `GET /v1/admin/config/file/toolsets/{name}` for the `aidial_file_toolset` data source (file-sourced toolsets: no bucket, read-only).
 
 Every request uses the `Api-Key` header. `GET` returns `404` for a missing resource (treated as absent, not an error); `DELETE` treats `404` as a successful no-op; `PUT` on save returns only `{"name": ...}`, so every create/update re-reads the resource via `GET` to obtain the authoritative state. DIAL Core also supports `If-Match`/`If-None-Match`/`ETag`/`304`/`412` optimistic-concurrency headers on all three mutating operations for models and routes; the provider does not currently send or interpret them (see `openspec/model-client` and `openspec/route-client`).
 

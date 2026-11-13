@@ -221,10 +221,12 @@ const redactedPlaceholder = "***REDACTED***"
 
 // sensitiveJSONFields lists JSON object keys whose values carry raw
 // credential material (a key's own secret value, an upstream's auth
-// key/secretExtraData) and must never be written to logs.
+// key/secretExtraData, a toolset's OAuth client_secret) and must never be
+// written to logs.
 var sensitiveJSONFields = map[string]bool{
 	"key":             true,
 	"secretExtraData": true,
+	"client_secret":   true,
 }
 
 // redactSensitiveJSON returns a copy of a JSON payload with any

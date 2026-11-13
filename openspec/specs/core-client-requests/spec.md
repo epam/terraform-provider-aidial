@@ -7,7 +7,7 @@ Defines how the provider's DIAL Core client turns resource addresses (bucket, pa
 ## Requirements
 
 ### Requirement: Path parameters are encoded as single segments
-Each path parameter the client places in a request URL (`bucket` and `path` for roles, keys, models, routes, catalog schemas and application type schemas, and `name` for file-sourced models and file-sourced application type schemas) SHALL be percent-encoded as one URL path segment, so reserved characters including `/`, `?`, `#`, `%` and space never change the request's path or query.
+Each path parameter the client places in a request URL (`bucket` and `path` for roles, keys, models, routes, catalog schemas and application type schemas, `bucket` for toolsets, and `name` for file-sourced models, file-sourced application type schemas and file-sourced toolsets) SHALL be percent-encoded as one URL path segment, so reserved characters including `/`, `?`, `#`, `%` and space never change the request's path or query.
 
 #### Scenario: Slash in a path
 - **WHEN** a role is read with bucket `platform` and path `team/admin`
@@ -29,6 +29,21 @@ Each path parameter the client places in a request URL (`bucket` and `path` for 
 - **WHEN** a file-sourced application type schema named `a/b` is read
 - **THEN** the request path is `/v1/admin/config/file/schemas/a%2Fb`
 
+#### Scenario: File toolset name
+- **WHEN** a file-sourced toolset named `a/b` is read
+- **THEN** the request path is `/v1/admin/config/file/toolsets/a%2Fb`
+
 #### Scenario: Plain names unchanged
 - **WHEN** a parameter contains only letters, digits, `-`, `_`, `.` or `:`
 - **THEN** it appears in the URL exactly as given
+
+### Requirement: Toolset paths keep their slashes
+A toolset `path` SHALL be sent with its `/` separators intact, with each segment between them percent-encoded on its own, because DIAL Core reads the path as folders and rejects an encoded slash.
+
+#### Scenario: Toolset path
+- **WHEN** a toolset is read with bucket `public` and path `team/tool`
+- **THEN** the request path is `/v1/toolsets/public/team/tool`
+
+#### Scenario: Reserved characters in a toolset path segment
+- **WHEN** a toolset is read with path `a b/c?d`
+- **THEN** the request path is `/v1/toolsets/public/a%20b/c%3Fd` and the request has no query string
