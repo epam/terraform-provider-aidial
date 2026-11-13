@@ -392,7 +392,7 @@ resource "aidial_alias" "example" {
 - DIAL Core accepts the `public` and `platform` buckets for aliases (the OpenAPI document says `public` only), and rejects `/` in the `path`.
 - Core accepts only `path` in a target, so there is no `target.id` or `target.version`, and it rejects `endpoint`, `features`, `catalog_properties` and `catalog_schema_id` on an alias. DIAL Core replaces the whole alias on every save, so a value set out of band in a field the provider does not expose (`author`, `created_at`, `updated_at`) is removed by the next apply. Core accepts a locale map for `display_name` but returns a plain string, so only the plain form is supported.
 
-`aidial_alias` (data source) reads one by `bucket` and `path`, and `aidial_file_alias` reads an alias from DIAL Core's static configuration by `name`. See `openspec/specs/alias-resource` once the change is archived.
+`aidial_alias` (data source) reads one by `bucket` and `path`, and `aidial_file_alias` reads an alias from DIAL Core's static configuration by `name`. See `openspec/specs/alias-resource` for the full behavior.
 
 ## Application resource
 
