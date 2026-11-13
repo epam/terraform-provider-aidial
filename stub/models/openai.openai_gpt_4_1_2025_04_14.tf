@@ -37,8 +37,8 @@ resource "aidial_model" "openai_gpt_4_1_2025_04_14" {
   }
   pricing = {
     unit       = "token"
-    prompt     = "0.000002"
-    completion = "0.000008"
+    prompt     = { rate = "0.000002" }
+    completion = { rate = "0.000008" }
   }
   tokenizer_model    = "gpt-4-0314"
   max_retry_attempts = 5

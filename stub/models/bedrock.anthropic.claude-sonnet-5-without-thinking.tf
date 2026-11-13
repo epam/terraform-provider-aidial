@@ -42,8 +42,8 @@ resource "aidial_model" "bedrock_anthropic_claude_sonnet_5_without_thinking" {
   }
   pricing = {
     unit       = "token"
-    prompt     = "0.000002"
-    completion = "0.00001"
+    prompt     = { rate = "0.000002" }
+    completion = { rate = "0.00001" }
   }
   endpoint           = "http://bedrock-adapter.example.svc.cluster.local.:80/openai/deployments/global.anthropic.claude-sonnet-5/chat/completions"
   override_name      = "global.anthropic.claude-sonnet-5"

@@ -34,8 +34,8 @@ resource "aidial_model" "openai_gpt_5_1_2025_11_13" {
   }
   pricing = {
     unit       = "token"
-    prompt     = "0.00000125"
-    completion = "0.00001"
+    prompt     = { rate = "0.00000125" }
+    completion = { rate = "0.00001" }
   }
   max_retry_attempts = 5
   endpoint           = "${var.aidial_openai_host}/openai/deployments/gpt-5.1-2025-11-13/chat/completions"
