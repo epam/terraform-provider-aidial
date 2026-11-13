@@ -85,6 +85,23 @@ func checkIdentity(t *testing.T, bucket, path identityAttr) {
 	}
 }
 
+func TestAliasBucketAcceptsPublicAndPlatform(t *testing.T) {
+	bucket, _, _ := resourceIdentity(t, &aliasResource{})
+	dsBucket, _ := dataSourceIdentity(t, &aliasDataSource{})
+	for name, a := range map[string]identityAttr{"resource": bucket, "data source": dsBucket} {
+		for _, ok := range []string{"public", "platform"} {
+			if !validate(t, a.validators, ok) {
+				t.Errorf("alias %s must accept bucket %q", name, ok)
+			}
+		}
+		for _, bad := range []string{"foo", "Public", ""} {
+			if validate(t, a.validators, bad) {
+				t.Errorf("alias %s must reject bucket %q", name, bad)
+			}
+		}
+	}
+}
+
 func TestResourceIdentityRequired(t *testing.T) {
 	cases := map[string]resource.Resource{
 		"aidial_model":                   &modelResource{},
@@ -94,6 +111,7 @@ func TestResourceIdentityRequired(t *testing.T) {
 		"aidial_catalog_schema":          &catalogSchemaResource{},
 		"aidial_application_type_schema": &applicationTypeSchemaResource{},
 		"aidial_interceptor":             &interceptorResource{},
+		"aidial_alias":                   &aliasResource{},
 	}
 	for name, r := range cases {
 		t.Run(name, func(t *testing.T) {
@@ -113,6 +131,7 @@ func TestDataSourceIdentityRequired(t *testing.T) {
 		"aidial_catalog_schema":          &catalogSchemaDataSource{},
 		"aidial_application_type_schema": &applicationTypeSchemaDataSource{},
 		"aidial_interceptor":             &interceptorDataSource{},
+		"aidial_alias":                   &aliasDataSource{},
 	}
 	for name, d := range cases {
 		t.Run(name, func(t *testing.T) {
