@@ -6,6 +6,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 
+- `aidial_interceptor` resource and data source, and the `aidial_file_interceptor` data source, manage and read DIAL Core interceptors: `endpoint`, `display_name`, `description`, `forward_auth_token`, `max_retry_attempts`, `user_roles`, `default_headers`, `features`, `interfaces`, and free-form `defaults` and `catalog_properties`. `bucket` must be `platform`, the `path` cannot contain `/` (Core rejects it), and import uses `<bucket>/<path>`. Models still reference interceptors by name through their `interceptors` attribute. Only the listed attributes are managed: DIAL Core replaces the whole interceptor on save, so values set out of band in other fields (such as `dependencies`) are removed by the next apply.
 - `aidial_toolset` resource and data source, and the `aidial_file_toolset` data source, manage and read DIAL Core toolsets (MCP tool servers): endpoint, transport, allowed tools, `features`, `interfaces`, default headers, free-form `defaults`, `responses_defaults` and `catalog_properties`, and `auth_settings` (API key header or OAuth). `auth_settings.client_secret` is sensitive and kept from state, because Core never returns it. Unlike the other resources, `bucket` is any non-empty string, for example `public`, and the `path` may contain `/` for nested folders. Import with `<bucket>/<path>`. The OpenAPI document says toolsets use camelCase keys; DIAL Core 0.50.1 uses snake_case, and the provider follows Core. The API's `provider` field is the `provider_name` attribute, because Terraform reserves `provider`.
 - `upstreams[]` on `aidial_model` and `aidial_route` accept `auth_type = "CUSTOM_HEADER"` together with the new `auth_header_name`, the HTTP header that carries the upstream key. `auth_header_name` is required for `CUSTOM_HEADER` and not allowed for the other types; both rules are checked at plan time. The data sources expose `auth_header_name`. This needs DIAL Core 0.50 or newer. Other auth types still work against older Cores.
 
@@ -17,6 +18,7 @@ All notable changes to this project are documented here. The format follows [Kee
 ### Known gaps
 
 - Other additions in 0.50.x (aliases, policies, policy assignments, org units, spending limits) have no resource or data source in this provider.
+- `aidial_interceptor` does not expose `author`, `created_at`, `updated_at` or the locale-map form of `display_name`. `aidial_file_interceptor` is not covered by an acceptance test, because the ephemeral Core defines no static interceptor.
 - `aidial_toolset` does not expose `created_at`, `updated_at` or the locale-map form of `display_name` and `intro`. `aidial_file_toolset` is not covered by an acceptance test, because the ephemeral Core defines no static toolset.
 
 ## 0.2.6 - 2026-11-12

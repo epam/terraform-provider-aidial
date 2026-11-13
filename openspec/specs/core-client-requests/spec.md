@@ -47,3 +47,15 @@ A toolset `path` SHALL be sent with its `/` separators intact, with each segment
 #### Scenario: Reserved characters in a toolset path segment
 - **WHEN** a toolset is read with path `a b/c?d`
 - **THEN** the request path is `/v1/toolsets/public/a%20b/c%3Fd` and the request has no query string
+
+### Requirement: Interceptor path parameters are encoded as single segments
+
+The client SHALL percent-encode `bucket` and `path` of an interceptor, and `name` of a file-sourced interceptor, as one URL path segment each, like roles and models, so `/` and other reserved characters never change the request path. Core rejects `/` in an interceptor path in either form, so the error surfaces at apply.
+
+#### Scenario: Slash in an interceptor path
+- **WHEN** an interceptor is read with bucket `platform` and path `team/filter`
+- **THEN** the request path is `/v1/interceptors/platform/team%2Ffilter`
+
+#### Scenario: File interceptor name
+- **WHEN** a file-sourced interceptor named `a/b` is read
+- **THEN** the request path is `/v1/admin/config/file/interceptors/a%2Fb`
