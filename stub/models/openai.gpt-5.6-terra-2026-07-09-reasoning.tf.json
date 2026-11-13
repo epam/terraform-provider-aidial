@@ -48,10 +48,10 @@
         },
         "pricing": {
           "unit": "token",
-          "prompt": "0.0000025",
-          "completion": "0.000015",
-          "cacheRead": "0.0000002",
-          "cacheWrite": "0.0000025"
+          "prompt": { "rate": "0.0000025" },
+          "completion": { "rate": "0.000015" },
+          "cache_read": { "rate": "0.0000002" },
+          "cache_write": { "rate": "0.0000025" }
         },
         "endpoint": "http://openai-adapter.example/openai/deployments/gpt-5.6-terra-2026-07-09/chat/completions",
         "responses_endpoint": "http://openai-adapter.example/openai/v1/responses",

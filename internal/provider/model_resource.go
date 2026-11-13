@@ -119,10 +119,10 @@ type modelLimitsModel struct {
 
 type modelPricingModel struct {
 	Unit       types.String `tfsdk:"unit"`
-	Prompt     types.String `tfsdk:"prompt"`
-	Completion types.String `tfsdk:"completion"`
-	CacheRead  types.String `tfsdk:"cache_read"`
-	CacheWrite types.String `tfsdk:"cache_write"`
+	Prompt     types.Object `tfsdk:"prompt"`
+	Completion types.Object `tfsdk:"completion"`
+	CacheRead  types.Object `tfsdk:"cache_read"`
+	CacheWrite types.Object `tfsdk:"cache_write"`
 }
 
 type modelUpstreamModel struct {
@@ -181,10 +181,10 @@ var modelLimitsAttrTypes = map[string]attr.Type{
 
 var modelPricingAttrTypes = map[string]attr.Type{
 	"unit":        types.StringType,
-	"prompt":      types.StringType,
-	"completion":  types.StringType,
-	"cache_read":  types.StringType,
-	"cache_write": types.StringType,
+	"prompt":      types.ObjectType{AttrTypes: pricingRateAttrTypes},
+	"completion":  types.ObjectType{AttrTypes: pricingRateAttrTypes},
+	"cache_read":  types.ObjectType{AttrTypes: pricingRateAttrTypes},
+	"cache_write": types.ObjectType{AttrTypes: pricingRateAttrTypes},
 }
 
 var modelUpstreamAttrTypes = map[string]attr.Type{
@@ -359,10 +359,10 @@ func (r *modelResource) Schema(_ context.Context, _ resource.SchemaRequest, resp
 				Optional: true,
 				Attributes: map[string]schema.Attribute{
 					"unit":        schema.StringAttribute{Optional: true, Computed: true},
-					"prompt":      schema.StringAttribute{Optional: true, Computed: true},
-					"completion":  schema.StringAttribute{Optional: true, Computed: true},
-					"cache_read":  schema.StringAttribute{Optional: true, Computed: true},
-					"cache_write": schema.StringAttribute{Optional: true, Computed: true},
+					"prompt":      pricingRateResourceAttribute(),
+					"completion":  pricingRateResourceAttribute(),
+					"cache_read":  pricingRateResourceAttribute(),
+					"cache_write": pricingRateResourceAttribute(),
 				},
 			},
 			"upstreams": schema.ListNestedAttribute{
@@ -523,13 +523,23 @@ func modelFromPlan(ctx context.Context, plan modelResourceModel) (*client.Model,
 		var p modelPricingModel
 		diags := plan.Pricing.As(ctx, &p, basetypes.ObjectAsOptions{})
 		if !diags.HasError() {
-			result.Pricing = &client.ModelPricing{
-				Unit:       p.Unit.ValueString(),
-				Prompt:     stringPointer(p.Prompt),
-				Completion: stringPointer(p.Completion),
-				CacheRead:  stringPointer(p.CacheRead),
-				CacheWrite: stringPointer(p.CacheWrite),
+			pricing := &client.ModelPricing{Unit: p.Unit.ValueString()}
+			for _, rate := range []struct {
+				plan types.Object
+				dest **client.PricingRate
+			}{
+				{p.Prompt, &pricing.Prompt},
+				{p.Completion, &pricing.Completion},
+				{p.CacheRead, &pricing.CacheRead},
+				{p.CacheWrite, &pricing.CacheWrite},
+			} {
+				converted, err := pricingRateToClient(ctx, rate.plan)
+				if err != nil {
+					return nil, err
+				}
+				*rate.dest = converted
 			}
+			result.Pricing = pricing
 		}
 	}
 
@@ -702,12 +712,18 @@ func setModelState(ctx context.Context, state *modelResourceModel, model *client
 	}
 
 	if model.Pricing != nil {
-		pricingValues := map[string]attr.Value{
-			"unit":        types.StringValue(model.Pricing.Unit),
-			"prompt":      stringValue(model.Pricing.Prompt),
-			"completion":  stringValue(model.Pricing.Completion),
-			"cache_read":  stringValue(model.Pricing.CacheRead),
-			"cache_write": stringValue(model.Pricing.CacheWrite),
+		pricingValues := map[string]attr.Value{"unit": types.StringValue(model.Pricing.Unit)}
+		for name, rate := range map[string]*client.PricingRate{
+			"prompt":      model.Pricing.Prompt,
+			"completion":  model.Pricing.Completion,
+			"cache_read":  model.Pricing.CacheRead,
+			"cache_write": model.Pricing.CacheWrite,
+		} {
+			value, err := pricingRateToState(name, rate)
+			if err != nil {
+				return err
+			}
+			pricingValues[name] = value
 		}
 		obj, diags := types.ObjectValue(modelPricingAttrTypes, pricingValues)
 		if diags.HasError() {

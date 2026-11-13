@@ -46,9 +46,9 @@
         },
         "pricing": {
           "unit": "token",
-          "prompt": "0.0000011",
-          "completion": "0.0000044",
-          "cacheRead": "0.00000028"
+          "prompt": { "rate": "0.0000011" },
+          "completion": { "rate": "0.0000044" },
+          "cache_read": { "rate": "0.00000028" }
         },
         "endpoint": "http://openai-adapter.example/openai/deployments/o4-mini-2025-04-16/chat/completions",
         "responses_endpoint": "http://openai-adapter.example/openai/v1/responses",

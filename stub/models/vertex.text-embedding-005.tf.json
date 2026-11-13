@@ -15,7 +15,7 @@
         },
         "pricing": {
           "unit": "token",
-          "prompt": "0.000000025347"
+          "prompt": { "rate": "0.000000025347" }
         },
         "endpoint": "http://vertexai-adapter.example/openai/deployments/text-embedding-005/embeddings",
         "responses_endpoint": "",

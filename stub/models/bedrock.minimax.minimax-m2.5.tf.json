@@ -26,8 +26,8 @@
         },
         "pricing": {
           "unit": "token",
-          "prompt": "0.0000003",
-          "completion": "0.0000012"
+          "prompt": { "rate": "0.0000003" },
+          "completion": { "rate": "0.0000012" }
         },
         "endpoint": "http://bedrock-adapter.example/openai/deployments/minimax.minimax-m2.5/chat/completions",
         "responses_endpoint": "",

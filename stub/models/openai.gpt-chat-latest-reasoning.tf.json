@@ -48,9 +48,9 @@
         },
         "pricing": {
           "unit": "token",
-          "prompt": "0.000005",
-          "completion": "0.00003",
-          "cacheRead": "0.0000005"
+          "prompt": { "rate": "0.000005" },
+          "completion": { "rate": "0.00003" },
+          "cache_read": { "rate": "0.0000005" }
         },
         "endpoint": "http://openai-adapter.example/openai/deployments/gpt-chat-latest-reasoning/chat/completions",
         "responses_endpoint": "http://openai-adapter.example/openai/v1/responses",

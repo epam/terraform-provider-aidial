@@ -11,7 +11,7 @@
         "description": "OpenAI text-embedding-ada-002 is OpenAI's legacy general-purpose text embedding model.",
         "pricing": {
           "unit": "token",
-          "prompt": "0.0000001"
+          "prompt": { "rate": "0.0000001" }
         },
         "endpoint": "http://openai-adapter.example/openai/deployments/text-embedding-ada-002/embeddings",
         "responses_endpoint": "http://openai-adapter.example/openai/v1/responses",

@@ -27,8 +27,8 @@
         },
         "pricing": {
           "unit": "token",
-          "prompt": "0.00000024",
-          "completion": "0.00000097"
+          "prompt": { "rate": "0.00000024" },
+          "completion": { "rate": "0.00000097" }
         },
         "endpoint": "http://bedrock-adapter.example/openai/deployments/us.meta.llama4-scout-17b-instruct-v1:0/chat/completions",
         "responses_endpoint": "",

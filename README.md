@@ -280,7 +280,7 @@ resource "aidial_model" "example" {
 }
 ```
 
-`api_name` is the API's canonical name, analogous to `aidial_role`. `type` is one of `CHAT`, `COMPLETION`, `EMBEDDING`. See `openspec/model-schema` for the full attribute list and the known gaps versus the DIAL Core `Model` schema (for example `pricing.cache_read`/`cache_write` are modeled as plain strings rather than `PricingRate` objects, and a handful of `Model` fields such as `responses_defaults` and per-interface settings are not yet exposed).
+`api_name` is the API's canonical name, analogous to `aidial_role`. `type` is one of `CHAT`, `COMPLETION`, `EMBEDDING`. See `openspec/model-schema` for the full attribute list and the known gaps versus the DIAL Core `Model` schema (for example `pricing` rates are modeled one level deep, so a condition nested inside `if_true`/`if_false` is not supported, and a handful of `Model` fields such as `responses_defaults` and per-interface settings are not yet exposed).
 
 `defaults` is a free-form object passed to DIAL Core as-is, so keys inside it keep the API's spelling:
 

@@ -27,8 +27,8 @@
         },
         "pricing": {
           "unit": "token",
-          "prompt": "0.00000045",
-          "completion": "0.0000018"
+          "prompt": { "rate": "0.00000045" },
+          "completion": { "rate": "0.0000018" }
         },
         "endpoint": "http://bedrock-adapter.example/openai/deployments/qwen.qwen3-coder-480b-a35b-v1:0/chat/completions",
         "responses_endpoint": "",

@@ -137,10 +137,10 @@ func (d *fileModelDataSource) Schema(_ context.Context, _ datasource.SchemaReque
 				Computed: true,
 				Attributes: map[string]schema.Attribute{
 					"unit":        schema.StringAttribute{Computed: true},
-					"prompt":      schema.StringAttribute{Computed: true},
-					"completion":  schema.StringAttribute{Computed: true},
-					"cache_read":  schema.StringAttribute{Computed: true},
-					"cache_write": schema.StringAttribute{Computed: true},
+					"prompt":      pricingRateDataSourceAttribute(),
+					"completion":  pricingRateDataSourceAttribute(),
+					"cache_read":  pricingRateDataSourceAttribute(),
+					"cache_write": pricingRateDataSourceAttribute(),
 				},
 			},
 			"upstreams": schema.ListNestedAttribute{

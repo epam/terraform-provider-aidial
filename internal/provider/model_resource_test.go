@@ -36,7 +36,11 @@ func newModelPlan(t *testing.T) modelResourceModel {
 	}
 
 	pricing, diags := types.ObjectValueFrom(context.Background(), modelPricingAttrTypes, modelPricingModel{
-		Unit: types.StringValue("token"),
+		Unit:       types.StringValue("token"),
+		Prompt:     types.ObjectNull(pricingRateAttrTypes),
+		Completion: types.ObjectNull(pricingRateAttrTypes),
+		CacheRead:  types.ObjectNull(pricingRateAttrTypes),
+		CacheWrite: types.ObjectNull(pricingRateAttrTypes),
 	})
 	if diags.HasError() {
 		t.Fatalf("failed to build pricing object: %v", diags)

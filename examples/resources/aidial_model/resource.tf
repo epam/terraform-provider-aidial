@@ -36,8 +36,15 @@ resource "aidial_model" "example" {
 
   pricing = {
     unit       = "token"
-    prompt     = "0.000002"
-    completion = "0.000008"
+    prompt     = { rate = "0.000002" }
+    completion = { rate = "0.000008" }
+
+    # Tiered price: a different cache_read rate above 100000 prompt tokens.
+    cache_read = {
+      test     = { field = "promptTokens", operator = ">", value = "100000" }
+      if_true  = "0.000001"
+      if_false = "0.0000005"
+    }
   }
 
   upstreams = [

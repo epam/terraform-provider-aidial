@@ -20,8 +20,8 @@
         ],
         "pricing": {
           "unit": "token",
-          "prompt": "0",
-          "completion": "0.011"
+          "prompt": { "rate": "0" },
+          "completion": { "rate": "0.011" }
         },
         "endpoint": "http://openai-adapter.example/openai/deployments/gpt-image-1-mini-2025-10-06/chat/completions",
         "responses_endpoint": "http://openai-adapter.example/openai/v1/responses",
