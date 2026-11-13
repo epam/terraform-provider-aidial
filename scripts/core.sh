@@ -53,7 +53,7 @@ url="${url%/}"
 need_docker() {
   if ! docker info >/dev/null 2>&1; then
     echo "No reachable Docker daemon. Set DOCKER_HOST (e.g. tcp://docker:2375 for a docker:dind sidecar)" >&2
-    echo "in ~/devcontainer.env, or run on a host with Docker. See README \"Testing against a local Core\"." >&2
+    echo "in ~/devcontainer.env, or run on a host with Docker. See CONTRIBUTING.md \"Testing against a local Core\"." >&2
     exit 1
   fi
 }
