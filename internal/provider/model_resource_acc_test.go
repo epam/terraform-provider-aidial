@@ -92,3 +92,54 @@ resource "aidial_model" "t" {
 		},
 	})
 }
+
+// Flat and conditional pricing rates survive a round trip through Core without drift.
+func TestAccModel_conditionalPricing(t *testing.T) {
+	path := accPath(t)
+	cfg := func(prompt string) string {
+		return accProviderConfig() + fmt.Sprintf(`
+resource "aidial_model" "t" {
+  bucket   = "platform"
+  path     = %q
+  type     = "CHAT"
+  endpoint = "https://example.invalid/v1/chat/completions"
+  pricing = {
+    unit       = "token"
+    prompt     = %s
+    completion = { rate = "0.000008" }
+    cache_read = {
+      test     = { field = "promptTokens", operator = ">", value = "100000" }
+      if_true  = "0.00000005"
+      if_false = "0.00000001"
+    }
+  }
+}
+`, path, prompt)
+	}
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { accPreCheck(t) },
+		ProtoV6ProviderFactories: accProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: cfg(`{ rate = "0.000002" }`),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("aidial_model.t", "pricing.prompt.rate", "0.000002"),
+					resource.TestCheckResourceAttr("aidial_model.t", "pricing.completion.rate", "0.000008"),
+					resource.TestCheckResourceAttr("aidial_model.t", "pricing.cache_read.test.operator", ">"),
+					resource.TestCheckResourceAttr("aidial_model.t", "pricing.cache_read.test.value", "100000"),
+					resource.TestCheckResourceAttr("aidial_model.t", "pricing.cache_read.if_true", "0.00000005"),
+					resource.TestCheckResourceAttr("aidial_model.t", "pricing.cache_read.if_false", "0.00000001"),
+				),
+			},
+			accImportStep("aidial_model.t"),
+			{
+				Config: cfg(`{
+      test     = { field = "promptTokens", operator = ">", value = "100000" }
+      if_true  = "0.0000005"
+      if_false = "0.0000001"
+    }`),
+				Check: resource.TestCheckResourceAttr("aidial_model.t", "pricing.prompt.if_true", "0.0000005"),
+			},
+		},
+	})
+}
