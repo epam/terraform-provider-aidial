@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/epam/terraform-provider-aidial/internal/client"
-	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -247,35 +246,7 @@ func (r *modelResource) Schema(_ context.Context, _ resource.SchemaRequest, resp
 				Optional:    true,
 				Description: "Model-level base URL (sent to DIAL as `baseUrl`). Completes `interfaces` entries that declare no `base_url`; on its own it serves only the interface types declared in `interfaces`.",
 			},
-			"interfaces": schema.MapNestedAttribute{
-				Optional:    true,
-				Computed:    true,
-				Description: "Per-interface deployment configuration, keyed by DIAL Core interface type: `" + strings.Join(modelInterfaceTypes, "`, `") + "`. The keys are Core's camelCase names and are sent as written; the attributes inside each entry use snake_case.",
-				Validators:  []validator.Map{mapvalidator.KeysAre(stringvalidator.OneOf(modelInterfaceTypes...))},
-				NestedObject: schema.NestedAttributeObject{
-					Attributes: map[string]schema.Attribute{
-						"base_url": schema.StringAttribute{
-							Optional: true,
-							Computed: true,
-						},
-						"mode": schema.StringAttribute{
-							Optional:    true,
-							Description: "`passthrough` (default) or `translator`.",
-							Validators:  []validator.String{stringvalidator.OneOf("passthrough", "translator")},
-						},
-						"override_paths": schema.MapAttribute{
-							Optional:    true,
-							ElementType: types.StringType,
-							Description: "Overrides of the paths appended to the interface base URL.",
-						},
-						"default_headers": schema.MapAttribute{
-							Optional:    true,
-							ElementType: types.StringType,
-							Description: "Additional headers sent with every request served by this interface.",
-						},
-					},
-				},
-			},
+			"interfaces": interfacesResourceAttribute(),
 			"default_headers": schema.MapAttribute{
 				Optional:    true,
 				Computed:    true,
@@ -375,39 +346,7 @@ func (r *modelResource) Schema(_ context.Context, _ resource.SchemaRequest, resp
 				Computed:    true,
 				Description: "Model status returned by the DIAL API.",
 			},
-			"features": schema.SingleNestedAttribute{
-				Optional: true,
-				Attributes: map[string]schema.Attribute{
-					"accessible_by_per_request_key":              schema.BoolAttribute{Optional: true, Computed: true},
-					"allow_resume":                               schema.BoolAttribute{Optional: true, Computed: true},
-					"assistant_attachments_in_request_supported": schema.BoolAttribute{Optional: true, Computed: true},
-					"auto_caching_supported":                     schema.BoolAttribute{Optional: true, Computed: true},
-					"cache_supported":                            schema.BoolAttribute{Optional: true, Computed: true},
-					"configuration_endpoint":                     schema.StringAttribute{Optional: true, Computed: true},
-					"consent_required":                           schema.BoolAttribute{Optional: true, Computed: true},
-					"content_parts_supported":                    schema.BoolAttribute{Optional: true, Computed: true},
-					"custom_temperature_supported":               schema.BoolAttribute{Optional: true, Computed: true},
-					"folder_attachments_supported":               schema.BoolAttribute{Optional: true, Computed: true},
-					"max_completion_tokens_supported":            schema.BoolAttribute{Optional: true, Computed: true},
-					"max_tokens_supported":                       schema.BoolAttribute{Optional: true, Computed: true},
-					"parallel_tool_calls_supported":              schema.BoolAttribute{Optional: true, Computed: true},
-					"rate_endpoint":                              schema.StringAttribute{Optional: true, Computed: true},
-					"reasoning_efforts": schema.SetAttribute{
-						Optional:    true,
-						Computed:    true,
-						ElementType: types.StringType,
-					},
-					"seed_supported":                   schema.BoolAttribute{Optional: true, Computed: true},
-					"support_comment_in_rate_response": schema.BoolAttribute{Optional: true, Computed: true},
-					"system_prompt_supported":          schema.BoolAttribute{Optional: true, Computed: true},
-					"temperature_supported":            schema.BoolAttribute{Optional: true, Computed: true},
-					"tokenize_endpoint":                schema.StringAttribute{Optional: true, Computed: true},
-					"tools_supported":                  schema.BoolAttribute{Optional: true, Computed: true},
-					"truncate_prompt_endpoint":         schema.StringAttribute{Optional: true, Computed: true},
-					"url_attachments_supported":        schema.BoolAttribute{Optional: true, Computed: true},
-					"skills_supported":                 schema.BoolAttribute{Optional: true, Computed: true},
-				},
-			},
+			"features": featuresResourceAttribute(),
 			"limits": schema.SingleNestedAttribute{
 				Optional: true,
 				Attributes: map[string]schema.Attribute{
@@ -566,44 +505,7 @@ func modelFromPlan(ctx context.Context, plan modelResourceModel) (*client.Model,
 		result.Author = stringPointer(plan.Author)
 	}
 
-	if !plan.Features.IsNull() && !plan.Features.IsUnknown() {
-		var f modelFeaturesModel
-		diags := plan.Features.As(ctx, &f, basetypes.ObjectAsOptions{})
-		if !diags.HasError() {
-			result.Features = &client.ModelFeatures{
-				AccessibleByPerRequestKey:              boolPointer(f.AccessibleByPerRequestKey),
-				AllowResume:                            boolPointer(f.AllowResume),
-				AssistantAttachmentsInRequestSupported: boolPointer(f.AssistantAttachmentsInRequestSupported),
-				AutoCachingSupported:                   boolPointer(f.AutoCachingSupported),
-				CacheSupported:                         boolPointer(f.CacheSupported),
-				ConfigurationEndpoint:                  stringPointer(f.ConfigurationEndpoint),
-				ConsentRequired:                        boolPointer(f.ConsentRequired),
-				ContentPartsSupported:                  boolPointer(f.ContentPartsSupported),
-				CustomTemperatureSupported:             boolPointer(f.CustomTemperatureSupported),
-				FolderAttachmentsSupported:             boolPointer(f.FolderAttachmentsSupported),
-				MaxCompletionTokensSupported:           boolPointer(f.MaxCompletionTokensSupported),
-				MaxTokensSupported:                     boolPointer(f.MaxTokensSupported),
-				ParallelToolCallsSupported:             boolPointer(f.ParallelToolCallsSupported),
-				RateEndpoint:                           stringPointer(f.RateEndpoint),
-				SeedSupported:                          boolPointer(f.SeedSupported),
-				SupportCommentInRateResponse:           boolPointer(f.SupportCommentInRateResponse),
-				SystemPromptSupported:                  boolPointer(f.SystemPromptSupported),
-				TemperatureSupported:                   boolPointer(f.TemperatureSupported),
-				TokenizeEndpoint:                       stringPointer(f.TokenizeEndpoint),
-				ToolsSupported:                         boolPointer(f.ToolsSupported),
-				TruncatePromptEndpoint:                 stringPointer(f.TruncatePromptEndpoint),
-				URLAttachmentsSupported:                boolPointer(f.URLAttachmentsSupported),
-				SkillsSupported:                        boolPointer(f.SkillsSupported),
-			}
-			if !f.ReasoningEfforts.IsNull() && !f.ReasoningEfforts.IsUnknown() {
-				var efforts []string
-				diags2 := f.ReasoningEfforts.ElementsAs(ctx, &efforts, false)
-				if !diags2.HasError() {
-					result.Features.ReasoningEfforts = efforts
-				}
-			}
-		}
-	}
+	result.Features = featuresFromObject(ctx, plan.Features)
 
 	if !plan.Limits.IsNull() && !plan.Limits.IsUnknown() {
 		var l modelLimitsModel
@@ -695,38 +597,11 @@ func modelFromPlan(ctx context.Context, plan modelResourceModel) (*client.Model,
 		}
 	}
 
-	if !plan.Interfaces.IsNull() && !plan.Interfaces.IsUnknown() {
-		var interfaces map[string]modelInterfaceModel
-		diags := plan.Interfaces.ElementsAs(ctx, &interfaces, false)
-		if diags.HasError() {
-			return nil, fmt.Errorf("invalid interfaces")
-		}
-
-		result.Interfaces = make(map[string]client.ModelInterface, len(interfaces))
-		for name, iface := range interfaces {
-			var baseURL *string
-			if !iface.BaseURL.IsNull() && !iface.BaseURL.IsUnknown() {
-				value := iface.BaseURL.ValueString()
-				baseURL = &value
-			}
-
-			overridePaths, err := optionalStringMap(ctx, iface.OverridePaths, "interfaces."+name+".override_paths")
-			if err != nil {
-				return nil, err
-			}
-			defaultHeaders, err := optionalStringMap(ctx, iface.DefaultHeaders, "interfaces."+name+".default_headers")
-			if err != nil {
-				return nil, err
-			}
-
-			result.Interfaces[name] = client.ModelInterface{
-				BaseURL:        baseURL,
-				Mode:           stringPointer(iface.Mode),
-				OverridePaths:  overridePaths,
-				DefaultHeaders: defaultHeaders,
-			}
-		}
+	interfaces, err := interfacesFromMap(ctx, plan.Interfaces)
+	if err != nil {
+		return nil, err
 	}
+	result.Interfaces = interfaces
 
 	if !plan.DefaultHeaders.IsNull() && !plan.DefaultHeaders.IsUnknown() {
 		headers := make(map[string]string)
@@ -805,51 +680,11 @@ func setModelState(ctx context.Context, state *modelResourceModel, model *client
 		*list.target = value
 	}
 
-	if model.Features != nil {
-		featureValues := map[string]attr.Value{
-			"accessible_by_per_request_key":              boolValue(model.Features.AccessibleByPerRequestKey),
-			"allow_resume":                               boolValue(model.Features.AllowResume),
-			"assistant_attachments_in_request_supported": boolValue(model.Features.AssistantAttachmentsInRequestSupported),
-			"auto_caching_supported":                     boolValue(model.Features.AutoCachingSupported),
-			"cache_supported":                            boolValue(model.Features.CacheSupported),
-			"configuration_endpoint":                     stringValue(model.Features.ConfigurationEndpoint),
-			"consent_required":                           boolValue(model.Features.ConsentRequired),
-			"content_parts_supported":                    boolValue(model.Features.ContentPartsSupported),
-			"custom_temperature_supported":               boolValue(model.Features.CustomTemperatureSupported),
-			"folder_attachments_supported":               boolValue(model.Features.FolderAttachmentsSupported),
-			"max_completion_tokens_supported":            boolValue(model.Features.MaxCompletionTokensSupported),
-			"max_tokens_supported":                       boolValue(model.Features.MaxTokensSupported),
-			"parallel_tool_calls_supported":              boolValue(model.Features.ParallelToolCallsSupported),
-			"rate_endpoint":                              stringValue(model.Features.RateEndpoint),
-			"seed_supported":                             boolValue(model.Features.SeedSupported),
-			"support_comment_in_rate_response":           boolValue(model.Features.SupportCommentInRateResponse),
-			"system_prompt_supported":                    boolValue(model.Features.SystemPromptSupported),
-			"temperature_supported":                      boolValue(model.Features.TemperatureSupported),
-			"tokenize_endpoint":                          stringValue(model.Features.TokenizeEndpoint),
-			"tools_supported":                            boolValue(model.Features.ToolsSupported),
-			"truncate_prompt_endpoint":                   stringValue(model.Features.TruncatePromptEndpoint),
-			"url_attachments_supported":                  boolValue(model.Features.URLAttachmentsSupported),
-			"skills_supported":                           boolValue(model.Features.SkillsSupported),
-		}
-
-		if len(model.Features.ReasoningEfforts) > 0 {
-			efforts, diags := types.SetValueFrom(ctx, types.StringType, model.Features.ReasoningEfforts)
-			if diags.HasError() {
-				efforts = types.SetNull(types.StringType)
-			}
-			featureValues["reasoning_efforts"] = efforts
-		} else {
-			featureValues["reasoning_efforts"] = types.SetNull(types.StringType)
-		}
-
-		obj, diags := types.ObjectValue(modelFeaturesAttrTypes, featureValues)
-		if diags.HasError() {
-			return fmt.Errorf("failed to build features object")
-		}
-		state.Features = obj
-	} else {
-		state.Features = types.ObjectNull(modelFeaturesAttrTypes)
+	features, err := featuresToObject(ctx, model.Features)
+	if err != nil {
+		return err
 	}
+	state.Features = features
 
 	if model.Limits != nil {
 		limitsValues := map[string]attr.Value{
@@ -966,41 +801,9 @@ func setModelState(ctx context.Context, state *modelResourceModel, model *client
 	}
 
 	// Preserve existing values if the API omits base_url.
-	interfaces := make(map[string]modelInterfaceModel)
-	if !state.Interfaces.IsNull() && !state.Interfaces.IsUnknown() {
-		interfaceDiags := state.Interfaces.ElementsAs(ctx, &interfaces, false)
-		if interfaceDiags.HasError() {
-			return fmt.Errorf("failed to read interfaces from state: %s", interfaceDiags.Errors()[0].Summary())
-		}
-	}
-
-	for name, iface := range model.Interfaces {
-		baseURL := types.StringNull()
-
-		if iface.BaseURL != nil {
-			baseURL = types.StringValue(*iface.BaseURL)
-		} else if existing, ok := interfaces[name]; ok &&
-			!existing.BaseURL.IsNull() &&
-			!existing.BaseURL.IsUnknown() {
-			baseURL = existing.BaseURL
-		}
-
-		existing := interfaces[name]
-		interfaces[name] = modelInterfaceModel{
-			BaseURL:        baseURL,
-			Mode:           stringValue(iface.Mode),
-			OverridePaths:  optionalStringMapToState(ctx, existing.OverridePaths, iface.OverridePaths),
-			DefaultHeaders: optionalStringMapToState(ctx, existing.DefaultHeaders, iface.DefaultHeaders),
-		}
-	}
-
-	interfacesValue, interfaceDiags := types.MapValueFrom(
-		ctx,
-		types.ObjectType{AttrTypes: modelInterfaceAttrTypes},
-		interfaces,
-	)
-	if interfaceDiags.HasError() {
-		return fmt.Errorf("failed to set interfaces: %s", interfaceDiags.Errors()[0].Summary())
+	interfacesValue, err := interfacesToMap(ctx, state.Interfaces, model.Interfaces)
+	if err != nil {
+		return err
 	}
 	state.Interfaces = interfacesValue
 
