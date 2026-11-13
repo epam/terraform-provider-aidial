@@ -76,6 +76,22 @@ Name handling: DIAL Core addresses a model only by `bucket` and `path` and ignor
 - **WHEN** `name` is added to, changed in or removed from a config with `bucket` and `path` unchanged
 - **THEN** the plan updates in place or shows no change, and never plans replacement
 
+#### Scenario: Flat pricing rate
+- **WHEN** a config sets `pricing.prompt = { rate = "0.000002" }`
+- **THEN** the rate is sent to DIAL Core as the plain string `"0.000002"` and read back as `rate` with `test`, `if_true` and `if_false` null
+
+#### Scenario: Conditional pricing rate
+- **WHEN** a config sets a rate with `test = { field = "promptTokens", operator = ">", value = "100000" }`, `if_true` and `if_false`
+- **THEN** DIAL Core receives an object with `test` (a numeric `value` as a JSON number), `ifTrue` and `ifFalse`, and the next plan shows no change
+
+#### Scenario: Invalid pricing rate
+- **WHEN** a rate sets `rate` together with `test`, `if_true` or `if_false`, sets `test` without both branches, or sets a branch without `test`, or uses an unknown `operator`
+- **THEN** validation fails at plan time
+
+#### Scenario: Nested pricing condition from Core
+- **WHEN** DIAL Core returns a condition inside `ifTrue` or `ifFalse`
+- **THEN** the read fails with an error naming the attribute instead of dropping the condition
+
 ## Implementation Notes
 
 - Optional-only versus optional+computed attributes follow DIAL Core's defaults; see the "Null and empty values stay distinct" requirement in `model-state-consistency`.
