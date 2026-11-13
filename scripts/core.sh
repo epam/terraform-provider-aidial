@@ -12,14 +12,17 @@
 # It never removes an external Core. Set CORE_URL=http://localhost:8080 to use a Core on
 # this machine while Docker is available.
 #
-# Env: CORE_URL (external Core, see above), CORE_VERSION (image tag, default latest), CORE_HOST (default localhost),
+# Env: CORE_URL (external Core, see above), CORE_VERSION (image tag, default: the tag of openapicore/SOURCE.md), CORE_HOST (default localhost),
 #      CORE_PORT (default 8080), CORE_BIND (publish address, default 0.0.0.0 so
 #      containers can reach it; use 127.0.0.1 to keep it local), CORE_WAIT (seconds, default 120).
 #      DOCKER_HOST selects the Docker daemon.
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-export CORE_VERSION="${CORE_VERSION:-latest}"
+# Default image tag: the release the checked-in OpenAPI contract comes from.
+# Rewritten by scripts/update-openapi.sh; override with CORE_VERSION.
+DEFAULT_CORE_VERSION=0.50.1
+export CORE_VERSION="${CORE_VERSION:-$DEFAULT_CORE_VERSION}"
 export CORE_PORT="${CORE_PORT:-8080}"
 export CORE_BIND="${CORE_BIND:-0.0.0.0}"
 host="${CORE_HOST:-localhost}"

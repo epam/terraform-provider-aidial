@@ -87,7 +87,8 @@ Required:
 
 Optional:
 
-- `auth_type` (String)
+- `auth_header_name` (String) Name of the HTTP header that carries the key. Required when `auth_type` is `CUSTOM_HEADER`, not allowed otherwise.
+- `auth_type` (String) How the key is sent to the upstream: `API_KEY`, `BEARER` or `CUSTOM_HEADER`. `CUSTOM_HEADER` requires `auth_header_name` and needs DIAL Core 0.50 or newer.
 - `base_url` (String)
 - `extra_data` (Map of String)
 - `id` (String)

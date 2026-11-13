@@ -1,7 +1,8 @@
 #!/bin/sh
 # Refreshes openapicore/open_api_core.yaml from docs/open_api_core.yaml of a
 # tagged epam/ai-dial-core release and records the source in
-# openapicore/SOURCE.md. Nothing is changed if the download fails.
+# openapicore/SOURCE.md, and sets the default image tag in scripts/core.sh to
+# the same tag. Nothing is changed if the download fails.
 #
 # Usage: scripts/update-openapi.sh <tag>
 #   tag   upstream release tag without a "v" prefix, e.g. 0.49.3
@@ -48,4 +49,12 @@ cat > "$dir/SOURCE.md" <<EOT
 
 Refresh with \`make openapi TAG=<tag>\` (see \`scripts/update-openapi.sh\`). Do not edit the YAML by hand.
 EOT
-echo "updated $dir/open_api_core.yaml to $tag"
+core_sh=$(cd "$(dirname "$0")" && pwd)/core.sh
+if grep -q '^DEFAULT_CORE_VERSION=' "$core_sh"; then
+  sed "s/^DEFAULT_CORE_VERSION=.*/DEFAULT_CORE_VERSION=$tag/" "$core_sh" > "$core_sh.tmp"
+  cat "$core_sh.tmp" > "$core_sh" # keeps the file mode
+  rm -f "$core_sh.tmp"
+else
+  echo "warning: DEFAULT_CORE_VERSION not found in $core_sh" >&2
+fi
+echo "updated $dir/open_api_core.yaml and the default Core version to $tag"

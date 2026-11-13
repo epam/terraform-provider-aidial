@@ -135,6 +135,7 @@ Read-Only:
 
 Read-Only:
 
+- `auth_header_name` (String)
 - `auth_type` (String)
 - `base_url` (String)
 - `endpoint` (String)

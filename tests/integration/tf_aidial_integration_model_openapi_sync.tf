@@ -31,6 +31,14 @@ resource "aidial_model" "tf_aidial_integration_model_openapi_sync" {
       weight    = 1
       tier      = 0
     },
+    {
+      endpoint         = "https://example.invalid/v1/chat/completions"
+      key              = "tf-aidial-ci-upstream-key"
+      auth_type        = "CUSTOM_HEADER"
+      auth_header_name = "X-Upstream-Key"
+      weight           = 1
+      tier             = 1
+    },
   ]
 }
 
@@ -56,6 +64,23 @@ resource "aidial_route" "tf_aidial_integration_route_upstream_fields" {
       auth_type = "API_KEY"
       weight    = 1
       tier      = 0
+    },
+  ]
+}
+
+resource "aidial_route" "tf_aidial_integration_route_custom_header" {
+  bucket = "platform"
+  path   = "tf-aidial-ci-test-route-custom-header"
+  paths  = ["/tf-aidial-ci-custom-header"]
+
+  upstreams = [
+    {
+      endpoint         = "https://example.invalid/route"
+      key              = "tf-aidial-ci-upstream-key"
+      auth_type        = "CUSTOM_HEADER"
+      auth_header_name = "X-Upstream-Key"
+      weight           = 1
+      tier             = 0
     },
   ]
 }

@@ -458,10 +458,10 @@ The provider code, its behavior specs, the local DIAL Core stack and the integra
 `openapicore/open_api_core.yaml` is an unmodified copy of `docs/open_api_core.yaml` from a tagged [epam/ai-dial-core](https://github.com/epam/ai-dial-core) release; `openapicore/SOURCE.md` records which tag. To refresh it:
 
 ```bash
-make openapi TAG=0.49.3
+make openapi TAG=0.50.1
 ```
 
-The target fails without changing anything if the tag or file does not exist. After a refresh, diff the contract and update any notes in `openspec/*-schema` and `openspec/*-client` that cite it. CI uses the checked-in copy and never fetches it.
+The target also sets the default image tag in `scripts/core.sh` to the same tag. It fails without changing anything if the tag or file does not exist. After a refresh, diff the contract and update any notes in `openspec/*-schema` and `openspec/*-client` that cite it. CI uses the checked-in copy and never fetches it.
 
 ## Devcontainer
 
@@ -507,7 +507,7 @@ The CI integration job and the Go acceptance tests run against a throwaway DIAL 
 1. On the host (not in the devcontainer), from a checkout of this repository:
 
    ```bash
-   scripts/core.sh up                          # CORE_VERSION=0.48.1 scripts/core.sh up to pin a version (default: latest)
+   scripts/core.sh up                          # CORE_VERSION=latest scripts/core.sh up to use another tag (default: the tag in `openapicore/SOURCE.md`)
    ```
 
    It starts Core and Valkey, waits for `/health` and prints the URL. The Core is published on `0.0.0.0:8080` so containers can reach it, which also exposes it to your network, so firewall the port or set `CORE_BIND=127.0.0.1` when you only use it from the host. It uses the throwaway API key `ci-check-key` and holds no real data. `CORE_PORT` changes the port. A `/health` answer of `401` still counts as up.

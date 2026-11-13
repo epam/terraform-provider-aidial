@@ -37,7 +37,7 @@ openapi:
 	@test -n "$(TAG)" || { echo "usage: make openapi TAG=<tag>   (e.g. 0.49.3)" >&2; exit 2; }
 	scripts/update-openapi.sh "$(TAG)"
 
-# Throwaway DIAL Core (tests/core). CORE_VERSION selects the image tag (default latest);
+# Throwaway DIAL Core (tests/core). CORE_VERSION selects the image tag (default: the tag in openapicore/SOURCE.md);
 # DOCKER_HOST selects the daemon. See README "Testing against a local Core".
 core-up:
 	scripts/core.sh up
