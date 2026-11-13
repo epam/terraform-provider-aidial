@@ -177,6 +177,7 @@ The repository's own CI uses this setup against a throwaway Core (`tests/core/do
 | Resource | `aidial_application_type_schema` | Create/update/delete a custom application type schema (a JSON Schema identified by its `$id`). |
 | Resource | `aidial_toolset` | Create/update/delete a toolset (an MCP tool server: endpoint, transport, allowed tools, upstream authentication, ...). |
 | Resource | `aidial_interceptor` | Create/update/delete an interceptor (a service in the request pipeline that models reference by name through `interceptors`). |
+| Resource | `aidial_application` | Create/update/delete an application (an endpoint-based or application-type-schema-based chat deployment). |
 | Data source | `aidial_bucket` | Look up a bucket's `bucket`/`appdata`. |
 | Data source | `aidial_role` | Look up an existing role without managing it. |
 | Data source | `aidial_model` | Look up an existing API-managed model by `bucket`/`path` without managing it. |
@@ -188,8 +189,10 @@ The repository's own CI uses this setup against a throwaway Core (`tests/core/do
 | Data source | `aidial_file_toolset` | Look up a file-sourced toolset (statically configured in DIAL Core, by name only, no resource equivalent). |
 | Data source | `aidial_interceptor` | Look up an existing API-managed interceptor by `bucket`/`path` without managing it. |
 | Data source | `aidial_file_interceptor` | Look up a file-sourced interceptor (statically configured in DIAL Core, by name only, no resource equivalent). |
+| Data source | `aidial_application` | Look up an existing API-managed application by `bucket`/`path` without managing it. |
+| Data source | `aidial_file_application` | Look up a file-sourced application (statically configured in DIAL Core, by name only, no resource equivalent). |
 
-All eight resources, and the `aidial_role`, `aidial_model`, `aidial_catalog_schema`, `aidial_application_type_schema`, `aidial_toolset` and `aidial_interceptor` data sources, share the same identity model: `bucket` and `path` are required, with no defaults. `path` must be non-empty and may contain `/` (except for interceptors, where DIAL Core rejects it). Omitting either fails validation at plan time. Both force replacement on change, and `id` is persisted as `<bucket>/<path>`. `bucket` must be `platform` for every type except toolsets (DIAL Core stores those resources only there; the bucket returned by `aidial_bucket` is not accepted). Toolsets accept any non-empty bucket, for example `public`, and leave it to DIAL Core to reject the ones it does not allow.
+All nine resources, and the `aidial_role`, `aidial_model`, `aidial_catalog_schema`, `aidial_application_type_schema`, `aidial_toolset`, `aidial_interceptor` and `aidial_application` data sources, share the same identity model: `bucket` and `path` are required, with no defaults. `path` must be non-empty and may contain `/` (except for interceptors, where DIAL Core rejects it, and for applications outside the `public` bucket). Omitting either fails validation at plan time. Both force replacement on change, and `id` is persisted as `<bucket>/<path>`. `bucket` must be `platform` for every type except toolsets and applications (DIAL Core stores those resources only there; the bucket returned by `aidial_bucket` is not accepted). Toolsets and applications accept any non-empty bucket, for example `public`, and leave it to DIAL Core to reject the ones it does not allow.
 
 ## Bucket data source
 
@@ -365,6 +368,29 @@ resource "aidial_interceptor" "example" {
 
 `aidial_interceptor` (data source) reads one by `bucket` and `path`, and `aidial_file_interceptor` reads an interceptor from DIAL Core's static configuration by `name`. See `openspec/specs/interceptor-resource` for the full behavior.
 
+## Application resource
+
+```hcl
+resource "aidial_application" "example" {
+  bucket       = "platform"
+  path         = "my-application"
+  display_name = "Support assistant"
+  endpoint     = "https://application.example.invalid/chat"
+
+  interceptors = ["my-interceptor"]
+}
+```
+
+`aidial_application` registers an application in DIAL Core. A few notes:
+
+- Set exactly one of `endpoint` (endpoint-based) and `application_type_schema_id` (schema-based, with its values in `application_properties`). Core rejects both together and rejects neither, so the provider fails at plan time. `application_type_schema_id` takes the `schema_id` of an `aidial_application_type_schema`.
+- `forward_auth_token` (`false`), `max_retry_attempts` (`1`) and `interceptors` (empty) are filled in by DIAL Core when you leave them out, so they are read back into state. `interceptors` lists interceptor names; the provider does not check that they exist.
+- `features` and `interfaces` have the same shape as on `aidial_model`. `defaults`, `application_properties` and `catalog_properties` are free-form objects.
+- Only the attributes above and in the generated docs are managed. DIAL Core replaces the whole application on every save, so code-based applications (`function`) and values set out of band in `mcp`, `routes`, `external_services` or other fields the provider does not expose are removed by the next apply. `author`, `created_at` and `updated_at` are not attributes.
+- DIAL Core accepts the `platform` and `public` buckets. A path with `/` works only in `public`. For a `public` application Core returns `name` as `applications/public/<path>`.
+
+`aidial_application` (data source) reads one by `bucket` and `path`, and `aidial_file_application` reads an application from DIAL Core's static configuration by `name`. See `openspec/specs/application-resource` for the full behavior.
+
 ## Role data source
 
 ```hcl
@@ -390,7 +416,7 @@ It returns the same computed attributes as `aidial_model` (`type`, `features`, `
 
 ## Import
 
-The `aidial_role`, `aidial_key`, `aidial_model`, `aidial_route`, `aidial_toolset` and `aidial_interceptor` resources support import using `<bucket>/<path>`:
+The `aidial_role`, `aidial_key`, `aidial_model`, `aidial_route`, `aidial_toolset`, `aidial_interceptor` and `aidial_application` resources support import using `<bucket>/<path>`:
 
 ```bash
 terraform import aidial_role.example '<bucket>/<path>'
@@ -399,6 +425,7 @@ terraform import aidial_model.example '<bucket>/<path>'
 terraform import aidial_route.example '<bucket>/<path>'
 terraform import aidial_toolset.example '<bucket>/<path>'
 terraform import aidial_interceptor.example '<bucket>/<path>'
+terraform import aidial_application.example '<bucket>/<path>'
 ```
 
 Import only sets `id`, `bucket`, and `path`; every other attribute, including `name`, is populated by the subsequent refresh.
@@ -479,6 +506,8 @@ The provider uses these endpoints:
 - `GET /v1/admin/config/file/toolsets/{name}` for the `aidial_file_toolset` data source (file-sourced toolsets: no bucket, read-only).
 - `GET|PUT|DELETE /v1/interceptors/{bucket}/{path}` for `aidial_interceptor`.
 - `GET /v1/admin/config/file/interceptors/{name}` for the `aidial_file_interceptor` data source (file-sourced interceptors: no bucket, read-only).
+- `GET|PUT|DELETE /v1/applications/{bucket}/{path}` for `aidial_application`. DIAL Core 0.50.1 reads and writes applications with snake_case keys and expects `/` in the path to stay a `/`, so the client follows what Core does.
+- `GET /v1/admin/config/file/applications/{name}` for the `aidial_file_application` data source (file-sourced applications: no bucket, read-only).
 
 Every request uses the `Api-Key` header. `GET` returns `404` for a missing resource (treated as absent, not an error); `DELETE` treats `404` as a successful no-op; `PUT` on save returns only `{"name": ...}`, so every create/update re-reads the resource via `GET` to obtain the authoritative state. DIAL Core also supports `If-Match`/`If-None-Match`/`ETag`/`304`/`412` optimistic-concurrency headers on all three mutating operations for models and routes; the provider does not currently send or interpret them (see `openspec/model-client` and `openspec/route-client`).
 
