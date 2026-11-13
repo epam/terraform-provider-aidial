@@ -159,8 +159,6 @@ jobs:
           terraform_version: ${{ env.TERRAFORM_VERSION }}
           terraform_wrapper: false
       - name: Integration run (Core, apply, drift check, destroy)
-        env:
-          CORE_VERSION: latest # release tag, intentionally unpinned
         run: scripts/test-integration.sh
       - name: Remove credentials file
         if: always()
@@ -194,7 +192,6 @@ jobs:
           terraform_wrapper: false
       - name: JWT integration run (OIDC token, Core, apply, destroy)
         env:
-          CORE_VERSION: latest # release tag, intentionally unpinned
           # Must match `audience` in tests/core/docker-compose.yml.
           OIDC_AUDIENCE: aidial-ci
         run: |

@@ -3,8 +3,8 @@
 `open_api_core.yaml` is an unmodified copy of `docs/open_api_core.yaml` from a tagged DIAL Core release.
 
 - Repository: <https://github.com/epam/ai-dial-core>
-- Tag: 0.49.4
-- URL: <https://raw.githubusercontent.com/epam/ai-dial-core/0.49.4/docs/open_api_core.yaml>
-- Upstream `info.version`: 0.49.3
+- Tag: 0.50.1
+- URL: <https://raw.githubusercontent.com/epam/ai-dial-core/0.50.1/docs/open_api_core.yaml>
+- Upstream `info.version`: 0.50.0
 
 Refresh with `make openapi TAG=<tag>` (see `scripts/update-openapi.sh`). Do not edit the YAML by hand.

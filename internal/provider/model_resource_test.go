@@ -531,7 +531,7 @@ func TestSetModelStateKeepsWriteOnlyUpstreamFields(t *testing.T) {
 			"endpoint": types.StringValue(endpoint), "responses_endpoint": types.StringNull(), "id": types.StringNull(),
 			"extra_data": types.MapNull(types.StringType), "key": key, "secret_extra_data": secret,
 			"tier": types.Int64Null(), "weight": types.Int64Null(),
-			"base_url": types.StringNull(), "auth_type": types.StringNull(),
+			"base_url": types.StringNull(), "auth_type": types.StringNull(), "auth_header_name": types.StringNull(),
 		})
 	}
 	planned := types.ListValueMust(upstreamType, []attr.Value{

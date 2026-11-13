@@ -7,7 +7,7 @@ Define how CI runs the `tests/integration` manifests against a throwaway DIAL Co
 ## Requirements
 
 ### Requirement: Integration runs against an ephemeral Core
-The linux integration job in GitHub Actions SHALL start a DIAL Core and its Valkey from the shared `tests/core/docker-compose.yml`, with the `epam/ai-dial-core:latest` image unless `CORE_VERSION` says otherwise, and SHALL apply `tests/integration` only against that Core through the shared runner script.
+The linux integration job in GitHub Actions SHALL start a DIAL Core and its Valkey from the shared `tests/core/docker-compose.yml`, with the `epam/ai-dial-core` image tag that `scripts/core.sh` defaults to (the release of the checked-in OpenAPI contract, kept in step by `scripts/update-openapi.sh`) unless `CORE_VERSION` says otherwise, and SHALL apply `tests/integration` only against that Core through the shared runner script.
 
 #### Scenario: Merge request pipeline
 - **WHEN** a pull request workflow runs and the build and validate jobs succeed

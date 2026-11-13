@@ -137,6 +137,7 @@ type modelUpstreamModel struct {
 	Weight            types.Int64  `tfsdk:"weight"`
 	BaseURL           types.String `tfsdk:"base_url"`
 	AuthType          types.String `tfsdk:"auth_type"`
+	AuthHeaderName    types.String `tfsdk:"auth_header_name"`
 }
 
 var modelInterfaceAttrTypes = map[string]attr.Type{
@@ -198,6 +199,7 @@ var modelUpstreamAttrTypes = map[string]attr.Type{
 	"weight":             types.Int64Type,
 	"base_url":           types.StringType,
 	"auth_type":          types.StringType,
+	"auth_header_name":   types.StringType,
 }
 
 func (r *modelResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -439,9 +441,22 @@ func (r *modelResource) Schema(_ context.Context, _ resource.SchemaRequest, resp
 						"weight":             schema.Int64Attribute{Optional: true, Computed: true},
 						"base_url":           schema.StringAttribute{Optional: true, Computed: true},
 						"auth_type": schema.StringAttribute{
-							Optional:   true,
-							Computed:   true,
-							Validators: []validator.String{stringvalidator.OneOf("API_KEY", "BEARER")},
+							Optional:    true,
+							Computed:    true,
+							Description: "How the key is sent to the upstream: `API_KEY`, `BEARER` or `CUSTOM_HEADER`. `CUSTOM_HEADER` requires `auth_header_name` and needs DIAL Core 0.50 or newer.",
+							Validators: []validator.String{
+								stringvalidator.OneOf("API_KEY", "BEARER", "CUSTOM_HEADER"),
+								authHeaderNameRequiredForCustomHeader{},
+							},
+						},
+						"auth_header_name": schema.StringAttribute{
+							Optional:    true,
+							Computed:    true,
+							Description: "Name of the HTTP header that carries the key. Required when `auth_type` is `CUSTOM_HEADER`, not allowed otherwise.",
+							Validators: []validator.String{
+								stringvalidator.LengthAtLeast(1),
+								authHeaderNameOnlyForCustomHeader{},
+							},
 						},
 					},
 				},
@@ -674,6 +689,7 @@ func modelFromPlan(ctx context.Context, plan modelResourceModel) (*client.Model,
 					Weight:            weight,
 					BaseURL:           stringPointer(u.BaseURL),
 					AuthType:          stringPointer(u.AuthType),
+					AuthHeaderName:    stringPointer(u.AuthHeaderName),
 				})
 			}
 		}
@@ -918,6 +934,7 @@ func setModelState(ctx context.Context, state *modelResourceModel, model *client
 			uValues := map[string]attr.Value{
 				"base_url":           stringValue(u.BaseURL),
 				"auth_type":          stringValue(u.AuthType),
+				"auth_header_name":   stringValue(u.AuthHeaderName),
 				"endpoint":           stringValue(u.Endpoint),
 				"responses_endpoint": responsesEndpointVal,
 				"id":                 idVal,

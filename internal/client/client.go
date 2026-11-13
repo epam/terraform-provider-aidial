@@ -559,12 +559,39 @@ type ModelUpstream struct {
 	Weight            *int              `json:"weight,omitempty"`
 	BaseURL           *string           `json:"baseUrl,omitempty"`
 	AuthType          *string           `json:"authType,omitempty"`
+	// AuthHeaderName is authType.headerName, required by DIAL Core for the
+	// CUSTOM_HEADER auth type and rejected for the others.
+	AuthHeaderName *string `json:"-"`
+}
+
+// MarshalJSON sends authType as the plain enum string, which every Core
+// version accepts, and as an {"type", "headerName"} object only for
+// CUSTOM_HEADER, which exists only in the object form (Core 0.50+).
+func (u ModelUpstream) MarshalJSON() ([]byte, error) {
+	type plain ModelUpstream
+	aux := struct {
+		plain
+		AuthType any `json:"authType,omitempty"`
+	}{plain: plain(u)}
+	switch {
+	case u.AuthType == nil:
+	case u.AuthHeaderName != nil && *u.AuthHeaderName != "" || *u.AuthType == "CUSTOM_HEADER":
+		obj := map[string]string{"type": *u.AuthType}
+		if u.AuthHeaderName != nil && *u.AuthHeaderName != "" {
+			obj["headerName"] = *u.AuthHeaderName
+		}
+		aux.AuthType = obj
+	default:
+		aux.AuthType = *u.AuthType
+	}
+	return json.Marshal(aux)
 }
 
 // UnmarshalJSON tolerates DIAL Core returning authType as a JSON object
 // instead of the documented enum string: an object carrying a string under
 // "name", "type" or "value" is unwrapped, any other object (including {}) is
-// treated as unset.
+// treated as unset. Core 0.50+ returns {"type": ..., "headerName": ...};
+// a non-empty headerName is kept in AuthHeaderName.
 func (u *ModelUpstream) UnmarshalJSON(data []byte) error {
 	type plain ModelUpstream
 	aux := struct {
@@ -575,6 +602,7 @@ func (u *ModelUpstream) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	u.AuthType = nil
+	u.AuthHeaderName = nil
 	raw := bytes.TrimSpace(aux.AuthType)
 	if len(raw) == 0 || bytes.Equal(raw, []byte("null")) {
 		return nil
@@ -590,6 +618,10 @@ func (u *ModelUpstream) UnmarshalJSON(data []byte) error {
 	var obj map[string]json.RawMessage
 	if err := json.Unmarshal(raw, &obj); err != nil {
 		return fmt.Errorf("authType: expected a string or object: %w", err)
+	}
+	var header string
+	if v, ok := obj["headerName"]; ok && json.Unmarshal(v, &header) == nil && header != "" {
+		u.AuthHeaderName = &header
 	}
 	for _, key := range []string{"name", "type", "value"} {
 		var text string

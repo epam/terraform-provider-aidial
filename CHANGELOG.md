@@ -4,6 +4,18 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## Unreleased
 
+### Added
+
+- `upstreams[]` on `aidial_model` and `aidial_route` accept `auth_type = "CUSTOM_HEADER"` together with the new `auth_header_name`, the HTTP header that carries the upstream key. `auth_header_name` is required for `CUSTOM_HEADER` and not allowed for the other types; both rules are checked at plan time. The data sources expose `auth_header_name`. This needs DIAL Core 0.50 or newer. Other auth types still work against older Cores.
+
+### Changed
+
+- The checked-in DIAL Core OpenAPI contract is refreshed to tag 0.50.1, and the local and CI integration Core now defaults to that tag instead of `latest`.
+
+### Known gaps
+
+- Other additions in 0.50.x (aliases, policies, policy assignments, org units, spending limits) have no resource or data source in this provider.
+
 ## 0.2.6 - 2026-11-12
 
 This release lets CI/CD pipelines authenticate to DIAL Core with an OIDC ID token instead of a static API key. Existing configurations that set `api_key` keep working unchanged.

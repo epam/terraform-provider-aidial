@@ -11,6 +11,7 @@ import (
 	"github.com/epam/terraform-provider-aidial/internal/client"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -368,4 +369,59 @@ func optionalStringMapToState(ctx context.Context, prior types.Map, api map[stri
 		return types.MapNull(types.StringType)
 	}
 	return value
+}
+
+// authHeaderNameRequiredForCustomHeader fails when auth_type is CUSTOM_HEADER
+// and the sibling auth_header_name is configured as null. DIAL Core rejects
+// CUSTOM_HEADER without a header name.
+type authHeaderNameRequiredForCustomHeader struct{}
+
+func (authHeaderNameRequiredForCustomHeader) Description(context.Context) string {
+	return "auth_header_name is required when auth_type is CUSTOM_HEADER"
+}
+
+func (v authHeaderNameRequiredForCustomHeader) MarkdownDescription(ctx context.Context) string {
+	return v.Description(ctx)
+}
+
+func (authHeaderNameRequiredForCustomHeader) ValidateString(ctx context.Context, req validator.StringRequest, resp *validator.StringResponse) {
+	if req.ConfigValue.IsNull() || req.ConfigValue.IsUnknown() || req.ConfigValue.ValueString() != "CUSTOM_HEADER" {
+		return
+	}
+	var header types.String
+	if diags := req.Config.GetAttribute(ctx, req.Path.ParentPath().AtName("auth_header_name"), &header); diags.HasError() {
+		resp.Diagnostics.Append(diags...)
+		return
+	}
+	if header.IsNull() {
+		resp.Diagnostics.AddAttributeError(req.Path, "Missing auth_header_name", "auth_header_name is required when auth_type is CUSTOM_HEADER.")
+	}
+}
+
+// authHeaderNameOnlyForCustomHeader fails when auth_header_name is configured
+// next to an auth_type other than CUSTOM_HEADER. DIAL Core rejects that
+// combination; an unset auth_type counts as not CUSTOM_HEADER.
+type authHeaderNameOnlyForCustomHeader struct{}
+
+func (authHeaderNameOnlyForCustomHeader) Description(context.Context) string {
+	return "auth_header_name is only allowed when auth_type is CUSTOM_HEADER"
+}
+
+func (v authHeaderNameOnlyForCustomHeader) MarkdownDescription(ctx context.Context) string {
+	return v.Description(ctx)
+}
+
+func (authHeaderNameOnlyForCustomHeader) ValidateString(ctx context.Context, req validator.StringRequest, resp *validator.StringResponse) {
+	if req.ConfigValue.IsNull() || req.ConfigValue.IsUnknown() {
+		return
+	}
+	var authType types.String
+	if diags := req.Config.GetAttribute(ctx, req.Path.ParentPath().AtName("auth_type"), &authType); diags.HasError() {
+		resp.Diagnostics.Append(diags...)
+		return
+	}
+	if authType.IsUnknown() || authType.ValueString() == "CUSTOM_HEADER" {
+		return
+	}
+	resp.Diagnostics.AddAttributeError(req.Path, "Unexpected auth_header_name", "auth_header_name is only allowed when auth_type is CUSTOM_HEADER.")
 }

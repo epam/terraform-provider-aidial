@@ -157,6 +157,7 @@ func (d *fileModelDataSource) Schema(_ context.Context, _ datasource.SchemaReque
 						"weight":             schema.Int64Attribute{Computed: true},
 						"base_url":           schema.StringAttribute{Computed: true},
 						"auth_type":          schema.StringAttribute{Computed: true},
+						"auth_header_name":   schema.StringAttribute{Computed: true},
 					},
 				},
 			},

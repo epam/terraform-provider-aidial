@@ -209,6 +209,25 @@ func TestRouteUpstreamExtraDataIsMap(t *testing.T) {
 	}
 }
 
+func TestRouteUpstreamCustomHeaderRoundTrip(t *testing.T) {
+	ctx := context.Background()
+	authType, header := "CUSTOM_HEADER", "X-Key"
+	route := &client.Route{Name: "r", Upstreams: []client.ModelUpstream{{AuthType: &authType, AuthHeaderName: &header}}}
+
+	state := routeResourceModel{Name: types.StringValue("r")}
+	if err := setRouteState(ctx, &state, route); err != nil {
+		t.Fatalf("setRouteState: %v", err)
+	}
+	got, err := routeFromPlan(ctx, routeResourceModel{Name: types.StringValue("r"), Upstreams: state.Upstreams})
+	if err != nil {
+		t.Fatalf("routeFromPlan: %v", err)
+	}
+	u := got.Upstreams[0]
+	if u.AuthType == nil || *u.AuthType != authType || u.AuthHeaderName == nil || *u.AuthHeaderName != header {
+		t.Fatalf("expected auth_type/auth_header_name to round-trip, got %+v", u)
+	}
+}
+
 func TestRouteUpstreamBaseURLAndAuthTypeRoundTrip(t *testing.T) {
 	ctx := context.Background()
 	baseURL, authType := "https://upstream.example", "BEARER"
