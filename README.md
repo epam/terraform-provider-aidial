@@ -79,18 +79,18 @@ Every resource and data source has a generated page with its attributes and an e
 
 | Resource | Data sources | Purpose |
 | --- | --- | --- |
-| [`aidial_role`](docs/resources/role.md) | [`aidial_role`](docs/data-sources/role.md) | Role: limits, share, cost limits, topics. |
+| [`aidial_alias`](docs/resources/alias.md) | [`aidial_alias`](docs/data-sources/alias.md), [`aidial_file_alias`](docs/data-sources/file_alias.md) | Alternative name for a model, application or toolset. |
+| [`aidial_application`](docs/resources/application.md) | [`aidial_application`](docs/data-sources/application.md), [`aidial_file_application`](docs/data-sources/file_application.md) | Endpoint-based or schema-based application. |
+| [`aidial_application_type_schema`](docs/resources/application_type_schema.md) | [`aidial_application_type_schema`](docs/data-sources/application_type_schema.md), [`aidial_file_application_type_schema`](docs/data-sources/file_application_type_schema.md) | Custom application type schema. |
+| | [`aidial_bucket`](docs/data-sources/bucket.md) | The bucket owned by the configured key. |
+| [`aidial_catalog_schema`](docs/resources/catalog_schema.md) | [`aidial_catalog_schema`](docs/data-sources/catalog_schema.md) | JSON Schema that models reference through `catalog_schema_id`. |
+| [`aidial_interceptor`](docs/resources/interceptor.md) | [`aidial_interceptor`](docs/data-sources/interceptor.md), [`aidial_file_interceptor`](docs/data-sources/file_interceptor.md) | Service in the request pipeline. |
 | [`aidial_key`](docs/resources/key.md) | | API key bound to a role. |
 | [`aidial_model`](docs/resources/model.md) | [`aidial_model`](docs/data-sources/model.md), [`aidial_file_model`](docs/data-sources/file_model.md) | Model deployment: endpoint, features, pricing, upstreams. |
+| [`aidial_role`](docs/resources/role.md) | [`aidial_role`](docs/data-sources/role.md) | Role: limits, share, cost limits, topics. |
 | [`aidial_route`](docs/resources/route.md) | | Routing rule: methods, paths, upstreams or a static response. |
-| [`aidial_catalog_schema`](docs/resources/catalog_schema.md) | [`aidial_catalog_schema`](docs/data-sources/catalog_schema.md) | JSON Schema that models reference through `catalog_schema_id`. |
-| [`aidial_application_type_schema`](docs/resources/application_type_schema.md) | [`aidial_application_type_schema`](docs/data-sources/application_type_schema.md), [`aidial_file_application_type_schema`](docs/data-sources/file_application_type_schema.md) | Custom application type schema. |
 | [`aidial_toolset`](docs/resources/toolset.md) | [`aidial_toolset`](docs/data-sources/toolset.md), [`aidial_file_toolset`](docs/data-sources/file_toolset.md) | Toolset (MCP tool server). |
-| [`aidial_interceptor`](docs/resources/interceptor.md) | [`aidial_interceptor`](docs/data-sources/interceptor.md), [`aidial_file_interceptor`](docs/data-sources/file_interceptor.md) | Service in the request pipeline. |
 | [`aidial_translator`](docs/resources/translator.md) | [`aidial_translator`](docs/data-sources/translator.md), [`aidial_file_translator`](docs/data-sources/file_translator.md) | Converts requests between interface types. |
-| [`aidial_application`](docs/resources/application.md) | [`aidial_application`](docs/data-sources/application.md), [`aidial_file_application`](docs/data-sources/file_application.md) | Endpoint-based or schema-based application. |
-| [`aidial_alias`](docs/resources/alias.md) | [`aidial_alias`](docs/data-sources/alias.md), [`aidial_file_alias`](docs/data-sources/file_alias.md) | Alternative name for a model, application or toolset. |
-| | [`aidial_bucket`](docs/data-sources/bucket.md) | The bucket owned by the configured key. |
 
 Data sources named `aidial_file_*` read deployments from DIAL Core's static configuration by name. They are read-only and have no resource equivalent.
 
