@@ -227,19 +227,19 @@ func roleFromPlan(ctx context.Context, plan roleResourceModel) (*client.Role, er
 		if diags := plan.CostLimit.As(ctx, &costLimit, basetypes.ObjectAsOptions{}); !diags.HasError() {
 			role.CostLimit = &client.CostLimit{}
 
-			if !costLimit.Day.IsNull() {
+			if !costLimit.Day.IsNull() && !costLimit.Day.IsUnknown() {
 				value := client.FlexibleFloat64(costLimit.Day.ValueFloat64())
 				role.CostLimit.Day = &value
 			}
-			if !costLimit.Minute.IsNull() {
+			if !costLimit.Minute.IsNull() && !costLimit.Minute.IsUnknown() {
 				value := client.FlexibleFloat64(costLimit.Minute.ValueFloat64())
 				role.CostLimit.Minute = &value
 			}
-			if !costLimit.Month.IsNull() {
+			if !costLimit.Month.IsNull() && !costLimit.Month.IsUnknown() {
 				value := client.FlexibleFloat64(costLimit.Month.ValueFloat64())
 				role.CostLimit.Month = &value
 			}
-			if !costLimit.Week.IsNull() {
+			if !costLimit.Week.IsNull() && !costLimit.Week.IsUnknown() {
 				value := client.FlexibleFloat64(costLimit.Week.ValueFloat64())
 				role.CostLimit.Week = &value
 			}
@@ -250,7 +250,7 @@ func roleFromPlan(ctx context.Context, plan roleResourceModel) (*client.Role, er
 }
 
 func costLimitFieldToValue(val *client.FlexibleFloat64) attr.Value {
-	if val == nil {
+	if val == nil || isUnlimitedLimit(float64(*val)) {
 		return types.Float64Null()
 	}
 	return types.Float64Value(float64(*val))

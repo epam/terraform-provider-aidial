@@ -86,6 +86,34 @@ func TestRoleFromPlanCostLimit(t *testing.T) {
 	}
 }
 
+// Unset cost_limit sub-fields are Optional+Computed, so they are unknown in
+// the plan; they must not be sent to Core as 0.
+func TestRoleFromPlanCostLimitUnknownNotSent(t *testing.T) {
+	plan := newRolePlan(t, "roles/b/p")
+	costLimit, diags := types.ObjectValue(map[string]attr.Type{
+		"day": types.Float64Type, "minute": types.Float64Type,
+		"month": types.Float64Type, "week": types.Float64Type,
+	}, map[string]attr.Value{
+		"day": types.Float64Value(100), "minute": types.Float64Unknown(),
+		"month": types.Float64Value(500), "week": types.Float64Unknown(),
+	})
+	if diags.HasError() {
+		t.Fatalf("cost_limit: %v", diags)
+	}
+	plan.CostLimit = costLimit
+
+	role, err := roleFromPlan(context.Background(), plan)
+	if err != nil {
+		t.Fatalf("roleFromPlan: %v", err)
+	}
+	if role.CostLimit.Minute != nil || role.CostLimit.Week != nil {
+		t.Fatalf("unknown minute/week must not be sent, got %+v", role.CostLimit)
+	}
+	if role.CostLimit.Day == nil || role.CostLimit.Month == nil {
+		t.Fatalf("configured day/month must be sent, got %+v", role.CostLimit)
+	}
+}
+
 func TestRoleFromPlanInvalidTopics(t *testing.T) {
 	plan := newRolePlan(t, "roles/b/p")
 	// A String masquerading as a Set element type is invalid; simulate an
