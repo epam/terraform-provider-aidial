@@ -20,6 +20,7 @@ It SHALL:
 - drop limit fields that DIAL Core filled with the int64-max "unlimited" sentinel when the configured value for that key did not set them
 - normalize set-like fields (`topics`, `granted_keys`) to explicit null sets when empty
 - decode `cost_limit` fields tolerantly regardless of whether the API encodes them as bare numbers or quoted numeric strings
+- send only the `cost_limit` fields that are configured (known and non-null) in the plan; unset sub-fields are unknown at plan time and SHALL NOT be sent (never as `0`), and a sub-field read back as the int64-max "unlimited" sentinel is stored as null
 - preserve unconfigured optional/computed attributes (`description`, `display_name`, `topics`) across updates via `UseStateForUnknown`, rather than clearing them when left out of config
 - handle API omission of optional fields consistently
 - preserve idempotent plan/apply behavior
@@ -47,6 +48,10 @@ It SHALL:
 #### Scenario: Cost limit sentinel value
 - **WHEN** `costLimit.day`/`minute`/`month`/`week` is returned as a quoted numeric string (e.g. the int64-max "unlimited" sentinel)
 - **THEN** `Read` succeeds instead of failing with a JSON decode error
+
+#### Scenario: Unset cost limit fields are not sent
+- **WHEN** `cost_limit = { day = 100, month = 500 }` is configured and `minute`/`week` are omitted
+- **THEN** the request body's `costLimit` contains only `day` and `month`, Core keeps `minute`/`week` unlimited, and state holds `minute`/`week` as null with no plan drift
 
 #### Scenario: Hand-written limit JSON
 - **WHEN** a `limits` value is configured as `{"minute": 64000000, "day": 100000000}` (e.g. in a `.tf.json` manifest) and the API returns `{"day":100000000,"minute":64000000}`
