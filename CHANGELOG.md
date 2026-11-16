@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## Unreleased
 
+## 0.3.1 - 2026-11-16
+
+### Fixed
+
+- `aidial_role`: `cost_limit` fields that are not set in the configuration are no longer sent to DIAL Core as `0`. Setting only `day` and `month` used to make Core enforce a $0 `minute` and `week` limit; those limits now stay unlimited. A `cost_limit` value that Core returns as its "unlimited" value (int64 max) is read back as null. Roles applied with an earlier version keep their stored `0` limits, so set the affected fields to Core's unlimited value or recreate the role once to clear them.
+
 ## 0.3.0 - 2026-11-13
 
 ### Added
