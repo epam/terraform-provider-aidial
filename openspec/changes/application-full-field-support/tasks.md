@@ -22,6 +22,7 @@
 - [x] 4.1 Add acceptance tests against the local Core (`TF_ACC`, `scripts/core.sh up`) for a full application with `mcp`, `routes` and `external_services`, and confirm no diff on a second plan; also record whether Core returns route upstream `key` and adjust the mapping if it is masked. Verify with `make testacc`.
 - [x] 4.2 Add an `examples/` snippet and regenerate `docs/` with `make docs`; verify `git diff --exit-code docs/` is clean afterwards.
 - [x] 4.3 Add the CHANGELOG entry for 0.3.2, then verify `go test ./... -count=1 -race`, `go vet ./...`, `test -z "$(gofmt -l .)"`, `make lint` and `terraform fmt -check -recursive` all pass.
+- [x] 4.4 Add the MCP-only validation (`ValidateConfig`) and the stable `api_name`, found by applying real application configs to the local Core; verify with `TestApplicationValidateConfigSources` and `TestAPINameKeepsStateAcrossUpdates`.
 
 ## Workflow follow-up
 

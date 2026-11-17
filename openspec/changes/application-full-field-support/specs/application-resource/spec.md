@@ -175,3 +175,11 @@ The `aidial_application` and `aidial_file_application` data sources SHALL expose
 #### Scenario: Data source with external service
 - **WHEN** the data source reads an application with an external service
 - **THEN** the service's `display_name`, `description` and non-secret `auth_settings` are populated and `client_secret` is null
+
+### Requirement: Stable api_name
+
+`api_name` SHALL keep its state value across updates, because it is derived from `bucket` and `path`, which force replacement. A plan that changes another attribute SHALL NOT list `api_name` as unknown.
+
+#### Scenario: Unrelated update
+- **WHEN** an attribute other than `bucket` or `path` changes
+- **THEN** the plan keeps `api_name` as in state

@@ -13,6 +13,7 @@
 - The client sends and reads `mcp` and `routes` with camelCase keys inside the otherwise snake_case body, as Core requires.
 - The resource description and docs state that `function` applications and any other field not modelled are still dropped by a PUT, so `function` applications must not be managed with this resource.
 - The plan-time check that an application has `endpoint` or `application_type_schema_id` now also accepts `mcp` and `interfaces`, so an MCP-only application can be managed. Configs that were valid stay valid.
+- `api_name` keeps its state value across updates, so plans no longer list it as known after apply. The same one-line change was made on the other resources that have `api_name` (alias, interceptor, model, role, route, toolset), which have no spec requirement about plan behavior.
 - Purely additive; no change to existing state. Released as 0.3.2.
 
 ## Capabilities
