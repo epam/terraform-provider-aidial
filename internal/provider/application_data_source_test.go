@@ -145,3 +145,46 @@ func TestFileApplicationDataSourceMissing(t *testing.T) {
 		t.Fatalf("a missing application must be an error naming it, got %v", resp.Diagnostics)
 	}
 }
+
+const applicationNestedAPIBody = `{
+	"name":"applications/platform/filter","endpoint":"http://hook/chat",
+	"input_attachment_types":["*/*"],"max_input_attachments":3,"dependencies":["m1"],"description_keywords":["k"],
+	"reference":"r","intro":"i","override_name":"o","base_url":"http://b","responses_endpoint":"http://r",
+	"responses_defaults":{"a":1},"allow_user_external_services":true,
+	"mcp":{"endpoint":"http://h/mcp","transport":"HTTP","allowedTools":["t"],"configDelivery":"META","forwardPerRequestKey":true,"mcpApps":null},
+	"routes":{"r1":{"paths":["/a"],"methods":[],"rewritePath":false,"order":1,"upstreams":[]}},
+	"external_services":{"svc":{"display_name":"S","auth_settings":{"authentication_type":"OAUTH","client_id":"c","client_secret_hint":"2345","user_level_auth_status":"SIGNED_OUT"}}}
+}`
+
+func TestApplicationDataSourcesExposeNestedFields(t *testing.T) {
+	c := modelDataSourceServer(t, func(w http.ResponseWriter, r *http.Request) { _, _ = w.Write([]byte(applicationNestedAPIBody)) })
+
+	api := readToolsetSource(t, &applicationDataSource{client: c}, map[string]string{"bucket": "platform", "path": "filter"})
+	file := readToolsetSource(t, &fileApplicationDataSource{client: c}, map[string]string{"name": "filter"})
+	for name, resp := range map[string]*datasource.ReadResponse{"api": api, "file": file} {
+		if resp.Diagnostics.HasError() {
+			t.Fatalf("%s: %v", name, resp.Diagnostics)
+		}
+		var body applicationBody
+		if name == "api" {
+			var m applicationModel
+			resp.State.Get(context.Background(), &m)
+			body = m.applicationBody
+		} else {
+			var m fileApplicationModel
+			resp.State.Get(context.Background(), &m)
+			body = m.applicationBody
+		}
+		if body.Mcp.IsNull() || body.MaxInputAttachments.ValueInt64() != 3 || len(body.Dependencies.Elements()) != 1 ||
+			body.Reference.ValueString() != "r" || !body.AllowUserExternalServices.ValueBool() || body.ResponsesDefaults.IsNull() {
+			t.Errorf("%s: new attributes not populated: %+v", name, body)
+		}
+		if len(body.Routes.Elements()) != 1 {
+			t.Errorf("%s: routes = %v", name, body.Routes)
+		}
+		auth := body.ExternalServices.Elements()["svc"].(types.Object).Attributes()["auth_settings"].(types.Object).Attributes()
+		if auth["client_id"].(types.String).ValueString() != "c" || !auth["client_secret"].(types.String).IsNull() || !auth["code_verifier"].(types.String).IsNull() {
+			t.Errorf("%s: external service auth = %v", name, auth)
+		}
+	}
+}

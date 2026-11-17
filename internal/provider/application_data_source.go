@@ -24,7 +24,7 @@ func applicationDataSourceBodyAttributes() map[string]schema.Attribute {
 	str := func(description string) schema.StringAttribute {
 		return schema.StringAttribute{Computed: true, Description: description}
 	}
-	return map[string]schema.Attribute{
+	attributes := map[string]schema.Attribute{
 		"endpoint":                   str("URL DIAL Core calls to run the application."),
 		"application_type_schema_id": str("URI (`$id`) of the application type schema."),
 		"editor_url":                 str("URL of the application editor."),
@@ -48,7 +48,23 @@ func applicationDataSourceBodyAttributes() map[string]schema.Attribute {
 		"interfaces":         interfacesDataSourceAttribute(),
 		"defaults":           schema.DynamicAttribute{Computed: true, Description: "Default request parameters (free-form object)."},
 		"catalog_properties": schema.DynamicAttribute{Computed: true, Description: "Catalog metadata of the application (free-form object)."},
+
+		"responses_defaults":           schema.DynamicAttribute{Computed: true, Description: "Default request parameters for Responses API requests (free-form object)."},
+		"responses_endpoint":           str("Endpoint used for Responses API requests."),
+		"intro":                        str("Introductory text shown for the application."),
+		"reference":                    str("Reference identifier of the application."),
+		"override_name":                str("Override of the application name presented to clients."),
+		"base_url":                     str("Application-level base URL that completes `interfaces` entries without their own `base_url`."),
+		"max_input_attachments":        schema.Int64Attribute{Computed: true, Description: "Maximum number of attachments in one request."},
+		"allow_user_external_services": schema.BoolAttribute{Computed: true, Description: "Whether users may add their own external services."},
+		"input_attachment_types":       schema.SetAttribute{Computed: true, ElementType: types.StringType, Description: "MIME types of accepted input attachments."},
+		"description_keywords":         schema.SetAttribute{Computed: true, ElementType: types.StringType, Description: "Keywords describing the application."},
+		"dependencies":                 schema.SetAttribute{Computed: true, ElementType: types.StringType, Description: "Deployments the application depends on."},
 	}
+	for name, attribute := range applicationNestedDataSourceAttributes() {
+		attributes[name] = attribute
+	}
+	return attributes
 }
 
 // applicationDataSource reads an API-managed application stored in DIAL Core

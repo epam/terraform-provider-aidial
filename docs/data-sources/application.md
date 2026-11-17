@@ -35,28 +35,67 @@ output "application_endpoint" {
 
 ### Read-Only
 
+- `allow_user_external_services` (Boolean) Whether users may add their own external services.
 - `api_name` (String) Canonical application name returned by the DIAL API.
 - `application_properties` (Dynamic) Values for the properties of the application type schema (free-form object).
 - `application_type_schema_id` (String) URI (`$id`) of the application type schema.
+- `base_url` (String) Application-level base URL that completes `interfaces` entries without their own `base_url`.
 - `catalog_properties` (Dynamic) Catalog metadata of the application (free-form object).
 - `catalog_schema_id` (String) URI (`$id`) of the catalog schema describing `catalog_properties`.
 - `default_headers` (Map of String) Additional headers sent with every request to the application's endpoint.
 - `defaults` (Dynamic) Default request parameters (free-form object).
+- `dependencies` (Set of String) Deployments the application depends on.
 - `description` (String) Application description.
+- `description_keywords` (Set of String) Keywords describing the application.
 - `display_name` (String) Human-readable application name.
 - `display_version` (String) Version shown for the application.
 - `editor_url` (String) URL of the application editor.
 - `endpoint` (String) URL DIAL Core calls to run the application.
+- `external_services` (Attributes Map) External services of the application, keyed by service name. Secrets are never returned by DIAL Core. (see [below for nested schema](#nestedatt--external_services))
 - `features` (Attributes) (see [below for nested schema](#nestedatt--features))
 - `forward_auth_token` (Boolean) Whether the caller's authorization token is forwarded to the application.
 - `icon_url` (String) URL of the application icon.
 - `id` (String) Resource identifier in the form <bucket>/<path>.
+- `input_attachment_types` (Set of String) MIME types of accepted input attachments.
 - `interceptors` (Set of String) Names of interceptors applied to the application's requests.
 - `interfaces` (Attributes Map) Per-interface deployment configuration, keyed by DIAL Core interface type (`openaiChatCompletions`, `openaiEmbeddings`, `openaiResponses`, `anthropicMessages`). `translator`, `defaults` and `features` are not modeled. (see [below for nested schema](#nestedatt--interfaces))
+- `intro` (String) Introductory text shown for the application.
+- `max_input_attachments` (Number) Maximum number of attachments in one request.
 - `max_retry_attempts` (Number) Maximum number of retry attempts.
+- `mcp` (Attributes) MCP settings of the application. (see [below for nested schema](#nestedatt--mcp))
 - `name` (String) Application name returned by the DIAL API.
+- `override_name` (String) Override of the application name presented to clients.
+- `reference` (String) Reference identifier of the application.
+- `responses_defaults` (Dynamic) Default request parameters for Responses API requests (free-form object).
+- `responses_endpoint` (String) Endpoint used for Responses API requests.
+- `routes` (Attributes Map) Routes of the application, keyed by route name. (see [below for nested schema](#nestedatt--routes))
 - `user_roles` (Set of String) Roles allowed to use the application.
 - `viewer_url` (String) URL of the application viewer.
+
+<a id="nestedatt--external_services"></a>
+### Nested Schema for `external_services`
+
+Read-Only:
+
+- `auth_settings` (Attributes) (see [below for nested schema](#nestedatt--external_services--auth_settings))
+- `description` (String) Service description.
+- `display_name` (String) Human-readable service name.
+
+<a id="nestedatt--external_services--auth_settings"></a>
+### Nested Schema for `external_services.auth_settings`
+
+Read-Only:
+
+- `api_key_header` (String) Header that carries the API key.
+- `authentication_type` (String) Authentication type.
+- `authorization_endpoint` (String) OAuth authorization endpoint.
+- `client_id` (String) OAuth client ID.
+- `client_secret` (String, Sensitive) Always null: DIAL Core never returns it.
+- `code_verifier` (String, Sensitive) Always null: DIAL Core never returns it.
+- `scopes_supported` (Set of String) OAuth scopes.
+- `token_endpoint` (String) OAuth token endpoint.
+
+
 
 <a id="nestedatt--features"></a>
 ### Nested Schema for `features`
@@ -98,3 +137,76 @@ Read-Only:
 - `default_headers` (Map of String)
 - `mode` (String)
 - `override_paths` (Map of String)
+
+
+<a id="nestedatt--mcp"></a>
+### Nested Schema for `mcp`
+
+Read-Only:
+
+- `allowed_tools` (Set of String) Names of the MCP tools exposed.
+- `config_delivery` (String) How the configuration is delivered.
+- `endpoint` (String) MCP endpoint of the application.
+- `forward_per_request_key` (Boolean)
+- `mcp_apps` (Attributes) (see [below for nested schema](#nestedatt--mcp--mcp_apps))
+- `transport` (String) MCP transport.
+
+<a id="nestedatt--mcp--mcp_apps"></a>
+### Nested Schema for `mcp.mcp_apps`
+
+Read-Only:
+
+- `domain_override` (String) Domain override for MCP apps.
+
+
+
+<a id="nestedatt--routes"></a>
+### Nested Schema for `routes`
+
+Read-Only:
+
+- `attachment_paths` (Attributes) (see [below for nested schema](#nestedatt--routes--attachment_paths))
+- `max_retry_attempts` (Number)
+- `methods` (Set of String) HTTP methods the route matches.
+- `order` (Number)
+- `paths` (Set of String) Path patterns the route matches.
+- `permissions` (Set of String) Permissions of the route.
+- `response` (Attributes) (see [below for nested schema](#nestedatt--routes--response))
+- `rewrite_path` (Boolean)
+- `upstreams` (Attributes List) (see [below for nested schema](#nestedatt--routes--upstreams))
+- `user_roles` (Set of String) Roles allowed to use the route.
+
+<a id="nestedatt--routes--attachment_paths"></a>
+### Nested Schema for `routes.attachment_paths`
+
+Read-Only:
+
+- `request_body` (Set of String) Request body paths that carry attachments.
+- `response_body` (Set of String) Response body paths that carry attachments.
+
+
+<a id="nestedatt--routes--response"></a>
+### Nested Schema for `routes.response`
+
+Read-Only:
+
+- `body` (String)
+- `status` (Number)
+
+
+<a id="nestedatt--routes--upstreams"></a>
+### Nested Schema for `routes.upstreams`
+
+Read-Only:
+
+- `auth_header_name` (String)
+- `auth_type` (String)
+- `base_url` (String)
+- `endpoint` (String)
+- `extra_data` (Map of String)
+- `id` (String)
+- `key` (String, Sensitive)
+- `responses_endpoint` (String)
+- `secret_extra_data` (Map of String, Sensitive)
+- `tier` (Number)
+- `weight` (Number)

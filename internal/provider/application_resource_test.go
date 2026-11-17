@@ -28,6 +28,9 @@ type fakeApplicationCore struct {
 	stored   []byte
 	received []byte
 	paths    []string
+	// transform, when set, edits the stored document before GET returns it,
+	// to imitate what Core fills in or never returns.
+	transform func(doc map[string]any)
 }
 
 func (f *fakeApplicationCore) client(t *testing.T) *client.Client {
@@ -49,10 +52,17 @@ func (f *fakeApplicationCore) client(t *testing.T) *client.Client {
 			var doc map[string]any
 			_ = json.Unmarshal(f.stored, &doc)
 			doc["name"] = "f"
-			for key, value := range map[string]any{"forward_auth_token": false, "max_retry_attempts": 1, "defaults": map[string]any{}, "status": "valid"} {
+			for key, value := range map[string]any{
+				"forward_auth_token": false, "max_retry_attempts": 1, "defaults": map[string]any{}, "status": "valid",
+				"responses_defaults": map[string]any{}, "description_keywords": []any{}, "dependencies": []any{},
+				"routes": map[string]any{}, "reference": "generated-ref",
+			} {
 				if _, set := doc[key]; !set {
 					doc[key] = value
 				}
+			}
+			if f.transform != nil {
+				f.transform(doc)
 			}
 			_ = json.NewEncoder(w).Encode(doc)
 		case http.MethodDelete:
@@ -109,7 +119,16 @@ func newApplicationPlan(endpoint string) applicationModel {
 			DefaultHeaders:        types.MapUnknown(types.StringType),
 			Features:              types.ObjectNull(modelFeaturesAttrTypes),
 			Interfaces:            types.MapUnknown(types.ObjectType{AttrTypes: modelInterfaceAttrTypes}),
-			Defaults:              types.DynamicNull(), CatalogProperties: types.DynamicNull(),
+			Defaults:              types.DynamicNull(), CatalogProperties: types.DynamicNull(), ResponsesDefaults: types.DynamicNull(),
+
+			ResponsesEndpoint: types.StringNull(), Intro: types.StringNull(), Reference: types.StringUnknown(),
+			OverrideName: types.StringNull(), BaseURL: types.StringNull(),
+			MaxInputAttachments: types.Int64Null(), AllowUserExternalServices: types.BoolNull(),
+			InputAttachmentTypes: types.SetNull(types.StringType),
+			DescriptionKeywords:  types.SetUnknown(types.StringType), Dependencies: types.SetUnknown(types.StringType),
+			Mcp:              types.ObjectNull(appMcpAttrTypes),
+			Routes:           types.MapUnknown(types.ObjectType{AttrTypes: appRouteAttrTypes}),
+			ExternalServices: types.MapNull(types.ObjectType{AttrTypes: appServiceAttrTypes}),
 		},
 	}
 }
