@@ -145,3 +145,34 @@ func TestFileInterceptorDataSourceMissing(t *testing.T) {
 		t.Fatalf("a missing interceptor must be an error naming it, got %v", resp.Diagnostics)
 	}
 }
+
+func TestInterceptorDataSourcesExposeNewAttributes(t *testing.T) {
+	body := `{"name":"interceptors/platform/x","endpoint":"http://e","dependencies":["m1"],"descriptionKeywords":["k"],
+		"inputAttachmentTypes":["*/*"],"interceptors":["i"],"maxInputAttachments":2,"intro":"hi","reference":"r",
+		"overrideName":"o","baseUrl":"http://b","responsesEndpoint":"http://r","responsesDefaults":{"a":1}}`
+	c := modelDataSourceServer(t, func(w http.ResponseWriter, r *http.Request) { _, _ = w.Write([]byte(body)) })
+
+	api := readToolsetSource(t, &interceptorDataSource{client: c}, map[string]string{"bucket": "platform", "path": "x"})
+	file := readToolsetSource(t, &fileInterceptorDataSource{client: c}, map[string]string{"name": "x"})
+	for name, resp := range map[string]*datasource.ReadResponse{"api": api, "file": file} {
+		if resp.Diagnostics.HasError() {
+			t.Fatalf("%s: %v", name, resp.Diagnostics)
+		}
+		var b interceptorBody
+		if name == "api" {
+			var m interceptorModel
+			resp.State.Get(context.Background(), &m)
+			b = m.interceptorBody
+		} else {
+			var m fileInterceptorModel
+			resp.State.Get(context.Background(), &m)
+			b = m.interceptorBody
+		}
+		if len(b.Dependencies.Elements()) != 1 || len(b.DescriptionKeywords.Elements()) != 1 || len(b.InputAttachmentTypes.Elements()) != 1 ||
+			len(b.Interceptors.Elements()) != 1 || b.MaxInputAttachments.ValueInt64() != 2 || b.Reference.ValueString() != "r" ||
+			b.OverrideName.ValueString() != "o" || b.BaseURL.ValueString() != "http://b" || b.ResponsesEndpoint.ValueString() != "http://r" ||
+			b.Intro.ValueString() != "hi" || b.ResponsesDefaults.IsNull() {
+			t.Errorf("%s: new attributes not populated: %+v", name, b)
+		}
+	}
+}

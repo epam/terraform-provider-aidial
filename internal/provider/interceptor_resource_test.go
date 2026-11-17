@@ -49,7 +49,8 @@ func (f *fakeInterceptorCore) client(t *testing.T) *client.Client {
 			var doc map[string]any
 			_ = json.Unmarshal(f.stored, &doc)
 			doc["name"] = "f"
-			for key, value := range map[string]any{"forwardAuthToken": false, "maxRetryAttempts": 1, "defaults": map[string]any{}, "status": "valid"} {
+			for key, value := range map[string]any{"forwardAuthToken": false, "maxRetryAttempts": 1, "defaults": map[string]any{}, "status": "valid",
+				"responsesDefaults": map[string]any{}, "dependencies": []any{}, "descriptionKeywords": []any{}, "interceptors": []any{}} {
 				if _, set := doc[key]; !set {
 					doc[key] = value
 				}
@@ -106,7 +107,12 @@ func newInterceptorPlan(endpoint string) interceptorModel {
 			DefaultHeaders: types.MapUnknown(types.StringType),
 			Features:       types.ObjectNull(modelFeaturesAttrTypes),
 			Interfaces:     types.MapUnknown(types.ObjectType{AttrTypes: modelInterfaceAttrTypes}),
-			Defaults:       types.DynamicNull(), CatalogProperties: types.DynamicNull(),
+			Defaults:       types.DynamicNull(), CatalogProperties: types.DynamicNull(), ResponsesDefaults: types.DynamicNull(),
+
+			Dependencies: types.SetUnknown(types.StringType), DescriptionKeywords: types.SetUnknown(types.StringType),
+			Interceptors: types.SetUnknown(types.StringType), InputAttachmentTypes: types.SetNull(types.StringType),
+			MaxInputAttachments: types.Int64Null(), Intro: types.StringNull(), Reference: types.StringNull(),
+			OverrideName: types.StringNull(), BaseURL: types.StringNull(), ResponsesEndpoint: types.StringNull(),
 		},
 	}
 }
@@ -454,5 +460,79 @@ func TestInterceptorImportState(t *testing.T) {
 		if !resp.Diagnostics.HasError() || !strings.Contains(resp.Diagnostics.Errors()[0].Detail(), "<bucket>/<path>") {
 			t.Errorf("import id %q must fail naming the expected format, got %v", bad, resp.Diagnostics)
 		}
+	}
+}
+
+func TestInterceptorNewAttributesRoundTrip(t *testing.T) {
+	core := &fakeInterceptorCore{}
+	r := &interceptorResource{client: core.client(t)}
+
+	plan := newInterceptorPlan("http://e")
+	plan.Dependencies = stringSet(t, "m1")
+	plan.DescriptionKeywords = stringSet(t, "a", "b")
+	plan.Interceptors = stringSet(t, "i1")
+	plan.InputAttachmentTypes = types.SetValueMust(types.StringType, []attr.Value{})
+	plan.MaxInputAttachments = types.Int64Value(2)
+	plan.Intro, plan.Reference = types.StringValue("hi"), types.StringValue("ref")
+	plan.OverrideName, plan.BaseURL = types.StringValue("ov"), types.StringValue("http://b")
+	plan.ResponsesEndpoint = types.StringValue("http://r")
+
+	resp, state := runInterceptorCreate(t, r, plan)
+	if resp.Diagnostics.HasError() {
+		t.Fatalf("create: %v", resp.Diagnostics)
+	}
+	body := core.body(t)
+	for key, want := range map[string]any{
+		"maxInputAttachments": float64(2), "intro": "hi", "reference": "ref", "overrideName": "ov",
+		"baseUrl": "http://b", "responsesEndpoint": "http://r",
+	} {
+		if body[key] != want {
+			t.Errorf("body[%s] = %v, want %v", key, body[key], want)
+		}
+	}
+	for _, key := range []string{"dependencies", "descriptionKeywords", "interceptors"} {
+		if list, _ := body[key].([]any); len(list) == 0 {
+			t.Errorf("body[%s] = %v", key, body[key])
+		}
+	}
+	if list, ok := body["inputAttachmentTypes"].([]any); !ok || len(list) != 0 {
+		t.Errorf("a configured empty input_attachment_types must be sent as [], got %v", body["inputAttachmentTypes"])
+	}
+	if !state.Dependencies.Equal(plan.Dependencies) || !state.DescriptionKeywords.Equal(plan.DescriptionKeywords) ||
+		!state.Interceptors.Equal(plan.Interceptors) || !state.InputAttachmentTypes.Equal(plan.InputAttachmentTypes) ||
+		state.MaxInputAttachments.ValueInt64() != 2 || state.Reference.ValueString() != "ref" || state.BaseURL.ValueString() != "http://b" {
+		t.Fatalf("new attributes did not round trip: %+v", state.interceptorBody)
+	}
+}
+
+func TestInterceptorMinimalConfigDefaultsNewAttributes(t *testing.T) {
+	core := &fakeInterceptorCore{}
+	r := &interceptorResource{client: core.client(t)}
+
+	resp, state := runInterceptorCreate(t, r, newInterceptorPlan("http://e"))
+	if resp.Diagnostics.HasError() {
+		t.Fatalf("create: %v", resp.Diagnostics)
+	}
+	body := core.body(t)
+	for _, key := range []string{"dependencies", "descriptionKeywords", "interceptors", "inputAttachmentTypes", "maxInputAttachments", "intro", "reference", "overrideName", "baseUrl", "responsesEndpoint", "responsesDefaults"} {
+		if _, ok := body[key]; ok {
+			t.Errorf("%s must not be sent when unset: %v", key, body)
+		}
+	}
+	for name, set := range map[string]types.Set{"dependencies": state.Dependencies, "description_keywords": state.DescriptionKeywords, "interceptors": state.Interceptors} {
+		if set.IsNull() || len(set.Elements()) != 0 {
+			t.Errorf("%s must read back as an empty set, got %v", name, set)
+		}
+	}
+	if !state.InputAttachmentTypes.IsNull() || !state.MaxInputAttachments.IsNull() || !state.Reference.IsNull() ||
+		!state.Intro.IsNull() || !state.ResponsesDefaults.IsNull() {
+		t.Errorf("plain optional attributes must stay null: %+v", state.interceptorBody)
+	}
+}
+
+func TestInterceptorDescriptionNamesUnmanagedFields(t *testing.T) {
+	description := interceptorResourceSchema(t).Schema.MarkdownDescription
+	if !strings.Contains(description, "does not model") || !strings.Contains(description, "dropped") {
+		t.Errorf("description must say unmodelled fields are dropped on apply: %s", description)
 	}
 }

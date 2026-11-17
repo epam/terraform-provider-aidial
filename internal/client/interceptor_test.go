@@ -210,3 +210,47 @@ func TestGetFileInterceptor(t *testing.T) {
 		t.Fatalf("expected nil, nil on 404, got %+v, %v", got, err)
 	}
 }
+
+func TestInterceptorNewFieldsUseCamelCase(t *testing.T) {
+	var body map[string]any
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPut {
+			raw, _ := io.ReadAll(r.Body)
+			_ = json.Unmarshal(raw, &body)
+			_, _ = w.Write([]byte(`{"name":"x"}`))
+			return
+		}
+		_, _ = w.Write([]byte(`{"name":"x","dependencies":["m"],"descriptionKeywords":[],"inputAttachmentTypes":null,"interceptors":["i"],
+			"maxInputAttachments":2,"intro":"i","reference":"r","overrideName":"o","baseUrl":"b","responsesEndpoint":"e","responsesDefaults":{"a":1},
+			"author":null,"createdAt":null}`))
+	}))
+	c := testClient(t, srv)
+
+	deps, kw, types := []string{"m"}, []string{}, []string{"*/*"}
+	n, s := int64(2), "v"
+	err := c.SaveInterceptor(context.Background(), "platform", "x", &Interceptor{
+		Dependencies: &deps, DescriptionKeywords: &kw, InputAttachmentTypes: &types, Interceptors: &deps,
+		MaxInputAttachments: &n, Intro: &s, Reference: &s, OverrideName: &s, BaseURL: &s, ResponsesEndpoint: &s,
+		ResponsesDefaults: json.RawMessage(`{"a":1}`),
+	})
+	if err != nil {
+		t.Fatalf("SaveInterceptor: %v", err)
+	}
+	for _, key := range []string{"dependencies", "descriptionKeywords", "inputAttachmentTypes", "interceptors", "maxInputAttachments", "intro", "reference", "overrideName", "baseUrl", "responsesEndpoint", "responsesDefaults"} {
+		if _, ok := body[key]; !ok {
+			t.Errorf("body lacks camelCase key %q: %v", key, body)
+		}
+	}
+	if list, ok := body["descriptionKeywords"].([]any); !ok || len(list) != 0 {
+		t.Errorf("an empty descriptionKeywords must be sent as [], got %v", body["descriptionKeywords"])
+	}
+
+	got, err := c.GetInterceptor(context.Background(), "platform", "x")
+	if err != nil || got == nil {
+		t.Fatalf("GetInterceptor: %v %v", got, err)
+	}
+	if got.Dependencies == nil || got.DescriptionKeywords == nil || len(*got.DescriptionKeywords) != 0 || got.InputAttachmentTypes != nil ||
+		got.MaxInputAttachments == nil || got.Reference == nil || string(got.ResponsesDefaults) != `{"a":1}` {
+		t.Fatalf("new fields not decoded: %+v", got)
+	}
+}

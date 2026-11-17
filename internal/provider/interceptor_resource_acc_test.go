@@ -103,3 +103,73 @@ resource "aidial_interceptor" "i" {
 		},
 	})
 }
+
+func TestAccInterceptor_newAttributes(t *testing.T) {
+	path := accPath(t)
+	const res, ds = "aidial_interceptor.i", "data.aidial_interceptor.i"
+	config := accProviderConfig() + fmt.Sprintf(`
+resource "aidial_interceptor" "i" {
+  bucket   = "platform"
+  path     = %q
+  endpoint = "http://example.invalid/intercept"
+
+  dependencies           = ["acc-model"]
+  description_keywords   = ["acc", "filter"]
+  input_attachment_types = ["*/*"]
+  interceptors           = ["acc-other"]
+  max_input_attachments  = 2
+  intro                  = "hello"
+  reference              = "acc-ref"
+  override_name          = "acc-name"
+  base_url               = "http://example.invalid/base"
+  responses_endpoint     = "http://example.invalid/responses"
+  responses_defaults = {
+    temperature = 0.5
+  }
+}
+
+data "aidial_interceptor" "i" {
+  bucket = aidial_interceptor.i.bucket
+  path   = aidial_interceptor.i.path
+}
+`, path)
+	minimal := accProviderConfig() + fmt.Sprintf(`
+resource "aidial_interceptor" "m" {
+  bucket   = "platform"
+  path     = "%s-min"
+  endpoint = "http://example.invalid/intercept"
+}
+`, path)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { accPreCheck(t) },
+		ProtoV6ProviderFactories: accProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(res, "dependencies.#", "1"),
+					resource.TestCheckResourceAttr(res, "description_keywords.#", "2"),
+					resource.TestCheckResourceAttr(res, "input_attachment_types.#", "1"),
+					resource.TestCheckResourceAttr(res, "interceptors.#", "1"),
+					resource.TestCheckResourceAttr(res, "max_input_attachments", "2"),
+					resource.TestCheckResourceAttr(res, "reference", "acc-ref"),
+					resource.TestCheckResourceAttr(res, "override_name", "acc-name"),
+					resource.TestCheckResourceAttr(ds, "base_url", "http://example.invalid/base"),
+					resource.TestCheckResourceAttr(ds, "dependencies.#", "1"),
+				),
+			},
+			{Config: config, PlanOnly: true},
+			// A minimal interceptor: Core's empty sets cause no diff, and reference stays null.
+			{
+				Config: minimal,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("aidial_interceptor.m", "dependencies.#", "0"),
+					resource.TestCheckNoResourceAttr("aidial_interceptor.m", "reference"),
+					resource.TestCheckNoResourceAttr("aidial_interceptor.m", "input_attachment_types.#"),
+				),
+			},
+			{Config: minimal, PlanOnly: true},
+		},
+	})
+}

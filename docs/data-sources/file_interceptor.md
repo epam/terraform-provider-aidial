@@ -28,19 +28,30 @@ data "aidial_file_interceptor" "filter" {
 
 ### Read-Only
 
+- `base_url` (String) Interceptor-level base URL that completes `interfaces` entries without their own `base_url`.
 - `catalog_properties` (Dynamic) Catalog metadata of the interceptor (free-form object).
 - `catalog_schema_id` (String) URI (`$id`) of the catalog schema describing `catalog_properties`.
 - `default_headers` (Map of String) Additional headers sent with every request to the interceptor's endpoint.
 - `defaults` (Dynamic) Default request parameters (free-form object).
+- `dependencies` (Set of String) Deployments the interceptor depends on.
 - `description` (String) Interceptor description.
+- `description_keywords` (Set of String) Keywords describing the interceptor.
 - `display_name` (String) Human-readable interceptor name.
 - `display_version` (String) Version shown for the interceptor.
 - `endpoint` (String) URL DIAL Core calls to run the interceptor.
 - `features` (Attributes) (see [below for nested schema](#nestedatt--features))
 - `forward_auth_token` (Boolean) Whether the caller's authorization token is forwarded to the interceptor.
 - `icon_url` (String) URL of the interceptor icon.
+- `input_attachment_types` (Set of String) MIME types of accepted input attachments.
+- `interceptors` (Set of String) Names of interceptors applied to the interceptor's own requests.
 - `interfaces` (Attributes Map) Per-interface deployment configuration, keyed by DIAL Core interface type (`openaiChatCompletions`, `openaiEmbeddings`, `openaiResponses`, `anthropicMessages`). `translator`, `defaults` and `features` are not modeled. (see [below for nested schema](#nestedatt--interfaces))
+- `intro` (String) Introductory text shown for the interceptor.
+- `max_input_attachments` (Number) Maximum number of attachments in one request.
 - `max_retry_attempts` (Number) Maximum number of retry attempts.
+- `override_name` (String) Override of the interceptor name presented to clients.
+- `reference` (String) Reference identifier of the interceptor.
+- `responses_defaults` (Dynamic) Default request parameters for Responses API requests (free-form object).
+- `responses_endpoint` (String) Endpoint used for Responses API requests.
 - `user_roles` (Set of String) Roles allowed to use the interceptor.
 
 <a id="nestedatt--features"></a>

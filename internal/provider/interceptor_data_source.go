@@ -43,6 +43,18 @@ func interceptorDataSourceBodyAttributes() map[string]schema.Attribute {
 		"interfaces":         interfacesDataSourceAttribute(),
 		"defaults":           schema.DynamicAttribute{Computed: true, Description: "Default request parameters (free-form object)."},
 		"catalog_properties": schema.DynamicAttribute{Computed: true, Description: "Catalog metadata of the interceptor (free-form object)."},
+
+		"responses_defaults":     schema.DynamicAttribute{Computed: true, Description: "Default request parameters for Responses API requests (free-form object)."},
+		"dependencies":           schema.SetAttribute{Computed: true, ElementType: types.StringType, Description: "Deployments the interceptor depends on."},
+		"description_keywords":   schema.SetAttribute{Computed: true, ElementType: types.StringType, Description: "Keywords describing the interceptor."},
+		"interceptors":           schema.SetAttribute{Computed: true, ElementType: types.StringType, Description: "Names of interceptors applied to the interceptor's own requests."},
+		"input_attachment_types": schema.SetAttribute{Computed: true, ElementType: types.StringType, Description: "MIME types of accepted input attachments."},
+		"max_input_attachments":  schema.Int64Attribute{Computed: true, Description: "Maximum number of attachments in one request."},
+		"intro":                  str("Introductory text shown for the interceptor."),
+		"reference":              str("Reference identifier of the interceptor."),
+		"override_name":          str("Override of the interceptor name presented to clients."),
+		"base_url":               str("Interceptor-level base URL that completes `interfaces` entries without their own `base_url`."),
+		"responses_endpoint":     str("Endpoint used for Responses API requests."),
 	}
 }
 
