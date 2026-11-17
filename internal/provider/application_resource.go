@@ -22,6 +22,8 @@ import (
 var (
 	_ resource.Resource                = &applicationResource{}
 	_ resource.ResourceWithImportState = &applicationResource{}
+
+	_ resource.ResourceWithValidateConfig = &applicationResource{}
 )
 
 type applicationResource struct {
@@ -125,8 +127,7 @@ func (r *applicationResource) Schema(_ context.Context, _ resource.SchemaRequest
 			},
 			"endpoint": schema.StringAttribute{
 				Optional:    true,
-				Description: "URL DIAL Core calls to run the application. Set exactly one of `endpoint` and `application_type_schema_id`.",
-				Validators:  []validator.String{stringvalidator.ExactlyOneOf(path.MatchRoot("application_type_schema_id"))},
+				Description: "URL DIAL Core calls to run the application. Not allowed together with `application_type_schema_id`. An application needs at least one of `endpoint`, `application_type_schema_id`, `mcp` or `interfaces`.",
 			},
 			"application_type_schema_id": str("URI (`$id`) of the application type schema, for example the `schema_id` of an `aidial_application_type_schema`. Schema-based applications take no `endpoint`."),
 			"editor_url":                 str("URL of the application editor."),
@@ -209,6 +210,31 @@ func (r *applicationResource) Schema(_ context.Context, _ resource.SchemaRequest
 	}
 	for name, attribute := range applicationNestedResourceAttributes() {
 		resp.Schema.Attributes[name] = attribute
+	}
+}
+
+// ValidateConfig checks what DIAL Core rejects: an endpoint together with an
+// application type schema, and an application with nothing to run (no
+// endpoint, schema, MCP endpoint or interface). Unknown values count as set.
+func (r *applicationResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var endpoint, schemaID types.String
+	var mcp types.Object
+	var interfaces types.Map
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("endpoint"), &endpoint)...)
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("application_type_schema_id"), &schemaID)...)
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("mcp"), &mcp)...)
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("interfaces"), &interfaces)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	if !endpoint.IsNull() && !schemaID.IsNull() {
+		resp.Diagnostics.AddAttributeError(path.Root("endpoint"), "Conflicting attributes",
+			"`endpoint` and `application_type_schema_id` cannot be set together: DIAL Core rejects an application with both.")
+		return
+	}
+	if endpoint.IsNull() && schemaID.IsNull() && mcp.IsNull() && interfaces.IsNull() {
+		resp.Diagnostics.AddError("Application has nothing to run",
+			"Set at least one of `endpoint`, `application_type_schema_id`, `mcp` or `interfaces`: DIAL Core rejects an application without any of them.")
 	}
 }
 

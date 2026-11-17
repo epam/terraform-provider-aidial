@@ -185,11 +185,11 @@ func TestAccApplication_endpointXorSchema(t *testing.T) {
 		PreCheck:                 func() { accPreCheck(t) },
 		ProtoV6ProviderFactories: accProviderFactories,
 		Steps: []resource.TestStep{
-			{Config: cfg(""), PlanOnly: true, ExpectError: regexp.MustCompile(`one \(and only one\)`)},
+			{Config: cfg(""), PlanOnly: true, ExpectError: regexp.MustCompile(`nothing to run`)},
 			{
 				Config:      cfg("  endpoint = \"http://e\"\n  application_type_schema_id = \"https://s/x\"\n"),
 				PlanOnly:    true,
-				ExpectError: regexp.MustCompile(`one \(and only one\)`),
+				ExpectError: regexp.MustCompile(`cannot be set together`),
 			},
 		},
 	})

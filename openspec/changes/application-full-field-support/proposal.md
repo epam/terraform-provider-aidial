@@ -12,6 +12,7 @@
 - New typed map attribute `external_services`: name to `display_name`, `description` and `auth_settings`. `client_secret` and `code_verifier` are sensitive and kept from prior state, because Core never returns them.
 - The client sends and reads `mcp` and `routes` with camelCase keys inside the otherwise snake_case body, as Core requires.
 - The resource description and docs state that `function` applications and any other field not modelled are still dropped by a PUT, so `function` applications must not be managed with this resource.
+- The plan-time check that an application has `endpoint` or `application_type_schema_id` now also accepts `mcp` and `interfaces`, so an MCP-only application can be managed. Configs that were valid stay valid.
 - Purely additive; no change to existing state. Released as 0.3.2.
 
 ## Capabilities

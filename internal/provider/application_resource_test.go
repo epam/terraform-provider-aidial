@@ -237,14 +237,69 @@ func TestApplicationTypesRegistered(t *testing.T) {
 	}
 }
 
-func TestApplicationEndpointIsOptionalAndExclusiveWithSchemaID(t *testing.T) {
+func TestApplicationEndpointIsOptional(t *testing.T) {
 	rs := applicationResourceSchema(t).Schema
 	endpoint := identityFromResourceSchema(t, "endpoint", rs)
 	if endpoint.required || !endpoint.optional || endpoint.computed {
 		t.Fatalf("endpoint must be optional only: %+v", endpoint)
 	}
-	if len(endpoint.validators) != 1 {
-		t.Fatalf("endpoint needs the exactly-one-of validator with application_type_schema_id: %+v", endpoint)
+}
+
+// validateApplicationConfig runs ValidateConfig on a config where only the
+// given attributes are set; every other attribute is null.
+func validateApplicationConfig(t *testing.T, set map[string]tftypes.Value) *resource.ValidateConfigResponse {
+	t.Helper()
+	ctx := context.Background()
+	schema := applicationResourceSchema(t).Schema
+	objType := schema.Type().TerraformType(ctx).(tftypes.Object)
+	values := map[string]tftypes.Value{}
+	for name, typ := range objType.AttributeTypes {
+		values[name] = tftypes.NewValue(typ, nil)
+	}
+	for name, value := range set {
+		values[name] = value
+	}
+	req := resource.ValidateConfigRequest{Config: tfsdk.Config{Schema: schema, Raw: tftypes.NewValue(objType, values)}}
+	resp := &resource.ValidateConfigResponse{}
+	(&applicationResource{}).ValidateConfig(ctx, req, resp)
+	return resp
+}
+
+func TestApplicationValidateConfigSources(t *testing.T) {
+	ctx := context.Background()
+	schema := applicationResourceSchema(t).Schema
+	attrType := func(name string) tftypes.Type { return schema.Attributes[name].GetType().TerraformType(ctx) }
+	str := func(v string) tftypes.Value { return tftypes.NewValue(tftypes.String, v) }
+	mcp := func() tftypes.Value {
+		typ := attrType("mcp").(tftypes.Object)
+		values := map[string]tftypes.Value{}
+		for name, t := range typ.AttributeTypes {
+			values[name] = tftypes.NewValue(t, nil)
+		}
+		values["endpoint"] = str("http://h/mcp")
+		return tftypes.NewValue(typ, values)
+	}
+
+	cases := []struct {
+		name    string
+		set     map[string]tftypes.Value
+		wantErr string
+	}{
+		{"endpoint", map[string]tftypes.Value{"endpoint": str("http://e")}, ""},
+		{"schema", map[string]tftypes.Value{"application_type_schema_id": str("https://s/x")}, ""},
+		{"mcp only", map[string]tftypes.Value{"mcp": mcp()}, ""},
+		{"unknown endpoint", map[string]tftypes.Value{"endpoint": tftypes.NewValue(tftypes.String, tftypes.UnknownValue)}, ""},
+		{"endpoint and schema", map[string]tftypes.Value{"endpoint": str("http://e"), "application_type_schema_id": str("https://s/x")}, "cannot be set together"},
+		{"nothing", map[string]tftypes.Value{}, "nothing to run"},
+	}
+	for _, c := range cases {
+		resp := validateApplicationConfig(t, c.set)
+		if c.wantErr == "" && resp.Diagnostics.HasError() {
+			t.Errorf("%s: unexpected error %v", c.name, resp.Diagnostics)
+		}
+		if c.wantErr != "" && (!resp.Diagnostics.HasError() || !strings.Contains(resp.Diagnostics.Errors()[0].Summary()+" "+resp.Diagnostics.Errors()[0].Detail(), c.wantErr)) {
+			t.Errorf("%s: want error containing %q, got %v", c.name, c.wantErr, resp.Diagnostics)
+		}
 	}
 }
 

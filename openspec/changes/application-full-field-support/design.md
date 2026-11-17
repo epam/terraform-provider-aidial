@@ -31,7 +31,9 @@ Probe findings against Core 0.50.1 (PUT then GET, throwaway `platform` and `publ
 4. **External service secrets follow `aidial_key`**: sensitive, prior state value kept on read-back, null after import. Only `client_secret` length is validated at plan time; Core's `code_verifier` rule is left to Core so the two cannot drift.
 5. **Wire casing handled in the client types** with explicit JSON tags: top level snake_case, `mcp` and route bodies camelCase, `external_services` snake_case. The spec states the exception so tests pin it.
 6. **Unmanaged fields stay dropped and documented.** Merging the stored raw document on write would make drift semantics unclear, and `function` applications are not suitable for Terraform. The resource description gets an explicit sentence.
-7. **Name mapping:** Terraform names are snake_case versions of the Core names (`responses_endpoint`, `override_name`, `base_url`, `mcp_apps.domain_override`).
+7. **Plan-time source check replaces `ExactlyOneOf`.** Testing real application configs against Core showed that an application with only an `mcp` endpoint is valid (Core requires an endpoint, MCP endpoint, function or interface). So the check is now "not both `endpoint` and `application_type_schema_id`" plus "at least one of `endpoint`, `application_type_schema_id`, `mcp`, `interfaces`", in `ValidateConfig`. Unknown values count as set.
+8. **Runtime and unknown nested attributes stay unexposed.** `user_level_auth_status` and `app_level_auth_status` of an external service are run-time state: Core ignores `app_level_auth_status` on write (a PUT with `SIGNED_IN` reads back `SIGNED_OUT`). Terraform silently drops unknown attributes of an object literal such as these, and a `name` inside a route, so the docs tell users to leave them out.
+9. **Name mapping:** Terraform names are snake_case versions of the Core names (`responses_endpoint`, `override_name`, `base_url`, `mcp_apps.domain_override`).
 
 ## Risks / Trade-offs
 

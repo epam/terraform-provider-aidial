@@ -111,7 +111,7 @@ variable "crm_client_secret" {
 - `display_name` (String) Human-readable application name.
 - `display_version` (String) Version shown for the application.
 - `editor_url` (String) URL of the application editor.
-- `endpoint` (String) URL DIAL Core calls to run the application. Set exactly one of `endpoint` and `application_type_schema_id`.
+- `endpoint` (String) URL DIAL Core calls to run the application. Not allowed together with `application_type_schema_id`. An application needs at least one of `endpoint`, `application_type_schema_id`, `mcp` or `interfaces`.
 - `external_services` (Attributes Map) External services the application can use, keyed by service name. (see [below for nested schema](#nestedatt--external_services))
 - `features` (Attributes) (see [below for nested schema](#nestedatt--features))
 - `forward_auth_token` (Boolean) Forward the caller's authorization token to the application. DIAL Core defaults to false.

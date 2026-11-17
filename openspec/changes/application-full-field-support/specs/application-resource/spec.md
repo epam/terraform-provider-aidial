@@ -55,8 +55,12 @@ The resource SHALL expose the optional attributes `endpoint`, `description`, `di
 - **THEN** validation fails at plan time, because Core rejects the combination
 
 #### Scenario: Neither endpoint nor schema
-- **WHEN** neither `endpoint` nor `application_type_schema_id` is set
-- **THEN** validation fails at plan time, because Core rejects an empty application
+- **WHEN** none of `endpoint`, `application_type_schema_id`, `mcp` and `interfaces` is set
+- **THEN** validation fails at plan time, because Core rejects an application without an endpoint, MCP endpoint, function or interface
+
+#### Scenario: MCP-only application
+- **WHEN** a config sets `mcp` with an `endpoint` and sets neither `endpoint` nor `application_type_schema_id`
+- **THEN** validation passes and the application is created
 
 #### Scenario: Features and interfaces reuse
 - **WHEN** `features` or `interfaces` is configured on an application and on a model with the same values
