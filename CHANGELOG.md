@@ -4,6 +4,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## Unreleased
 
+## 0.3.2 - 2026-11-17
+
 ### Changed
 
 - `api_name` of every resource that has one keeps its value across updates, so a plan no longer lists it as "known after apply" whenever another attribute changes.
