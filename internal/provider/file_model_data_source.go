@@ -32,6 +32,9 @@ type fileModelDataSourceModel struct {
 	IconURL             types.String `tfsdk:"icon_url"`
 	Intro               types.String `tfsdk:"intro"`
 	Reference           types.String `tfsdk:"reference"`
+	DeprecationDate     types.String `tfsdk:"deprecation_date"`
+	EndOfService        types.String `tfsdk:"end_of_service"`
+	Provider            types.String `tfsdk:"provider_name"`
 	ForwardAuthToken    types.Bool   `tfsdk:"forward_auth_token"`
 	MaxRetryAttempts    types.Int64  `tfsdk:"max_retry_attempts"`
 	MaxInputAttachments types.Int64  `tfsdk:"max_input_attachments"`
@@ -91,6 +94,9 @@ func (d *fileModelDataSource) Schema(_ context.Context, _ datasource.SchemaReque
 			"icon_url":              schema.StringAttribute{Computed: true},
 			"intro":                 schema.StringAttribute{Computed: true},
 			"reference":             schema.StringAttribute{Computed: true},
+			"deprecation_date":      schema.StringAttribute{Computed: true},
+			"end_of_service":        schema.StringAttribute{Computed: true},
+			"provider_name":         schema.StringAttribute{Computed: true},
 			"forward_auth_token":    schema.BoolAttribute{Computed: true},
 			"max_retry_attempts":    schema.Int64Attribute{Computed: true},
 			"max_input_attachments": schema.Int64Attribute{Computed: true},
@@ -259,6 +265,9 @@ func (d *fileModelDataSource) Read(ctx context.Context, req datasource.ReadReque
 	config.IconURL = full.IconURL
 	config.Intro = full.Intro
 	config.Reference = full.Reference
+	config.DeprecationDate = full.DeprecationDate
+	config.EndOfService = full.EndOfService
+	config.Provider = full.Provider
 	config.ForwardAuthToken = full.ForwardAuthToken
 	config.MaxRetryAttempts = full.MaxRetryAttempts
 	config.MaxInputAttachments = full.MaxInputAttachments

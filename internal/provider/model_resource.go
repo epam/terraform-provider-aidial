@@ -47,6 +47,9 @@ type modelResourceModel struct {
 	IconURL             types.String `tfsdk:"icon_url"`
 	Intro               types.String `tfsdk:"intro"`
 	Reference           types.String `tfsdk:"reference"`
+	DeprecationDate     types.String `tfsdk:"deprecation_date"`
+	EndOfService        types.String `tfsdk:"end_of_service"`
+	Provider            types.String `tfsdk:"provider_name"`
 	ForwardAuthToken    types.Bool   `tfsdk:"forward_auth_token"`
 	MaxRetryAttempts    types.Int64  `tfsdk:"max_retry_attempts"`
 	MaxInputAttachments types.Int64  `tfsdk:"max_input_attachments"`
@@ -327,6 +330,15 @@ func (r *modelResource) Schema(_ context.Context, _ resource.SchemaRequest, resp
 			"reference": schema.StringAttribute{
 				Optional: true,
 			},
+			"deprecation_date": schema.StringAttribute{
+				Optional: true,
+			},
+			"end_of_service": schema.StringAttribute{
+				Optional: true,
+			},
+			"provider_name": schema.StringAttribute{
+				Optional: true,
+			},
 			"forward_auth_token": schema.BoolAttribute{
 				Optional: true,
 				Computed: true,
@@ -492,6 +504,15 @@ func modelFromPlan(ctx context.Context, plan modelResourceModel) (*client.Model,
 	}
 	if !plan.Reference.IsNull() && !plan.Reference.IsUnknown() {
 		result.Reference = stringPointer(plan.Reference)
+	}
+	if !plan.DeprecationDate.IsNull() && !plan.DeprecationDate.IsUnknown() {
+		result.DeprecationDate = stringPointer(plan.DeprecationDate)
+	}
+	if !plan.EndOfService.IsNull() && !plan.EndOfService.IsUnknown() {
+		result.EndOfService = stringPointer(plan.EndOfService)
+	}
+	if !plan.Provider.IsNull() && !plan.Provider.IsUnknown() {
+		result.Provider = stringPointer(plan.Provider)
 	}
 	if !plan.ForwardAuthToken.IsNull() && !plan.ForwardAuthToken.IsUnknown() {
 		result.ForwardAuthToken = boolPointer(plan.ForwardAuthToken)
@@ -661,6 +682,9 @@ func setModelState(ctx context.Context, state *modelResourceModel, model *client
 	state.IconURL = stringValue(model.IconURL)
 	state.Intro = stringValue(model.Intro)
 	state.Reference = stringValue(model.Reference)
+	state.DeprecationDate = stringValue(model.DeprecationDate)
+	state.EndOfService = stringValue(model.EndOfService)
+	state.Provider = stringValue(model.Provider)
 	state.ForwardAuthToken = boolValue(model.ForwardAuthToken)
 	state.MaxRetryAttempts = int64Value(model.MaxRetryAttempts)
 	state.MaxInputAttachments = int64Value(model.MaxInputAttachments)
