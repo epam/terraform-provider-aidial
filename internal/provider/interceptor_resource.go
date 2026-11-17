@@ -117,8 +117,9 @@ func (r *interceptorResource) Schema(_ context.Context, _ resource.SchemaRequest
 				Description:   "Interceptor name sent in the DIAL API request body. DIAL Core derives the name from the bucket and path, so it can be omitted; then it is read back from the API.",
 			},
 			"api_name": schema.StringAttribute{
-				Computed:    true,
-				Description: "Canonical interceptor name returned by the DIAL API.",
+				Computed:      true,
+				PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+				Description:   "Canonical interceptor name returned by the DIAL API.",
 			},
 			"endpoint":          schema.StringAttribute{Required: true, Description: "URL DIAL Core calls to run the interceptor."},
 			"description":       str("Interceptor description."),

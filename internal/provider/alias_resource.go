@@ -101,8 +101,9 @@ func (r *aliasResource) Schema(_ context.Context, _ resource.SchemaRequest, resp
 				Description:   "Alias name sent in the DIAL API request body. It must equal the last segment of `path`, so it can be omitted; then it is read back from the API.",
 			},
 			"api_name": schema.StringAttribute{
-				Computed:    true,
-				Description: "Canonical alias name returned by the DIAL API.",
+				Computed:      true,
+				PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+				Description:   "Canonical alias name returned by the DIAL API.",
 			},
 			"present_as": schema.StringAttribute{
 				Required:    true,

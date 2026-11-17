@@ -192,8 +192,9 @@ func (r *toolsetResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				Description:   "Toolset name sent in the DIAL API request body. DIAL Core derives the name from the bucket and path, so it can be omitted; then it is read back from the API.",
 			},
 			"api_name": schema.StringAttribute{
-				Computed:    true,
-				Description: "Canonical toolset name returned by the DIAL API.",
+				Computed:      true,
+				PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+				Description:   "Canonical toolset name returned by the DIAL API.",
 			},
 			"display_name": str("Human-readable toolset name."),
 			"description":  str("Toolset description."),

@@ -87,8 +87,9 @@ func (r *roleResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 				Description: "Role name sent in the DIAL API request body. DIAL Core ignores it and derives the name from path, so it can be omitted; then it is read back from the API.",
 			},
 			"api_name": schema.StringAttribute{
-				Computed:    true,
-				Description: "Canonical role name returned by the DIAL API.",
+				Computed:      true,
+				PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+				Description:   "Canonical role name returned by the DIAL API.",
 			},
 			"description": schema.StringAttribute{
 				Optional: true,
