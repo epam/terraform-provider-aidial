@@ -4,6 +4,17 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## Unreleased
 
+## 0.3.2 - 2026-11-17
+
+### Changed
+
+- `api_name` of every resource that has one keeps its value across updates, so a plan no longer lists it as "known after apply" whenever another attribute changes.
+
+### Added
+
+- `aidial_application` and the `aidial_application` and `aidial_file_application` data sources: `input_attachment_types`, `description_keywords`, `dependencies`, `max_input_attachments`, `responses_endpoint`, `responses_defaults`, `intro`, `reference`, `override_name`, `base_url` and `allow_user_external_services`, plus the typed attributes `mcp`, `routes` and `external_services`. Before, DIAL Core dropped these on every apply, because it replaces the whole application on save. `client_secret` and `code_verifier` of `external_services` are sensitive; Core never returns them, so state keeps the configured values and they are null after import. Routes inside an application have their own schema, without `id`, `name` and `status`. Fields the provider does not model, such as `function`, are still dropped on apply, so do not manage `function` applications with this resource.
+- `aidial_interceptor` and the `aidial_interceptor` and `aidial_file_interceptor` data sources: `dependencies`, `description_keywords`, `input_attachment_types`, `interceptors`, `max_input_attachments`, `intro`, `reference`, `override_name`, `base_url`, `responses_endpoint` and `responses_defaults`. DIAL Core accepted these but the resource dropped them on every apply. Fields the resource does not model are still dropped on apply.
+
 ## 0.3.1 - 2026-11-16
 
 ### Fixed

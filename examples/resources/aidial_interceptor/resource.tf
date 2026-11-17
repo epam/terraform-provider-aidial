@@ -12,3 +12,15 @@ resource "aidial_interceptor" "example" {
     "X-Team" = "platform"
   }
 }
+
+# An interceptor that also sets the optional catalog and attachment fields.
+resource "aidial_interceptor" "detailed" {
+  bucket   = "platform"
+  path     = "my-detailed-interceptor"
+  endpoint = "https://interceptor.example.invalid/intercept"
+
+  description_keywords   = ["content", "filter"]
+  dependencies           = ["my-model"]
+  input_attachment_types = ["image/png"]
+  max_input_attachments  = 2
+}

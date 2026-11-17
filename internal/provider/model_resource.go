@@ -283,8 +283,9 @@ func (r *modelResource) Schema(_ context.Context, _ resource.SchemaRequest, resp
 				Description: "Model name sent in the DIAL API request body. DIAL Core ignores it and derives the name from path, so it can be omitted; then it is read back from the API.",
 			},
 			"api_name": schema.StringAttribute{
-				Computed:    true,
-				Description: "Canonical model name returned by the DIAL API.",
+				Computed:      true,
+				PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+				Description:   "Canonical model name returned by the DIAL API.",
 			},
 			"type": schema.StringAttribute{
 				Required:    true,

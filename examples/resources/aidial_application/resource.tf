@@ -25,3 +25,48 @@ resource "aidial_application" "typed" {
     prompt = "You are a helpful assistant."
   }
 }
+
+# An application with MCP, its own routes and an OAuth external service.
+resource "aidial_application" "full" {
+  bucket   = "platform"
+  path     = "my-full-application"
+  endpoint = "https://application.example.invalid/chat"
+
+  input_attachment_types = ["*/*"]
+  description_keywords   = ["support"]
+  dependencies           = ["my-model"]
+
+  mcp = {
+    endpoint  = "https://application.example.invalid/mcp"
+    transport = "HTTP"
+  }
+
+  routes = {
+    health = {
+      paths = ["/health"]
+      response = {
+        status = 200
+        body   = "ok"
+      }
+    }
+  }
+
+  allow_user_external_services = true
+  external_services = {
+    crm = {
+      display_name = "CRM"
+      auth_settings = {
+        authentication_type    = "OAUTH"
+        client_id              = "my-client"
+        client_secret          = var.crm_client_secret # at least 8 characters, never read back from DIAL Core
+        authorization_endpoint = "https://crm.example.invalid/authorize"
+        token_endpoint         = "https://crm.example.invalid/token"
+      }
+    }
+  }
+}
+
+variable "crm_client_secret" {
+  type      = string
+  sensitive = true
+}

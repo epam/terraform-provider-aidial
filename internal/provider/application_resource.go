@@ -22,6 +22,8 @@ import (
 var (
 	_ resource.Resource                = &applicationResource{}
 	_ resource.ResourceWithImportState = &applicationResource{}
+
+	_ resource.ResourceWithValidateConfig = &applicationResource{}
 )
 
 type applicationResource struct {
@@ -65,6 +67,23 @@ type applicationBody struct {
 	Defaults              types.Dynamic `tfsdk:"defaults"`
 	ApplicationProperties types.Dynamic `tfsdk:"application_properties"`
 	CatalogProperties     types.Dynamic `tfsdk:"catalog_properties"`
+	ResponsesDefaults     types.Dynamic `tfsdk:"responses_defaults"`
+
+	ResponsesEndpoint         types.String `tfsdk:"responses_endpoint"`
+	Intro                     types.String `tfsdk:"intro"`
+	Reference                 types.String `tfsdk:"reference"`
+	OverrideName              types.String `tfsdk:"override_name"`
+	BaseURL                   types.String `tfsdk:"base_url"`
+	MaxInputAttachments       types.Int64  `tfsdk:"max_input_attachments"`
+	AllowUserExternalServices types.Bool   `tfsdk:"allow_user_external_services"`
+
+	InputAttachmentTypes types.Set `tfsdk:"input_attachment_types"`
+	DescriptionKeywords  types.Set `tfsdk:"description_keywords"`
+	Dependencies         types.Set `tfsdk:"dependencies"`
+
+	Mcp              types.Object `tfsdk:"mcp"`
+	Routes           types.Map    `tfsdk:"routes"`
+	ExternalServices types.Map    `tfsdk:"external_services"`
 }
 
 func (r *applicationResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -77,7 +96,7 @@ func (r *applicationResource) Schema(_ context.Context, _ resource.SchemaRequest
 	}
 
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Manages an application in DIAL Core (`PUT /v1/applications/{bucket}/{path}`). An application is either endpoint-based (`endpoint`) or schema-based (`application_type_schema_id` with `application_properties`); DIAL Core rejects both together. Code-based applications (`function`), `mcp`, `routes` and `external_services` are not managed: a PUT replaces the whole document, so they are dropped on the next apply.",
+		MarkdownDescription: "Manages an application in DIAL Core (`PUT /v1/applications/{bucket}/{path}`). An application is either endpoint-based (`endpoint`) or schema-based (`application_type_schema_id` with `application_properties`); DIAL Core rejects both together. Fields this resource does not model, such as code-based applications (`function`), are not managed: a PUT replaces the whole document, so they are dropped on the next apply. Do not manage `function` applications with this resource.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:      true,
@@ -103,13 +122,13 @@ func (r *applicationResource) Schema(_ context.Context, _ resource.SchemaRequest
 				Description:   "Application name sent in the DIAL API request body. DIAL Core derives the name from the bucket and path, so it can be omitted; then it is read back from the API.",
 			},
 			"api_name": schema.StringAttribute{
-				Computed:    true,
-				Description: "Canonical application name returned by the DIAL API.",
+				Computed:      true,
+				PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+				Description:   "Canonical application name returned by the DIAL API.",
 			},
 			"endpoint": schema.StringAttribute{
 				Optional:    true,
-				Description: "URL DIAL Core calls to run the application. Set exactly one of `endpoint` and `application_type_schema_id`.",
-				Validators:  []validator.String{stringvalidator.ExactlyOneOf(path.MatchRoot("application_type_schema_id"))},
+				Description: "URL DIAL Core calls to run the application. Not allowed together with `application_type_schema_id`. An application needs at least one of `endpoint`, `application_type_schema_id`, `mcp` or `interfaces`.",
 			},
 			"application_type_schema_id": str("URI (`$id`) of the application type schema, for example the `schema_id` of an `aidial_application_type_schema`. Schema-based applications take no `endpoint`."),
 			"editor_url":                 str("URL of the application editor."),
@@ -161,7 +180,62 @@ func (r *applicationResource) Schema(_ context.Context, _ resource.SchemaRequest
 				Optional:    true,
 				Description: "Catalog metadata of the application (free-form object).",
 			},
+			"responses_defaults": schema.DynamicAttribute{
+				Optional:    true,
+				Description: "Default request parameters for Responses API requests (free-form object, sent to DIAL as-is).",
+			},
+			"responses_endpoint": str("Endpoint used for Responses API requests."),
+			"intro":              str("Introductory text shown for the application."),
+			"override_name":      str("Override of the application name presented to clients."),
+			"base_url":           str("Application-level base URL that completes `interfaces` entries without their own `base_url`."),
+			"reference": schema.StringAttribute{
+				Optional:      true,
+				Computed:      true,
+				PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+				Description:   "Reference identifier of the application. DIAL Core generates one when it is not set.",
+			},
+			"max_input_attachments":        schema.Int64Attribute{Optional: true, Description: "Maximum number of attachments in one request."},
+			"allow_user_external_services": schema.BoolAttribute{Optional: true, Description: "Allow users to add their own external services to the application."},
+			"input_attachment_types":       schema.SetAttribute{Optional: true, ElementType: types.StringType, Description: "MIME types of accepted input attachments."},
+			"description_keywords": schema.SetAttribute{
+				Optional: true, Computed: true, ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{setplanmodifier.UseStateForUnknown()},
+				Description:   "Keywords describing the application. DIAL Core defaults to none.",
+			},
+			"dependencies": schema.SetAttribute{
+				Optional: true, Computed: true, ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{setplanmodifier.UseStateForUnknown()},
+				Description:   "Deployments the application depends on. DIAL Core defaults to none.",
+			},
 		},
+	}
+	for name, attribute := range applicationNestedResourceAttributes() {
+		resp.Schema.Attributes[name] = attribute
+	}
+}
+
+// ValidateConfig checks what DIAL Core rejects: an endpoint together with an
+// application type schema, and an application with nothing to run (no
+// endpoint, schema, MCP endpoint or interface). Unknown values count as set.
+func (r *applicationResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var endpoint, schemaID types.String
+	var mcp types.Object
+	var interfaces types.Map
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("endpoint"), &endpoint)...)
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("application_type_schema_id"), &schemaID)...)
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("mcp"), &mcp)...)
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("interfaces"), &interfaces)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	if !endpoint.IsNull() && !schemaID.IsNull() {
+		resp.Diagnostics.AddAttributeError(path.Root("endpoint"), "Conflicting attributes",
+			"`endpoint` and `application_type_schema_id` cannot be set together: DIAL Core rejects an application with both.")
+		return
+	}
+	if endpoint.IsNull() && schemaID.IsNull() && mcp.IsNull() && interfaces.IsNull() {
+		resp.Diagnostics.AddError("Application has nothing to run",
+			"Set at least one of `endpoint`, `application_type_schema_id`, `mcp` or `interfaces`: DIAL Core rejects an application without any of them.")
 	}
 }
 
@@ -193,6 +267,30 @@ func applicationFromPlan(ctx context.Context, plan applicationModel) (*client.Ap
 		ApplicationTypeSchemaID: stringPointer(plan.ApplicationTypeSchemaID),
 		ForwardAuthToken:        boolPointer(plan.ForwardAuthToken),
 		MaxRetryAttempts:        int64Pointer(plan.MaxRetryAttempts),
+
+		ResponsesEndpoint:         stringPointer(plan.ResponsesEndpoint),
+		Intro:                     stringPointer(plan.Intro),
+		Reference:                 stringPointer(plan.Reference),
+		OverrideName:              stringPointer(plan.OverrideName),
+		BaseURL:                   stringPointer(plan.BaseURL),
+		MaxInputAttachments:       int64Pointer(plan.MaxInputAttachments),
+		AllowUserExternalServices: boolPointer(plan.AllowUserExternalServices),
+	}
+
+	for _, list := range []struct {
+		name   string
+		value  types.Set
+		target **[]string
+	}{
+		{"input_attachment_types", plan.InputAttachmentTypes, &ic.InputAttachmentTypes},
+		{"description_keywords", plan.DescriptionKeywords, &ic.DescriptionKeywords},
+		{"dependencies", plan.Dependencies, &ic.Dependencies},
+	} {
+		value, err := stringSetToAPI(ctx, list.value)
+		if err != nil {
+			return nil, fmt.Errorf("invalid %s: %w", list.name, err)
+		}
+		*list.target = value
 	}
 
 	userRoles, err := stringSetToAPI(ctx, plan.UserRoles)
@@ -228,6 +326,18 @@ func applicationFromPlan(ctx context.Context, plan applicationModel) (*client.Ap
 		return nil, err
 	}
 	if ic.CatalogProperties, err = freeFormObjectFromPlan("catalog_properties", plan.CatalogProperties); err != nil {
+		return nil, err
+	}
+	if ic.ResponsesDefaults, err = freeFormObjectFromPlan("responses_defaults", plan.ResponsesDefaults); err != nil {
+		return nil, err
+	}
+	if ic.Mcp, err = mcpFromObject(ctx, plan.Mcp); err != nil {
+		return nil, err
+	}
+	if ic.Routes, err = routesFromMap(ctx, plan.Routes); err != nil {
+		return nil, err
+	}
+	if ic.ExternalServices, err = externalServicesFromMap(ctx, plan.ExternalServices); err != nil {
 		return nil, err
 	}
 	return ic, nil
@@ -298,6 +408,43 @@ func setApplicationBodyState(ctx context.Context, state *applicationBody, ic *cl
 	}
 	if state.CatalogProperties, err = freeFormObjectToState(state.CatalogProperties, ic.CatalogProperties); err != nil {
 		return fmt.Errorf("failed to set catalog_properties: %w", err)
+	}
+	if state.ResponsesDefaults, err = freeFormObjectToState(state.ResponsesDefaults, ic.ResponsesDefaults); err != nil {
+		return fmt.Errorf("failed to set responses_defaults: %w", err)
+	}
+
+	state.ResponsesEndpoint = stringValue(ic.ResponsesEndpoint)
+	state.Intro = stringValue(ic.Intro)
+	state.Reference = stringValue(ic.Reference)
+	state.OverrideName = stringValue(ic.OverrideName)
+	state.BaseURL = stringValue(ic.BaseURL)
+	state.MaxInputAttachments = int64Value(ic.MaxInputAttachments)
+	state.AllowUserExternalServices = boolValue(ic.AllowUserExternalServices)
+
+	for _, list := range []struct {
+		name   string
+		value  *[]string
+		target *types.Set
+	}{
+		{"input_attachment_types", ic.InputAttachmentTypes, &state.InputAttachmentTypes},
+		{"description_keywords", ic.DescriptionKeywords, &state.DescriptionKeywords},
+		{"dependencies", ic.Dependencies, &state.Dependencies},
+	} {
+		value, err := stringSetFromAPI(ctx, list.value)
+		if err != nil {
+			return fmt.Errorf("failed to set %s: %w", list.name, err)
+		}
+		*list.target = value
+	}
+
+	if state.Mcp, err = mcpToObject(ctx, ic.Mcp); err != nil {
+		return err
+	}
+	if state.Routes, err = routesToMap(ctx, state.Routes, ic.Routes); err != nil {
+		return err
+	}
+	if state.ExternalServices, err = externalServicesToMap(ctx, state.ExternalServices, ic.ExternalServices); err != nil {
+		return err
 	}
 	return nil
 }

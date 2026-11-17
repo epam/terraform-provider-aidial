@@ -34,11 +34,66 @@ type Application struct {
 	DefaultHeaders          map[string]string         `json:"default_headers,omitempty"`
 	Features                *ModelFeatures            `json:"features,omitempty"`
 	Interfaces              map[string]ModelInterface `json:"interfaces,omitempty"`
+
+	InputAttachmentTypes      *[]string `json:"input_attachment_types,omitempty"`
+	DescriptionKeywords       *[]string `json:"description_keywords,omitempty"`
+	Dependencies              *[]string `json:"dependencies,omitempty"`
+	MaxInputAttachments       *int64    `json:"max_input_attachments,omitempty"`
+	ResponsesEndpoint         *string   `json:"responses_endpoint,omitempty"`
+	Intro                     *string   `json:"intro,omitempty"`
+	Reference                 *string   `json:"reference,omitempty"`
+	OverrideName              *string   `json:"override_name,omitempty"`
+	BaseURL                   *string   `json:"base_url,omitempty"`
+	AllowUserExternalServices *bool     `json:"allow_user_external_services,omitempty"`
+
+	Mcp *ApplicationMcp `json:"mcp,omitempty"`
+	// Routes reuses Route, whose keys are camelCase; Name and Status stay
+	// empty because the map key is the route name.
+	Routes           map[string]Route                      `json:"routes,omitempty"`
+	ExternalServices map[string]ApplicationExternalService `json:"external_services,omitempty"`
 	// Defaults, ApplicationProperties and CatalogProperties are free-form
 	// objects (MapStringObject in the API), passed through as-is.
 	Defaults              json.RawMessage `json:"defaults,omitempty"`
 	ApplicationProperties json.RawMessage `json:"application_properties,omitempty"`
 	CatalogProperties     json.RawMessage `json:"catalog_properties,omitempty"`
+	// ResponsesDefaults is a free-form object like Defaults, applied to Responses API requests.
+	ResponsesDefaults json.RawMessage `json:"responses_defaults,omitempty"`
+}
+
+// ApplicationMcp is the mcp object of an application. Its keys are camelCase.
+type ApplicationMcp struct {
+	Endpoint             *string             `json:"endpoint,omitempty"`
+	Transport            *string             `json:"transport,omitempty"`
+	AllowedTools         *[]string           `json:"allowedTools,omitempty"`
+	ConfigDelivery       *string             `json:"configDelivery,omitempty"`
+	ForwardPerRequestKey *bool               `json:"forwardPerRequestKey,omitempty"`
+	McpApps              *ApplicationMcpApps `json:"mcpApps,omitempty"`
+}
+
+// ApplicationMcpApps holds the MCP apps settings of an application.
+type ApplicationMcpApps struct {
+	DomainOverride *string `json:"domainOverride,omitempty"`
+}
+
+// ApplicationExternalService is one entry of external_services. Its keys are
+// snake_case. Core never returns the secrets of auth_settings, only a hint and
+// run-time status fields that are ignored here.
+type ApplicationExternalService struct {
+	DisplayName  *string                         `json:"display_name,omitempty"`
+	Description  *string                         `json:"description,omitempty"`
+	AuthSettings *ApplicationExternalServiceAuth `json:"auth_settings,omitempty"`
+}
+
+// ApplicationExternalServiceAuth is the auth_settings of an external service.
+type ApplicationExternalServiceAuth struct {
+	AuthenticationType    *string   `json:"authentication_type,omitempty"`
+	ClientID              *string   `json:"client_id,omitempty"`
+	ClientSecret          *string   `json:"client_secret,omitempty"`
+	AuthorizationEndpoint *string   `json:"authorization_endpoint,omitempty"`
+	TokenEndpoint         *string   `json:"token_endpoint,omitempty"`
+	ScopesSupported       *[]string `json:"scopes_supported,omitempty"`
+	APIKeyHeader          *string   `json:"api_key_header,omitempty"`
+	CodeVerifier          *string   `json:"code_verifier,omitempty"`
 }
 
 // applicationURL builds /v1/applications/{bucket}/{path}. Like toolsets, Core

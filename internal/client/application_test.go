@@ -215,3 +215,98 @@ func TestGetFileApplication(t *testing.T) {
 		t.Fatalf("expected nil, nil on 404, got %+v, %v", got, err)
 	}
 }
+
+func TestApplicationNestedWireCasing(t *testing.T) {
+	var body map[string]any
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		raw, _ := io.ReadAll(r.Body)
+		if err := json.Unmarshal(raw, &body); err != nil {
+			t.Errorf("invalid body: %v", err)
+		}
+		w.Write([]byte(`{"name":"x"}`))
+	}))
+	c := testClient(t, srv)
+
+	endpoint, transport, delivery := "http://h/mcp", "HTTP", "META"
+	forward, rewrite := true, false
+	secret, authType, scopes := "secret-12345", "OAUTH", []string{"s"}
+	maxAttachments := int64(3)
+	types, tools := []string{"*/*"}, []string{"t1"}
+	domain := "x.com"
+	app := &Application{
+		Endpoint:             &endpoint,
+		InputAttachmentTypes: &types,
+		MaxInputAttachments:  &maxAttachments,
+		Mcp: &ApplicationMcp{
+			Endpoint: &endpoint, Transport: &transport, AllowedTools: &tools,
+			ConfigDelivery: &delivery, ForwardPerRequestKey: &forward,
+			McpApps: &ApplicationMcpApps{DomainOverride: &domain},
+		},
+		Routes: map[string]Route{"r1": {Paths: []string{"/a"}, RewritePath: &rewrite}},
+		ExternalServices: map[string]ApplicationExternalService{"svc": {
+			AuthSettings: &ApplicationExternalServiceAuth{AuthenticationType: &authType, ClientSecret: &secret, ScopesSupported: &scopes},
+		}},
+	}
+	if err := c.SaveApplication(context.Background(), "platform", "a", app); err != nil {
+		t.Fatalf("SaveApplication: %v", err)
+	}
+
+	if _, ok := body["input_attachment_types"]; !ok {
+		t.Errorf("expected snake_case input_attachment_types, got %v", body)
+	}
+	if _, ok := body["max_input_attachments"]; !ok {
+		t.Errorf("expected snake_case max_input_attachments, got %v", body)
+	}
+	mcp := body["mcp"].(map[string]any)
+	for _, key := range []string{"allowedTools", "configDelivery", "forwardPerRequestKey", "mcpApps"} {
+		if _, ok := mcp[key]; !ok {
+			t.Errorf("mcp should use camelCase %q, got %v", key, mcp)
+		}
+	}
+	route := body["routes"].(map[string]any)["r1"].(map[string]any)
+	if _, ok := route["rewritePath"]; !ok {
+		t.Errorf("route should use camelCase rewritePath, got %v", route)
+	}
+	auth := body["external_services"].(map[string]any)["svc"].(map[string]any)["auth_settings"].(map[string]any)
+	for _, key := range []string{"authentication_type", "client_secret", "scopes_supported"} {
+		if _, ok := auth[key]; !ok {
+			t.Errorf("auth_settings should use snake_case %q, got %v", key, auth)
+		}
+	}
+}
+
+func TestGetApplicationDecodesNestedFields(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(`{
+			"name":"x","endpoint":"http://x","reference":"r","intro":"i","override_name":"o","base_url":"http://b",
+			"responses_endpoint":"http://r","responses_defaults":{"a":1},
+			"input_attachment_types":["*/*"],"max_input_attachments":3,
+			"description_keywords":[],"dependencies":["m1"],"allow_user_external_services":true,
+			"mcp":{"endpoint":"http://h/mcp","transport":"HTTP","allowedTools":[],"configDelivery":"META","forwardPerRequestKey":true,"mcpApps":null},
+			"routes":{"r1":{"paths":["/a"],"rewritePath":false,"order":2147483647,"attachmentPaths":{"requestBody":[],"responseBody":[]}}},
+			"external_services":{"svc":{"display_name":"S","auth_settings":{"authentication_type":"OAUTH","client_id":"c","client_secret_hint":"2345","user_level_auth_status":"SIGNED_OUT"}}}
+		}`))
+	}))
+	c := testClient(t, srv)
+
+	got, err := c.GetApplication(context.Background(), "platform", "a")
+	if err != nil || got == nil {
+		t.Fatalf("GetApplication: %v %v", got, err)
+	}
+	if got.Mcp == nil || got.Mcp.ConfigDelivery == nil || *got.Mcp.ConfigDelivery != "META" || got.Mcp.McpApps != nil ||
+		got.Mcp.AllowedTools == nil || len(*got.Mcp.AllowedTools) != 0 {
+		t.Fatalf("mcp not decoded: %+v", got.Mcp)
+	}
+	if r := got.Routes["r1"]; r.RewritePath == nil || *r.RewritePath || len(r.Paths) != 1 || r.Order == nil {
+		t.Fatalf("route not decoded: %+v", r)
+	}
+	svc := got.ExternalServices["svc"]
+	if svc.AuthSettings == nil || svc.AuthSettings.ClientSecret != nil || *svc.AuthSettings.ClientID != "c" {
+		t.Fatalf("external service not decoded: %+v", svc)
+	}
+	if got.Reference == nil || *got.Reference != "r" || got.OverrideName == nil || got.BaseURL == nil || got.ResponsesEndpoint == nil ||
+		string(got.ResponsesDefaults) != `{"a":1}` || got.AllowUserExternalServices == nil || !*got.AllowUserExternalServices ||
+		got.Dependencies == nil || got.DescriptionKeywords == nil || got.InputAttachmentTypes == nil || got.MaxInputAttachments == nil {
+		t.Fatalf("simple fields not decoded: %+v", got)
+	}
+}

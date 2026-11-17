@@ -117,8 +117,9 @@ func (r *routeResource) Schema(_ context.Context, _ resource.SchemaRequest, resp
 				Description: "Route name sent in the DIAL API request body. DIAL Core ignores it and derives the name from path, so it can be omitted; then it is read back from the API.",
 			},
 			"api_name": schema.StringAttribute{
-				Computed:    true,
-				Description: "Canonical route name returned by the DIAL API.",
+				Computed:      true,
+				PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+				Description:   "Canonical route name returned by the DIAL API.",
 			},
 			"order": schema.Int64Attribute{
 				Optional:    true,

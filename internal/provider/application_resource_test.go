@@ -28,6 +28,9 @@ type fakeApplicationCore struct {
 	stored   []byte
 	received []byte
 	paths    []string
+	// transform, when set, edits the stored document before GET returns it,
+	// to imitate what Core fills in or never returns.
+	transform func(doc map[string]any)
 }
 
 func (f *fakeApplicationCore) client(t *testing.T) *client.Client {
@@ -49,10 +52,17 @@ func (f *fakeApplicationCore) client(t *testing.T) *client.Client {
 			var doc map[string]any
 			_ = json.Unmarshal(f.stored, &doc)
 			doc["name"] = "f"
-			for key, value := range map[string]any{"forward_auth_token": false, "max_retry_attempts": 1, "defaults": map[string]any{}, "status": "valid"} {
+			for key, value := range map[string]any{
+				"forward_auth_token": false, "max_retry_attempts": 1, "defaults": map[string]any{}, "status": "valid",
+				"responses_defaults": map[string]any{}, "description_keywords": []any{}, "dependencies": []any{},
+				"routes": map[string]any{}, "reference": "generated-ref",
+			} {
 				if _, set := doc[key]; !set {
 					doc[key] = value
 				}
+			}
+			if f.transform != nil {
+				f.transform(doc)
 			}
 			_ = json.NewEncoder(w).Encode(doc)
 		case http.MethodDelete:
@@ -109,7 +119,16 @@ func newApplicationPlan(endpoint string) applicationModel {
 			DefaultHeaders:        types.MapUnknown(types.StringType),
 			Features:              types.ObjectNull(modelFeaturesAttrTypes),
 			Interfaces:            types.MapUnknown(types.ObjectType{AttrTypes: modelInterfaceAttrTypes}),
-			Defaults:              types.DynamicNull(), CatalogProperties: types.DynamicNull(),
+			Defaults:              types.DynamicNull(), CatalogProperties: types.DynamicNull(), ResponsesDefaults: types.DynamicNull(),
+
+			ResponsesEndpoint: types.StringNull(), Intro: types.StringNull(), Reference: types.StringUnknown(),
+			OverrideName: types.StringNull(), BaseURL: types.StringNull(),
+			MaxInputAttachments: types.Int64Null(), AllowUserExternalServices: types.BoolNull(),
+			InputAttachmentTypes: types.SetNull(types.StringType),
+			DescriptionKeywords:  types.SetUnknown(types.StringType), Dependencies: types.SetUnknown(types.StringType),
+			Mcp:              types.ObjectNull(appMcpAttrTypes),
+			Routes:           types.MapUnknown(types.ObjectType{AttrTypes: appRouteAttrTypes}),
+			ExternalServices: types.MapNull(types.ObjectType{AttrTypes: appServiceAttrTypes}),
 		},
 	}
 }
@@ -218,14 +237,69 @@ func TestApplicationTypesRegistered(t *testing.T) {
 	}
 }
 
-func TestApplicationEndpointIsOptionalAndExclusiveWithSchemaID(t *testing.T) {
+func TestApplicationEndpointIsOptional(t *testing.T) {
 	rs := applicationResourceSchema(t).Schema
 	endpoint := identityFromResourceSchema(t, "endpoint", rs)
 	if endpoint.required || !endpoint.optional || endpoint.computed {
 		t.Fatalf("endpoint must be optional only: %+v", endpoint)
 	}
-	if len(endpoint.validators) != 1 {
-		t.Fatalf("endpoint needs the exactly-one-of validator with application_type_schema_id: %+v", endpoint)
+}
+
+// validateApplicationConfig runs ValidateConfig on a config where only the
+// given attributes are set; every other attribute is null.
+func validateApplicationConfig(t *testing.T, set map[string]tftypes.Value) *resource.ValidateConfigResponse {
+	t.Helper()
+	ctx := context.Background()
+	schema := applicationResourceSchema(t).Schema
+	objType := schema.Type().TerraformType(ctx).(tftypes.Object)
+	values := map[string]tftypes.Value{}
+	for name, typ := range objType.AttributeTypes {
+		values[name] = tftypes.NewValue(typ, nil)
+	}
+	for name, value := range set {
+		values[name] = value
+	}
+	req := resource.ValidateConfigRequest{Config: tfsdk.Config{Schema: schema, Raw: tftypes.NewValue(objType, values)}}
+	resp := &resource.ValidateConfigResponse{}
+	(&applicationResource{}).ValidateConfig(ctx, req, resp)
+	return resp
+}
+
+func TestApplicationValidateConfigSources(t *testing.T) {
+	ctx := context.Background()
+	schema := applicationResourceSchema(t).Schema
+	attrType := func(name string) tftypes.Type { return schema.Attributes[name].GetType().TerraformType(ctx) }
+	str := func(v string) tftypes.Value { return tftypes.NewValue(tftypes.String, v) }
+	mcp := func() tftypes.Value {
+		typ := attrType("mcp").(tftypes.Object)
+		values := map[string]tftypes.Value{}
+		for name, t := range typ.AttributeTypes {
+			values[name] = tftypes.NewValue(t, nil)
+		}
+		values["endpoint"] = str("http://h/mcp")
+		return tftypes.NewValue(typ, values)
+	}
+
+	cases := []struct {
+		name    string
+		set     map[string]tftypes.Value
+		wantErr string
+	}{
+		{"endpoint", map[string]tftypes.Value{"endpoint": str("http://e")}, ""},
+		{"schema", map[string]tftypes.Value{"application_type_schema_id": str("https://s/x")}, ""},
+		{"mcp only", map[string]tftypes.Value{"mcp": mcp()}, ""},
+		{"unknown endpoint", map[string]tftypes.Value{"endpoint": tftypes.NewValue(tftypes.String, tftypes.UnknownValue)}, ""},
+		{"endpoint and schema", map[string]tftypes.Value{"endpoint": str("http://e"), "application_type_schema_id": str("https://s/x")}, "cannot be set together"},
+		{"nothing", map[string]tftypes.Value{}, "nothing to run"},
+	}
+	for _, c := range cases {
+		resp := validateApplicationConfig(t, c.set)
+		if c.wantErr == "" && resp.Diagnostics.HasError() {
+			t.Errorf("%s: unexpected error %v", c.name, resp.Diagnostics)
+		}
+		if c.wantErr != "" && (!resp.Diagnostics.HasError() || !strings.Contains(resp.Diagnostics.Errors()[0].Summary()+" "+resp.Diagnostics.Errors()[0].Detail(), c.wantErr)) {
+			t.Errorf("%s: want error containing %q, got %v", c.name, c.wantErr, resp.Diagnostics)
+		}
 	}
 }
 

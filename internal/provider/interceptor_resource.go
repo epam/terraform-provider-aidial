@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/setplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -59,6 +60,19 @@ type interceptorBody struct {
 
 	Defaults          types.Dynamic `tfsdk:"defaults"`
 	CatalogProperties types.Dynamic `tfsdk:"catalog_properties"`
+	ResponsesDefaults types.Dynamic `tfsdk:"responses_defaults"`
+
+	Dependencies         types.Set `tfsdk:"dependencies"`
+	DescriptionKeywords  types.Set `tfsdk:"description_keywords"`
+	InputAttachmentTypes types.Set `tfsdk:"input_attachment_types"`
+	Interceptors         types.Set `tfsdk:"interceptors"`
+
+	MaxInputAttachments types.Int64  `tfsdk:"max_input_attachments"`
+	Intro               types.String `tfsdk:"intro"`
+	Reference           types.String `tfsdk:"reference"`
+	OverrideName        types.String `tfsdk:"override_name"`
+	BaseURL             types.String `tfsdk:"base_url"`
+	ResponsesEndpoint   types.String `tfsdk:"responses_endpoint"`
 }
 
 func (r *interceptorResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -70,8 +84,14 @@ func (r *interceptorResource) Schema(_ context.Context, _ resource.SchemaRequest
 		return schema.StringAttribute{Optional: true, Description: description}
 	}
 
+	// DIAL Core reads these sets back as empty when they are not sent, so they
+	// are computed too. UseStateForUnknown keeps them stable across updates.
+	defaultedSet := func(description string) schema.SetAttribute {
+		return schema.SetAttribute{Optional: true, Computed: true, ElementType: types.StringType, PlanModifiers: []planmodifier.Set{setplanmodifier.UseStateForUnknown()}, Description: description}
+	}
+
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Manages an interceptor in DIAL Core (`PUT /v1/interceptors/{bucket}/{path}`). Models reference interceptors by name in their `interceptors` list.",
+		MarkdownDescription: "Manages an interceptor in DIAL Core (`PUT /v1/interceptors/{bucket}/{path}`). Models reference interceptors by name in their `interceptors` list. Fields this resource does not model are not managed: a PUT replaces the whole document, so they are dropped on the next apply.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:      true,
@@ -97,8 +117,9 @@ func (r *interceptorResource) Schema(_ context.Context, _ resource.SchemaRequest
 				Description:   "Interceptor name sent in the DIAL API request body. DIAL Core derives the name from the bucket and path, so it can be omitted; then it is read back from the API.",
 			},
 			"api_name": schema.StringAttribute{
-				Computed:    true,
-				Description: "Canonical interceptor name returned by the DIAL API.",
+				Computed:      true,
+				PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+				Description:   "Canonical interceptor name returned by the DIAL API.",
 			},
 			"endpoint":          schema.StringAttribute{Required: true, Description: "URL DIAL Core calls to run the interceptor."},
 			"description":       str("Interceptor description."),
@@ -137,6 +158,20 @@ func (r *interceptorResource) Schema(_ context.Context, _ resource.SchemaRequest
 				Optional:    true,
 				Description: "Catalog metadata of the interceptor (free-form object, sent as `catalogProperties`).",
 			},
+			"responses_defaults": schema.DynamicAttribute{
+				Optional:    true,
+				Description: "Default request parameters for Responses API requests (free-form object, sent to DIAL as-is).",
+			},
+			"dependencies":           defaultedSet("Deployments the interceptor depends on. DIAL Core defaults to none."),
+			"description_keywords":   defaultedSet("Keywords describing the interceptor. DIAL Core defaults to none."),
+			"interceptors":           defaultedSet("Names of interceptors applied to the interceptor's own requests. DIAL Core defaults to none."),
+			"input_attachment_types": schema.SetAttribute{Optional: true, ElementType: types.StringType, Description: "MIME types of accepted input attachments."},
+			"max_input_attachments":  schema.Int64Attribute{Optional: true, Description: "Maximum number of attachments in one request."},
+			"intro":                  str("Introductory text shown for the interceptor."),
+			"reference":              str("Reference identifier of the interceptor."),
+			"override_name":          str("Override of the interceptor name presented to clients."),
+			"base_url":               str("Interceptor-level base URL that completes `interfaces` entries without their own `base_url`."),
+			"responses_endpoint":     str("Endpoint used for Responses API requests."),
 		},
 	}
 }
@@ -166,6 +201,30 @@ func interceptorFromPlan(ctx context.Context, plan interceptorModel) (*client.In
 		CatalogSchemaID:  stringPointer(plan.CatalogSchemaID),
 		ForwardAuthToken: boolPointer(plan.ForwardAuthToken),
 		MaxRetryAttempts: int64Pointer(plan.MaxRetryAttempts),
+
+		MaxInputAttachments: int64Pointer(plan.MaxInputAttachments),
+		Intro:               stringPointer(plan.Intro),
+		Reference:           stringPointer(plan.Reference),
+		OverrideName:        stringPointer(plan.OverrideName),
+		BaseURL:             stringPointer(plan.BaseURL),
+		ResponsesEndpoint:   stringPointer(plan.ResponsesEndpoint),
+	}
+
+	for _, list := range []struct {
+		name   string
+		value  types.Set
+		target **[]string
+	}{
+		{"dependencies", plan.Dependencies, &ic.Dependencies},
+		{"description_keywords", plan.DescriptionKeywords, &ic.DescriptionKeywords},
+		{"input_attachment_types", plan.InputAttachmentTypes, &ic.InputAttachmentTypes},
+		{"interceptors", plan.Interceptors, &ic.Interceptors},
+	} {
+		value, err := stringSetToAPI(ctx, list.value)
+		if err != nil {
+			return nil, fmt.Errorf("invalid %s: %w", list.name, err)
+		}
+		*list.target = value
 	}
 
 	userRoles, err := stringSetToAPI(ctx, plan.UserRoles)
@@ -192,6 +251,9 @@ func interceptorFromPlan(ctx context.Context, plan interceptorModel) (*client.In
 		return nil, err
 	}
 	if ic.CatalogProperties, err = freeFormObjectFromPlan("catalog_properties", plan.CatalogProperties); err != nil {
+		return nil, err
+	}
+	if ic.ResponsesDefaults, err = freeFormObjectFromPlan("responses_defaults", plan.ResponsesDefaults); err != nil {
 		return nil, err
 	}
 	return ic, nil
@@ -250,6 +312,33 @@ func setInterceptorBodyState(ctx context.Context, state *interceptorBody, ic *cl
 	}
 	if state.CatalogProperties, err = freeFormObjectToState(state.CatalogProperties, ic.CatalogProperties); err != nil {
 		return fmt.Errorf("failed to set catalog_properties: %w", err)
+	}
+	if state.ResponsesDefaults, err = freeFormObjectToState(state.ResponsesDefaults, ic.ResponsesDefaults); err != nil {
+		return fmt.Errorf("failed to set responses_defaults: %w", err)
+	}
+
+	state.MaxInputAttachments = int64Value(ic.MaxInputAttachments)
+	state.Intro = stringValue(ic.Intro)
+	state.Reference = stringValue(ic.Reference)
+	state.OverrideName = stringValue(ic.OverrideName)
+	state.BaseURL = stringValue(ic.BaseURL)
+	state.ResponsesEndpoint = stringValue(ic.ResponsesEndpoint)
+
+	for _, list := range []struct {
+		name   string
+		value  *[]string
+		target *types.Set
+	}{
+		{"dependencies", ic.Dependencies, &state.Dependencies},
+		{"description_keywords", ic.DescriptionKeywords, &state.DescriptionKeywords},
+		{"input_attachment_types", ic.InputAttachmentTypes, &state.InputAttachmentTypes},
+		{"interceptors", ic.Interceptors, &state.Interceptors},
+	} {
+		value, err := stringSetFromAPI(ctx, list.value)
+		if err != nil {
+			return fmt.Errorf("failed to set %s: %w", list.name, err)
+		}
+		*list.target = value
 	}
 	return nil
 }

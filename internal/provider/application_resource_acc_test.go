@@ -185,12 +185,118 @@ func TestAccApplication_endpointXorSchema(t *testing.T) {
 		PreCheck:                 func() { accPreCheck(t) },
 		ProtoV6ProviderFactories: accProviderFactories,
 		Steps: []resource.TestStep{
-			{Config: cfg(""), PlanOnly: true, ExpectError: regexp.MustCompile(`one \(and only one\)`)},
+			{Config: cfg(""), PlanOnly: true, ExpectError: regexp.MustCompile(`nothing to run`)},
 			{
 				Config:      cfg("  endpoint = \"http://e\"\n  application_type_schema_id = \"https://s/x\"\n"),
 				PlanOnly:    true,
-				ExpectError: regexp.MustCompile(`one \(and only one\)`),
+				ExpectError: regexp.MustCompile(`cannot be set together`),
 			},
+		},
+	})
+}
+
+func accApplicationFullConfig(path, secret string) string {
+	return accProviderConfig() + fmt.Sprintf(`
+resource "aidial_application" "i" {
+  bucket   = "platform"
+  path     = %[1]q
+  endpoint = "http://example.invalid/chat"
+
+  input_attachment_types       = ["*/*"]
+  description_keywords         = ["acc", "nested"]
+  dependencies                 = ["acc-model"]
+  max_input_attachments        = 3
+  allow_user_external_services = true
+  intro                        = "hello"
+  responses_endpoint           = "http://example.invalid/responses"
+  responses_defaults = {
+    temperature = 0.5
+  }
+
+  mcp = {
+    endpoint  = "http://example.invalid/mcp"
+    transport = "HTTP"
+    mcp_apps = {
+      domain_override = "apps.example.invalid"
+    }
+  }
+
+  routes = {
+    static = {
+      paths = ["/acc/static"]
+      response = {
+        status = 200
+        body   = "ok"
+      }
+    }
+    proxied = {
+      paths   = ["/acc/proxied"]
+      methods = ["GET"]
+      upstreams = [{
+        endpoint = "http://example.invalid/up"
+        key      = "upstream-key"
+        tier     = 0
+        weight   = 1
+      }]
+    }
+  }
+
+  external_services = {
+    oauth = {
+      display_name = "OAuth service"
+      auth_settings = {
+        authentication_type    = "OAUTH"
+        client_id              = "acc-client"
+        client_secret          = %[2]q
+        authorization_endpoint = "http://example.invalid/authorize"
+        token_endpoint         = "http://example.invalid/token"
+        scopes_supported       = ["read"]
+      }
+    }
+  }
+}
+
+data "aidial_application" "i" {
+  bucket = aidial_application.i.bucket
+  path   = aidial_application.i.path
+}
+`, path, secret)
+}
+
+// TestAccApplication_fullFields applies mcp, routes and external_services
+// against a real Core, then re-plans to prove Core's defaults cause no churn.
+func TestAccApplication_fullFields(t *testing.T) {
+	path := accPath(t)
+	const res, ds = "aidial_application.i", "data.aidial_application.i"
+	config := accApplicationFullConfig(path, "secret-12345")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { accPreCheck(t) },
+		ProtoV6ProviderFactories: accProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(res, "input_attachment_types.#", "1"),
+					resource.TestCheckResourceAttr(res, "description_keywords.#", "2"),
+					resource.TestCheckResourceAttr(res, "dependencies.#", "1"),
+					resource.TestCheckResourceAttr(res, "max_input_attachments", "3"),
+					resource.TestCheckResourceAttr(res, "allow_user_external_services", "true"),
+					resource.TestCheckResourceAttr(res, "mcp.transport", "HTTP"),
+					resource.TestCheckResourceAttr(res, "mcp.config_delivery", "META"),
+					resource.TestCheckResourceAttr(res, "mcp.forward_per_request_key", "true"),
+					resource.TestCheckResourceAttr(res, "mcp.mcp_apps.domain_override", "apps.example.invalid"),
+					resource.TestCheckResourceAttr(res, "routes.%", "2"),
+					resource.TestCheckResourceAttr(res, "routes.static.response.body", "ok"),
+					resource.TestCheckResourceAttr(res, "routes.proxied.upstreams.0.key", "upstream-key"),
+					resource.TestCheckResourceAttr(res, "external_services.oauth.auth_settings.client_secret", "secret-12345"),
+					resource.TestCheckResourceAttr(ds, "mcp.endpoint", "http://example.invalid/mcp"),
+					resource.TestCheckResourceAttr(ds, "routes.%", "2"),
+					resource.TestCheckNoResourceAttr(ds, "external_services.oauth.auth_settings.client_secret"),
+				),
+			},
+			{Config: config, PlanOnly: true}, // Core's defaults and the retained secrets cause no diff
+			{Config: accApplicationFullConfig(path, "rotated-secret-1"), Check: resource.TestCheckResourceAttr(res, "external_services.oauth.auth_settings.client_secret", "rotated-secret-1")},
 		},
 	})
 }

@@ -28,10 +28,23 @@ type Interceptor struct {
 	CatalogSchemaID  *string                   `json:"catalogSchemaId,omitempty"`
 	Features         *ModelFeatures            `json:"features,omitempty"`
 	Interfaces       map[string]ModelInterface `json:"interfaces,omitempty"`
+
+	Dependencies         *[]string `json:"dependencies,omitempty"`
+	DescriptionKeywords  *[]string `json:"descriptionKeywords,omitempty"`
+	InputAttachmentTypes *[]string `json:"inputAttachmentTypes,omitempty"`
+	Interceptors         *[]string `json:"interceptors,omitempty"`
+	MaxInputAttachments  *int64    `json:"maxInputAttachments,omitempty"`
+	Intro                *string   `json:"intro,omitempty"`
+	Reference            *string   `json:"reference,omitempty"`
+	OverrideName         *string   `json:"overrideName,omitempty"`
+	BaseURL              *string   `json:"baseUrl,omitempty"`
+	ResponsesEndpoint    *string   `json:"responsesEndpoint,omitempty"`
 	// Defaults and CatalogProperties are free-form objects (MapStringObject in
 	// the API), passed through as-is.
 	Defaults          json.RawMessage `json:"defaults,omitempty"`
 	CatalogProperties json.RawMessage `json:"catalogProperties,omitempty"`
+	// ResponsesDefaults is a free-form object like Defaults, applied to Responses API requests.
+	ResponsesDefaults json.RawMessage `json:"responsesDefaults,omitempty"`
 }
 
 func (c *Client) interceptorURL(bucket, path string) string {
