@@ -4,6 +4,12 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## Unreleased
 
+## 0.3.3 - 2026-11-17
+
+### Added
+
+- `aidial_model` and the `aidial_model` and `aidial_file_model` data sources: `deprecation_date`, `end_of_service` and `provider_name` (Core's `provider`), which DIAL Core 0.50.2 adds to models. The OpenAPI contract and the default Core image for tests are now 0.50.2.
+
 ## 0.3.2 - 2026-11-17
 
 ### Changed

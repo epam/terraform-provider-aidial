@@ -108,11 +108,13 @@ resource "aidial_model" "example" {
 - `default_headers` (Map of String)
 - `defaults` (Dynamic) Default request parameters merged into every request to the model (free-form object, sent to DIAL as-is), e.g. max_tokens, custom_fields, tools.
 - `dependencies` (Set of String)
+- `deprecation_date` (String)
 - `description` (String) Model description.
 - `description_keywords` (Set of String)
 - `display_name` (String) Human-readable model name.
 - `display_version` (String)
 - `embedding_dimensions` (Number) Number of dimensions of the embeddings returned by an embedding model.
+- `end_of_service` (String)
 - `endpoint` (String) Model API endpoint.
 - `features` (Attributes) (see [below for nested schema](#nestedatt--features))
 - `fields_hashing_order` (Set of String) Field paths used to compute a stable hash of the request body, for example for caching.
@@ -128,6 +130,7 @@ resource "aidial_model" "example" {
 - `name` (String) Model name sent in the DIAL API request body. DIAL Core ignores it and derives the name from path, so it can be omitted; then it is read back from the API.
 - `override_name` (String)
 - `pricing` (Attributes) (see [below for nested schema](#nestedatt--pricing))
+- `provider_name` (String)
 - `reference` (String)
 - `responses_defaults` (Dynamic) Default request parameters merged into every Responses API request to the model (free-form object, sent to DIAL as `responsesDefaults`).
 - `responses_endpoint` (String)

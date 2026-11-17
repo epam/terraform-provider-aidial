@@ -21,7 +21,7 @@ set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # Default image tag: the release the checked-in OpenAPI contract comes from.
 # Rewritten by scripts/update-openapi.sh; override with CORE_VERSION.
-DEFAULT_CORE_VERSION=0.50.1
+DEFAULT_CORE_VERSION=0.50.2
 export CORE_VERSION="${CORE_VERSION:-$DEFAULT_CORE_VERSION}"
 export CORE_PORT="${CORE_PORT:-8080}"
 export CORE_BIND="${CORE_BIND:-0.0.0.0}"

@@ -22,6 +22,7 @@ The schema SHALL include:
 - `description`, `endpoint` (optional, computed)
 - `user_roles` (optional, computed, set of strings)
 - `responses_endpoint`, `display_version`, `icon_url`, `reference` (optional, computed)
+- `deprecation_date`, `end_of_service` (optional, strings in the format DIAL Core accepts, e.g. an ISO date) and `provider_name` (optional, Core's `provider`; Terraform reserves `provider` as an attribute name), added with DIAL Core 0.50.2; not computed, unset means null in Core
 - `forward_auth_token` (optional, computed, bool)
 - `max_retry_attempts` (optional, computed, int)
 - `author` (optional, computed)

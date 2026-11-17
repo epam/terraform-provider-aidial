@@ -651,6 +651,9 @@ type Model struct {
 	IconURL              *string                   `json:"iconUrl,omitempty"`
 	Intro                *string                   `json:"intro,omitempty"`
 	Reference            *string                   `json:"reference,omitempty"`
+	DeprecationDate      *string                   `json:"deprecationDate,omitempty"`
+	EndOfService         *string                   `json:"endOfService,omitempty"`
+	Provider             *string                   `json:"provider,omitempty"`
 	ForwardAuthToken     *bool                     `json:"forwardAuthToken,omitempty"`
 	MaxRetryAttempts     *int64                    `json:"maxRetryAttempts,omitempty"`
 	MaxInputAttachments  *int64                    `json:"maxInputAttachments,omitempty"`

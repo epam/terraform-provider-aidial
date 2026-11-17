@@ -37,11 +37,13 @@ data "aidial_file_model" "gpt5" {
 - `default_headers` (Map of String) Additional headers sent with every request to the model's endpoint.
 - `defaults` (Dynamic) Default request parameters merged into every request to the model (free-form object).
 - `dependencies` (Set of String)
+- `deprecation_date` (String)
 - `description` (String) Model description.
 - `description_keywords` (Set of String)
 - `display_name` (String) Human-readable model name.
 - `display_version` (String)
 - `embedding_dimensions` (Number) Number of dimensions of the embeddings returned by an embedding model.
+- `end_of_service` (String)
 - `endpoint` (String) Model API endpoint.
 - `features` (Attributes) (see [below for nested schema](#nestedatt--features))
 - `fields_hashing_order` (Set of String) Field paths used to compute a stable hash of the request body, for example for caching.
@@ -56,6 +58,7 @@ data "aidial_file_model" "gpt5" {
 - `max_retry_attempts` (Number)
 - `override_name` (String) Overrides the model name presented to clients.
 - `pricing` (Attributes) (see [below for nested schema](#nestedatt--pricing))
+- `provider_name` (String)
 - `reference` (String)
 - `responses_defaults` (Dynamic) Default request parameters merged into every Responses API request to the model (free-form object).
 - `responses_endpoint` (String)
