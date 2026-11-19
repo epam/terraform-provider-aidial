@@ -6,12 +6,12 @@ import (
 	"strings"
 
 	"github.com/epam/terraform-provider-aidial/internal/client"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -237,13 +237,14 @@ func (r *modelResource) Schema(_ context.Context, _ resource.SchemaRequest, resp
 				Description: "Default request parameters merged into every Responses API request to the model (free-form object, sent to DIAL as `responsesDefaults`).",
 			},
 			"created_at": schema.Int64Attribute{
-				Computed:      true,
-				Description:   "Creation time of the model (Unix epoch, as reported by DIAL Core).",
-				PlanModifiers: []planmodifier.Int64{int64planmodifier.UseStateForUnknown()},
+				Optional:    true,
+				Description: "Creation time of the model (Unix epoch in milliseconds, sent to DIAL as `createdAt`). DIAL Core stores the value as given and never sets it itself: omitting it clears it, and a value set outside Terraform is removed on the next apply unless it is configured here.",
+				Validators:  []validator.Int64{int64validator.AtLeast(0)},
 			},
 			"updated_at": schema.Int64Attribute{
-				Computed:    true,
-				Description: "Last update time of the model (Unix epoch, as reported by DIAL Core).",
+				Optional:    true,
+				Description: "Last update time of the model (Unix epoch in milliseconds, sent to DIAL as `updatedAt`). DIAL Core stores the value as given and never sets it itself: omitting it clears it, and a value set outside Terraform is removed on the next apply unless it is configured here.",
+				Validators:  []validator.Int64{int64validator.AtLeast(0)},
 			},
 			"base_url": schema.StringAttribute{
 				Optional:    true,
@@ -466,6 +467,8 @@ func modelFromPlan(ctx context.Context, plan modelResourceModel) (*client.Model,
 		OverrideName:        stringPointer(plan.OverrideName),
 		BaseURL:             stringPointer(plan.BaseURL),
 		EmbeddingDimensions: int64Pointer(plan.EmbeddingDimensions),
+		CreatedAt:           int64Pointer(plan.CreatedAt),
+		UpdatedAt:           int64Pointer(plan.UpdatedAt),
 	}
 
 	for _, list := range []struct {

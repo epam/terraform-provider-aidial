@@ -105,6 +105,7 @@ resource "aidial_model" "example" {
 - `base_url` (String) Model-level base URL (sent to DIAL as `baseUrl`). Completes `interfaces` entries that declare no `base_url`; on its own it serves only the interface types declared in `interfaces`.
 - `catalog_properties` (Dynamic) Catalog metadata of the model (free-form object, sent to DIAL as `catalogProperties`), e.g. provider, vendor, license, knowledgeCutoffDate, parameters.
 - `catalog_schema_id` (String) URI (`$id`) of the catalog schema describing `catalog_properties`, e.g. the `schema_id` of an `aidial_catalog_schema`.
+- `created_at` (Number) Creation time of the model (Unix epoch in milliseconds, sent to DIAL as `createdAt`). DIAL Core stores the value as given and never sets it itself: omitting it clears it, and a value set outside Terraform is removed on the next apply unless it is configured here.
 - `default_headers` (Map of String)
 - `defaults` (Dynamic) Default request parameters merged into every request to the model (free-form object, sent to DIAL as-is), e.g. max_tokens, custom_fields, tools.
 - `dependencies` (Set of String)
@@ -135,16 +136,15 @@ resource "aidial_model" "example" {
 - `responses_defaults` (Dynamic) Default request parameters merged into every Responses API request to the model (free-form object, sent to DIAL as `responsesDefaults`).
 - `responses_endpoint` (String)
 - `tokenizer_model` (String) Model whose tokenizer DIAL Core uses to count tokens for this model (tokenizerModel in the API), e.g. gpt-4-0314.
+- `updated_at` (Number) Last update time of the model (Unix epoch in milliseconds, sent to DIAL as `updatedAt`). DIAL Core stores the value as given and never sets it itself: omitting it clears it, and a value set outside Terraform is removed on the next apply unless it is configured here.
 - `upstreams` (Attributes List) (see [below for nested schema](#nestedatt--upstreams))
 - `user_roles` (Set of String) Roles allowed to use the model.
 
 ### Read-Only
 
 - `api_name` (String) Canonical model name returned by the DIAL API.
-- `created_at` (Number) Creation time of the model (Unix epoch, as reported by DIAL Core).
 - `id` (String) The ID of this resource.
 - `status` (String) Model status returned by the DIAL API.
-- `updated_at` (Number) Last update time of the model (Unix epoch, as reported by DIAL Core).
 
 <a id="nestedatt--features"></a>
 ### Nested Schema for `features`
