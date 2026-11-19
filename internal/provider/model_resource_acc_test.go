@@ -166,3 +166,36 @@ resource "aidial_model" "t" {
 		},
 	})
 }
+
+func TestAccModel_timestamps(t *testing.T) {
+	path := accPath(t)
+	cfg := func(extra string) string {
+		return accProviderConfig() + fmt.Sprintf(`
+resource "aidial_model" "t" {
+  bucket       = "platform"
+  path         = %q
+  name         = %q
+  type         = "CHAT"
+  display_name = "acc"
+  endpoint     = "https://example.invalid/v1/chat/completions"
+  %s
+}
+`, path, path, extra)
+	}
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { accPreCheck(t) },
+		ProtoV6ProviderFactories: accProviderFactories,
+		Steps: []resource.TestStep{
+			{Config: cfg("created_at = 1111\n  updated_at = 1630454400000"), Check: resource.ComposeTestCheckFunc(
+				resource.TestCheckResourceAttr("aidial_model.t", "created_at", "1111"),
+				resource.TestCheckResourceAttr("aidial_model.t", "updated_at", "1630454400000"),
+			)},
+			accImportStep("aidial_model.t"),
+			{Config: cfg("created_at = 1111\n  updated_at = 1700000000000"), Check: resource.TestCheckResourceAttr("aidial_model.t", "updated_at", "1700000000000")},
+			{Config: cfg(""), Check: resource.ComposeTestCheckFunc(
+				resource.TestCheckNoResourceAttr("aidial_model.t", "created_at"),
+				resource.TestCheckNoResourceAttr("aidial_model.t", "updated_at"),
+			)},
+		},
+	})
+}

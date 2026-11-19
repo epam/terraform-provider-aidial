@@ -657,3 +657,59 @@ func TestModelInterfacesKeysAreValidated(t *testing.T) {
 		}
 	}
 }
+
+func TestModelFromPlanTimestamps(t *testing.T) {
+	plan := newModelPlan(t)
+	plan.CreatedAt = types.Int64Value(1111)
+	plan.UpdatedAt = types.Int64Value(1630454400000)
+
+	model, err := modelFromPlan(context.Background(), plan)
+	if err != nil {
+		t.Fatalf("modelFromPlan: %v", err)
+	}
+	body, err := json.Marshal(model)
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	if !strings.Contains(string(body), `"createdAt":1111`) || !strings.Contains(string(body), `"updatedAt":1630454400000`) {
+		t.Fatalf("expected createdAt and updatedAt in request body, got %s", body)
+	}
+
+	plan.CreatedAt = types.Int64Null()
+	plan.UpdatedAt = types.Int64Null()
+	model, err = modelFromPlan(context.Background(), plan)
+	if err != nil {
+		t.Fatalf("modelFromPlan: %v", err)
+	}
+	body, err = json.Marshal(model)
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	if strings.Contains(string(body), "createdAt") || strings.Contains(string(body), "updatedAt") {
+		t.Fatalf("expected timestamps omitted when unset, got %s", body)
+	}
+}
+
+func TestModelTimestampsSchema(t *testing.T) {
+	resp := &resource.SchemaResponse{}
+	(&modelResource{}).Schema(context.Background(), resource.SchemaRequest{}, resp)
+
+	for _, name := range []string{"created_at", "updated_at"} {
+		attr, ok := resp.Schema.Attributes[name].(schema.Int64Attribute)
+		if !ok {
+			t.Fatalf("%s is not an Int64Attribute", name)
+		}
+		if !attr.Optional || attr.Computed {
+			t.Fatalf("%s must be optional and not computed", name)
+		}
+		for value, wantErr := range map[int64]bool{-1: true, 0: false, 1630454400000: false} {
+			vresp := &validator.Int64Response{}
+			for _, v := range attr.Validators {
+				v.ValidateInt64(context.Background(), validator.Int64Request{Path: path.Root(name), ConfigValue: types.Int64Value(value)}, vresp)
+			}
+			if vresp.Diagnostics.HasError() != wantErr {
+				t.Fatalf("%s=%d: error=%v, want %v", name, value, vresp.Diagnostics.HasError(), wantErr)
+			}
+		}
+	}
+}
