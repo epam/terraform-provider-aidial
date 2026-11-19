@@ -4,6 +4,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## Unreleased
 
+## 0.3.4 - 2026-11-19
+
 ### Changed
 
 - `aidial_model`: `created_at` and `updated_at` are now optional, writable attributes (Unix epoch milliseconds, at least 0) instead of read-only. DIAL Core stores them as given and never sets them itself. A model whose `created_at` or `updated_at` was set outside Terraform now plans an update that clears the value on the next apply, unless the configuration sets it. Models created by this provider are unaffected. The data sources still expose both as read-only.
